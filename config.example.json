@@ -1,0 +1,16 @@
+{
+	"Hello": {
+		"command": "/usr/bin/ls",
+		"autostart": true,
+		"autorestart": true,
+		"stderr_log": "var/log",
+		"stdout_log": "log"
+	},
+	"Hello2": {
+		"command": "/usr/bin/ls",
+		"autostart": false,
+		"autorestart": true,
+		"stderr_log": "var/log",
+		"stdout_log": "log"
+	}
+}
