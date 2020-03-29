@@ -8,12 +8,12 @@ import (
 	"miikka.xyz/linedit"
 )
 
-func readKey(reader *bufio.Reader) rune {
-	char, _, err := reader.ReadRune()
+func readKey(reader *bufio.Reader) (rune, int) {
+	char, size, err := reader.ReadRune()
 	if err != nil {
 		fmt.Println("Error reading key: ", err)
 	}
-	return char
+	return char, size
 }
 
 func main() {
@@ -24,14 +24,18 @@ func main() {
 	tty.Set(os.Stdin)
 	// cursor.MoveRight(10)
 
-	reader := bufio.NewReader(os.Stdin)
+	var b []byte = make([]byte, 6)
 
 	for {
-		key := readKey(reader)
-		if key == 'x' {
+		n, _ := os.Stdin.Read(b)
+		code := 0
+		for i := 0; i < n; i++ {
+			code += int(b[i])
+		}
+		if code == 'x' {
 			break
-		} else {
-			fmt.Println(key)
+		} else if int(b[0]) >= int('A') && int(b[0]) < int('z') {
+			fmt.Print(string(code))
 		}
 	}
 }
