@@ -22,9 +22,8 @@ func main() {
 	tty := backup
 	tty.Raw()
 	tty.Set(os.Stdin)
-	// cursor.MoveRight(10)
 
-	var b []byte = make([]byte, 6)
+	var b []byte = make([]byte, 5)
 
 	for {
 		n, _ := os.Stdin.Read(b)
@@ -36,6 +35,11 @@ func main() {
 			break
 		} else if int(b[0]) >= int('A') && int(b[0]) < int('z') {
 			fmt.Print(string(code))
+		} else if code >= 183 && code <= 186 {
+			// cursor.MoveRight(10)
+			fmt.Print(string(b))
+		} else {
+			fmt.Println(code)
 		}
 	}
 }
