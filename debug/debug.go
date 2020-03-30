@@ -23,7 +23,7 @@ func Write(win *tty.Terminal, input string, debug bool) {
 	if !debug {
 		return
 	}
-	file.WriteString(fmt.Sprintf("Hello form debug! POS: %d, STR: %s\n", win.X, input))
+	file.WriteString(fmt.Sprintf("Hello form debug! POS: %d, STR: %s\n", win.Pos, input))
 }
 
 func Close() {
