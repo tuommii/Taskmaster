@@ -6,7 +6,7 @@ build:
 	go build -o $(BIN_DIR)/taskmaster cmd/taskmaster/main.go
 
 run: build
-	./bin/taskmaster
+	./bin/taskmaster -debug
 
 deploy:
 	# scp -P 3001 run.sh yoda@46.101.105.101:/home/yoda/nolife/run.sh

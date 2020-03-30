@@ -19,7 +19,10 @@ func Open() {
 	}
 }
 
-func Write(win *tty.Terminal, input string) {
+func Write(win *tty.Terminal, input string, debug bool) {
+	if !debug {
+		return
+	}
 	file.WriteString(fmt.Sprintf("Hello form debug! POS: %d, STR: %s\n", win.X, input))
 }
 

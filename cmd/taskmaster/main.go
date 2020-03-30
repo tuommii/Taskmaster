@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bufio"
+	"flag"
 	"fmt"
 	"os"
 
@@ -9,19 +9,17 @@ import (
 	"miikka.xyz/tty"
 )
 
-func readKey(reader *bufio.Reader) rune {
-	char, _, err := reader.ReadRune()
-	if err != nil {
-		fmt.Println("Error reading key: ", err)
-	}
-	return char
-}
-
 var str = ""
 
 func main() {
 
-	debug.Open()
+	debugFlag := flag.Bool("debug", false, "Write debug to file")
+	flag.Parse()
+
+	if *debugFlag {
+		debug.Open()
+		defer debug.Close()
+	}
 
 	backup, err := tty.GetMode(os.Stdin)
 	if err != nil {
@@ -68,7 +66,6 @@ func main() {
 		} else {
 			fmt.Println(code)
 		}
-		go debug.Write(win, str)
+		go debug.Write(win, str, *debugFlag)
 	}
-	debug.Close()
 }
