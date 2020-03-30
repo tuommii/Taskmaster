@@ -5,19 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"miikka.xyz/linedit"
-	"miikka.xyz/screen"
+	"miikka.xyz/debug"
+	"miikka.xyz/tty"
 )
-
-// Watch debug file: tail -f /tmp/taskmaster_debug
-func debug(win *screen.Terminal, input string) {
-	file, err := os.OpenFile("/tmp/taskmaster_debug", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		fmt.Println("Debugging failed!")
-	}
-	defer file.Close()
-	file.WriteString(fmt.Sprintf("POS: %d, STR: %s\n", win.X, input))
-}
 
 func readKey(reader *bufio.Reader) rune {
 	char, _, err := reader.ReadRune()
@@ -30,17 +20,24 @@ func readKey(reader *bufio.Reader) rune {
 var str = ""
 
 func main() {
-	backup, _ := linedit.Attr(os.Stdin)
-	// Restore terminal to same mode it was
-	defer backup.Set(os.Stdin)
 
-	tty := backup
-	tty.Raw()
-	tty.Set(os.Stdin)
+	debug.Open()
+
+	backup, err := tty.GetMode(os.Stdin)
+	if err != nil {
+		fmt.Println("Can't read file mode!", err)
+		os.Exit(1)
+	}
+	// Restore terminal to same mode it was
+	defer backup.UseTo(os.Stdin)
+
+	activeMode := backup
+	activeMode.ToRaw()
+	activeMode.UseTo(os.Stdin)
 
 	var b []byte = make([]byte, 5)
 
-	win := screen.New()
+	win := tty.New()
 	win.Clear()
 	win.MoveCursor(0, 0)
 
@@ -71,6 +68,7 @@ func main() {
 		} else {
 			fmt.Println(code)
 		}
-		debug(win, str)
+		go debug.Write(win, str)
 	}
+	debug.Close()
 }
