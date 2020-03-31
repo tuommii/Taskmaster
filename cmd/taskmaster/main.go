@@ -12,26 +12,6 @@ import (
 	"miikka.xyz/tty"
 )
 
-var helpCommand = &cli.Command{Name: "help"}
-var statusCommand = &cli.Command{Name: "status"}
-
-func help(cmd *cli.Command, args []string) {
-	fmt.Println(cmd.Name)
-	fmt.Println("Etkö tiedä mitä auttaminen on!")
-	for _, arg := range args {
-		fmt.Println(arg)
-	}
-}
-
-func init() {
-	helpCommand.Run = help
-	statusCommand.Run = help
-	cli.Commands = []*cli.Command{
-		helpCommand,
-		statusCommand,
-	}
-}
-
 // TODO: return interface
 func parseInput(input string) {
 	fmt.Println("")

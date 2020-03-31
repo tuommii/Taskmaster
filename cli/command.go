@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-// Commands ...
+// Commands holds all commands...
 var Commands []*Command
 
 // Command ...
@@ -49,4 +49,9 @@ func Exit() {
 		f()
 	}
 	os.Exit(exitStatus)
+}
+
+func init() {
+	Commands = append(Commands, HelpCmd)
+	Commands = append(Commands, StatusCmd)
 }
