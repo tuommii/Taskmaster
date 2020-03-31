@@ -11,8 +11,8 @@ var HelpCmd = &Command{
 
 // Help ...
 func help(cmd *Command, args []string) {
-	fmt.Println("HELP!")
+	fmt.Print("\nHELP!")
 	for _, arg := range args {
-		fmt.Println("Help", arg)
+		fmt.Print("\nHelp ", arg)
 	}
 }

@@ -12,11 +12,20 @@ import (
 	"miikka.xyz/tty"
 )
 
-// TODO: return interface
 func parseInput(input string) {
-	fmt.Println("")
-	arr := strings.Split(input, " ")
-	for _, name := range arr {
+	if len(input) == 0 {
+		return
+	}
+	tokens := strings.Split(input, " ")
+	for _, cmd := range cli.Commands {
+		if tokens[0] == cmd.Name {
+			cmd.Run(cmd, tokens[1:])
+		}
+	}
+}
+
+func runCommand(args []string) {
+	for _, name := range args {
 		for _, cmd := range cli.Commands {
 			if name == cmd.Name {
 				// fmt.Printf(name)

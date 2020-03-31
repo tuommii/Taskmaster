@@ -5,10 +5,10 @@ import (
 	"sync"
 )
 
-// Commands holds all commands...
+// Commands holds all commands
 var Commands []*Command
 
-// Command ...
+// Command represents command
 type Command struct {
 	Run func(cmd *Command, args []string)
 	// Shown on available commands list
@@ -40,10 +40,12 @@ func setExitStatus(n int) {
 	exitMu.Unlock()
 }
 
+// GetExitStatus return exit status
 func GetExitStatus() int {
 	return exitStatus
 }
 
+// Exit calls all exit functions and exits with given status
 func Exit() {
 	for _, f := range atExitFuncs {
 		f()
@@ -51,6 +53,8 @@ func Exit() {
 	os.Exit(exitStatus)
 }
 
+// TODO: This could also be dynamic
+// Add all commands to slice
 func init() {
 	Commands = append(Commands, HelpCmd)
 	Commands = append(Commands, StatusCmd)
