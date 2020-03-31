@@ -21,6 +21,15 @@ type command interface {
 	run(args []string)
 }
 
+type helpCmd struct {
+	usage string
+}
+
+func (cmd helpCmd) run(args []string) {
+	cmd.usage = "sasasa"
+	fmt.Printf("HEELELELELELEP!")
+}
+
 func fail(code int, msg string, args ...interface{}) {
 	if code == 0 {
 		fmt.Fprintf(os.Stdout, msg+"\n", args...)
@@ -31,16 +40,19 @@ func fail(code int, msg string, args ...interface{}) {
 }
 
 // TODO: return interface
-func parseInput(input string) {
+func parseInput(input string) command {
+	var help helpCmd
 	fmt.Println("")
 	arr := strings.Split(input, " ")
 	switch arr[0] {
 	case "help":
-		fmt.Println("Help!")
+		return help
 	case "exit":
 		fmt.Println("Exit!")
+		return help
 	default:
 		fmt.Println("Unknown command!")
+		return help
 	}
 }
 
@@ -106,7 +118,8 @@ func main() {
 			bytes := win.Buffer.Bytes()
 			input := string(bytes[win.PromptLen:])
 
-			parseInput(input)
+			cmd := parseInput(input)
+			cmd.run(os.Args)
 			clear(win)
 
 			activeMode.ToRaw()
