@@ -4,6 +4,7 @@ package tty
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"sync"
 )
@@ -29,11 +30,12 @@ type Terminal struct {
 	PromptLen int
 	InputLen  int
 	LinesUsed int
+	Buffer    *bytes.Buffer
 }
 
 func (t *Terminal) Redraw() {
 	rows := (t.PromptLen + t.InputLen + t.Cols - 1) / t.Cols
-	t.clearRows()
+	t.ClearRows()
 	fmt.Printf(t.Input)
 	if t.Pos > 0 && t.Pos == t.InputLen && (t.Pos+t.PromptLen)%t.Cols == 0 {
 		fmt.Print("\n\r")
@@ -64,7 +66,7 @@ func (t *Terminal) EraseInput() {
 	t.LinesUsed = 1
 }
 
-func (t *Terminal) clearRows() {
+func (t *Terminal) ClearRows() {
 	rows := (t.PromptLen + t.InputLen + t.Cols - 1) / t.Cols
 	rpos := (t.PromptLen + t.OldPos + t.Cols) / t.Cols
 	oldRows := t.LinesUsed
@@ -96,7 +98,7 @@ func (t *Terminal) Reposition() {
 
 // New creates new screen instance
 func New() *Terminal {
-	term := &Terminal{Pos: 0, LinesUsed: 1, Cols: 80, Rows: 24, PromptLen: 0, Prompt: ""}
+	term := &Terminal{Pos: 0, LinesUsed: 1, Cols: 80, Rows: 24, PromptLen: 2, Prompt: "$>", Buffer: new(bytes.Buffer)}
 	return term
 }
 

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
 	"os"
@@ -20,7 +19,7 @@ func main() {
 		defer debug.Close()
 	}
 
-	// Dont touch this => restore terminal to same mode it was
+	// Dont edit this => restore terminal to same mode it was
 	defaultMode, err := tty.GetMode(os.Stdin)
 	if err != nil {
 		fmt.Println("Can't read file mode!", err)
@@ -35,6 +34,7 @@ func main() {
 
 	var b []byte = make([]byte, 5)
 	pos := 0
+	len := 0
 
 	win := tty.New()
 	win.Clear()
@@ -49,8 +49,9 @@ func main() {
 	fmt.Println("Viides")
 	win.Reposition()
 
-	buff := new(bytes.Buffer)
-
+	// PROMPT
+	win.Buffer.WriteString(win.Prompt)
+	fmt.Print(win.Buffer.String())
 	for {
 		n, _ := os.Stdin.Read(b)
 		code := 0
@@ -65,15 +66,14 @@ func main() {
 			pos--
 			// win.MoveCursorLeft(1)
 		} else if int(b[0]) >= 32 && int(b[0]) < 127 {
-			buff.WriteRune(rune(b[0]))
-			win.ResetLine()
-			fmt.Print(buff.String())
-			pos++
-			// win.Input = append(win.Input, string(code))
-			// win.InputLen++
-			// win.Input += string(b[0])
-			// win.Pos++
-			// win.Redraw()
+			if pos == len {
+				win.Buffer.WriteRune(rune(b[0]))
+				win.ResetLine()
+				fmt.Print(win.Buffer.String())
+				win.Pos++
+				win.InputLen++
+			} else {
+			}
 		} else if code == 183 {
 			win.MoveCursorUp(1)
 		} else if code == 184 {
@@ -81,8 +81,12 @@ func main() {
 		} else if code == 185 {
 			win.MoveCursorRight(1)
 		} else if code == 13 {
-			buff.Reset()
+			input := win.Buffer.Bytes()
+			fmt.Printf("\n\rINPUT WAS:%s\n\r", string(input[win.PromptLen:]))
 			win.Reposition()
+			win.Buffer.Reset()
+			win.Buffer.WriteString(win.Prompt)
+			fmt.Print(win.Buffer.String())
 		}
 		go debug.Write(win, win.Input, *debugFlag)
 	}
