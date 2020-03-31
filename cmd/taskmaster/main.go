@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"os"
@@ -8,15 +9,6 @@ import (
 	"miikka.xyz/debug"
 	"miikka.xyz/tty"
 )
-
-// For testing
-func list() {
-	fmt.Println("Eka")
-	fmt.Println("Toka")
-	fmt.Println("Kolmas")
-	fmt.Println("Neljas")
-	fmt.Println("Viides")
-}
 
 func main() {
 
@@ -42,11 +34,23 @@ func main() {
 	activeMode.UseTo(os.Stdin)
 
 	var b []byte = make([]byte, 5)
+	pos := 0
 
 	win := tty.New()
 	win.Clear()
-	win.MoveCursor(0, 0)
-	win.Redraw()
+	fmt.Println("Eka")
+	win.Reposition()
+	fmt.Println("Toka")
+	win.Reposition()
+	fmt.Println("Kolmas")
+	win.Reposition()
+	fmt.Println("Neljas")
+	win.Reposition()
+	fmt.Println("Viides")
+	win.Reposition()
+
+	buff := new(bytes.Buffer)
+
 	for {
 		n, _ := os.Stdin.Read(b)
 		code := 0
@@ -55,27 +59,30 @@ func main() {
 		}
 		if code == 'x' {
 			break
+		} else if code == 186 {
+			// fmt.Fprintf(buff, "\033[%dD", 1)
+			win.MoveCursorLeft(1)
+			pos--
+			// win.MoveCursorLeft(1)
 		} else if int(b[0]) >= 32 && int(b[0]) < 127 {
+			buff.WriteRune(rune(b[0]))
+			win.ResetLine()
+			fmt.Print(buff.String())
+			pos++
 			// win.Input = append(win.Input, string(code))
 			// win.InputLen++
-			win.Input += string(b[0])
-			win.Pos++
-			win.Redraw()
+			// win.Input += string(b[0])
+			// win.Pos++
+			// win.Redraw()
 		} else if code == 183 {
 			win.MoveCursorUp(1)
 		} else if code == 184 {
 			win.MoveCursorDown(1)
 		} else if code == 185 {
 			win.MoveCursorRight(1)
-		} else if code == 186 {
-			win.MoveCursorLeft(1)
 		} else if code == 13 {
-			// win.MoveCursorDown(1)
-			// win.ResetLine()
-			// fmt.Printf("Input was: [%s]\n", str)
-			win.EraseInput()
-			win.Redraw()
-			win.Redraw()
+			buff.Reset()
+			win.Reposition()
 		}
 		go debug.Write(win, win.Input, *debugFlag)
 	}
