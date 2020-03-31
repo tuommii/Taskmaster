@@ -25,7 +25,7 @@ type helpCmd struct {
 	usage string
 }
 
-func (cmd helpCmd) run(args []string) {
+func (cmd *helpCmd) run(args []string) {
 	cmd.usage = "sasasa"
 	fmt.Printf("HEELELELELELEP!")
 }
@@ -46,13 +46,13 @@ func parseInput(input string) command {
 	arr := strings.Split(input, " ")
 	switch arr[0] {
 	case "help":
-		return help
+		return &help
 	case "exit":
 		fmt.Println("Exit!")
-		return help
+		return &help
 	default:
 		fmt.Println("Unknown command!")
-		return help
+		return &help
 	}
 }
 
