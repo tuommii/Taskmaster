@@ -12,11 +12,11 @@ import (
 	"miikka.xyz/tty"
 )
 
-var helpCommand = cli.Command{Name: "help"}
-var statusCommand = cli.Command{Name: "status"}
-var cmds []*cli.Command
+var helpCommand = &cli.Command{Name: "help"}
+var statusCommand = &cli.Command{Name: "status"}
 
 func help(cmd *cli.Command, args []string) {
+	fmt.Println(cmd.Name)
 	fmt.Println("Etkö tiedä mitä auttaminen on!")
 	for _, arg := range args {
 		fmt.Println(arg)
@@ -26,8 +26,10 @@ func help(cmd *cli.Command, args []string) {
 func init() {
 	helpCommand.Run = help
 	statusCommand.Run = help
-	cmds = append(cmds, &helpCommand)
-	cmds = append(cmds, &statusCommand)
+	cli.Commands = []*cli.Command{
+		helpCommand,
+		statusCommand,
+	}
 }
 
 // TODO: return interface
@@ -35,7 +37,7 @@ func parseInput(input string) {
 	fmt.Println("")
 	arr := strings.Split(input, " ")
 	for _, name := range arr {
-		for _, cmd := range cmds {
+		for _, cmd := range cli.Commands {
 			if name == cmd.Name {
 				// fmt.Printf(name)
 				cmd.Run(cmd, []string{"Miikka"})

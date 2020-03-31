@@ -5,6 +5,9 @@ import (
 	"sync"
 )
 
+// Commands ...
+var Commands []*Command
+
 // Command ...
 type Command struct {
 	Run func(cmd *Command, args []string)
