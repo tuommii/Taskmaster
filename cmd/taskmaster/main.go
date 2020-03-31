@@ -6,53 +6,31 @@ import (
 	"os"
 	"strings"
 
+	"miikka.xyz/cli"
 	"miikka.xyz/debug"
 	"miikka.xyz/keyboard"
 	"miikka.xyz/tty"
 )
 
-var usage = `hello
+var helpCommand = cli.Command{Name: "help"}
+var statusCommand = cli.Command{Name: "status"}
+var cmds []*cli.Command
 
-testi1
-testi2
-`
-
-type command interface {
-	run(args []string)
-}
-
-type helpCmd struct {
-	usage string
-}
-
-func (cmd *helpCmd) run(args []string) {
-	cmd.usage = "sasasa"
-	fmt.Printf("HEELELELELELEP!")
-}
-
-func fail(code int, msg string, args ...interface{}) {
-	if code == 0 {
-		fmt.Fprintf(os.Stdout, msg+"\n", args...)
-	} else {
-		fmt.Fprintf(os.Stderr, msg+"\n", args...)
-	}
-	os.Exit(code)
+func init() {
+	cmds = append(cmds, &helpCommand)
+	cmds = append(cmds, &statusCommand)
 }
 
 // TODO: return interface
-func parseInput(input string) command {
-	var help helpCmd
+func parseInput(input string) {
 	fmt.Println("")
 	arr := strings.Split(input, " ")
-	switch arr[0] {
-	case "help":
-		return &help
-	case "exit":
-		fmt.Println("Exit!")
-		return &help
-	default:
-		fmt.Println("Unknown command!")
-		return &help
+	for _, name := range arr {
+		for _, cmd := range cmds {
+			if name == cmd.Name {
+				fmt.Printf(name)
+			}
+		}
 	}
 }
 
@@ -79,9 +57,6 @@ func main() {
 	activeMode.ToRaw()
 
 	// var b []byte = make([]byte, 5)
-	pos := 0
-	len := 0
-
 	win := tty.New()
 	win.Clear()
 	win.MoveCursor(0, 0)
@@ -92,34 +67,27 @@ func main() {
 	var code int
 	for {
 		code = keyboard.KeyPressed()
-		if code == 'x' {
-			break
-		} else if code == 186 {
-			win.MoveCursorLeft(1)
-			pos--
-			// win.MoveCursorLeft(1)
-		} else if code >= 32 && code < 127 {
-			if pos == len {
+		switch {
+		// ESC
+		case code == keyboard.Esc:
+			return
+		// IsPrintable
+		case keyboard.IsPrintable(code):
+			if win.Pos == win.InputLen {
 				win.Buffer.WriteRune(rune(code))
 				win.ResetLine()
 				fmt.Print(win.Buffer.String())
 				win.Pos++
 				win.InputLen++
 			} else {
+				// Insert
 			}
-		} else if code == 183 {
-			win.MoveCursorUp(1)
-		} else if code == 184 {
-			win.MoveCursorDown(1)
-		} else if code == 185 {
-			win.MoveCursorRight(1)
-		} else if code == 13 {
+		case code == keyboard.Enter:
 			defaultMode.ApplyMode()
 			bytes := win.Buffer.Bytes()
 			input := string(bytes[win.PromptLen:])
 
-			cmd := parseInput(input)
-			cmd.run(os.Args)
+			parseInput(input)
 			clear(win)
 
 			activeMode.ToRaw()

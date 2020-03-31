@@ -1,11 +1,13 @@
 package keyboard
 
-import "os"
+import (
+	"os"
+)
 
 // Keycodes
 const (
 	Tab       = 9
-	Enter     = 10
+	Enter     = 13
 	Esc       = 27
 	Left      = 186
 	Up        = 183
@@ -16,6 +18,14 @@ const (
 )
 
 var buffer = make([]byte, 5)
+
+// IsPrintable ...
+func IsPrintable(code int) bool {
+	if code >= 32 && code < 127 {
+		return true
+	}
+	return false
+}
 
 // KeyPressed returns code for pressed key
 func KeyPressed() int {
