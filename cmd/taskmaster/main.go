@@ -4,11 +4,45 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"miikka.xyz/debug"
 	"miikka.xyz/keyboard"
 	"miikka.xyz/tty"
 )
+
+var usage = `hello
+
+testi1
+testi2
+`
+
+type command interface {
+	run(args []string)
+}
+
+func fail(code int, msg string, args ...interface{}) {
+	if code == 0 {
+		fmt.Fprintf(os.Stdout, msg+"\n", args...)
+	} else {
+		fmt.Fprintf(os.Stderr, msg+"\n", args...)
+	}
+	os.Exit(code)
+}
+
+// TODO: return interface
+func parseInput(input string) {
+	fmt.Println("")
+	arr := strings.Split(input, " ")
+	switch arr[0] {
+	case "help":
+		fmt.Println("Help!")
+	case "exit":
+		fmt.Println("Exit!")
+	default:
+		fmt.Println("Unknown command!")
+	}
+}
 
 func main() {
 	// Debug to file if flags is set. In Makefile this flag is present
@@ -72,7 +106,7 @@ func main() {
 			bytes := win.Buffer.Bytes()
 			input := string(bytes[win.PromptLen:])
 
-			handleInput(input)
+			parseInput(input)
 			clear(win)
 
 			activeMode.ToRaw()
@@ -86,12 +120,4 @@ func clear(win *tty.Terminal) {
 	win.Reposition()
 	win.Buffer.WriteString(win.Prompt)
 	fmt.Print(win.Buffer.String())
-}
-
-func handleInput(input string) {
-	if input == "miikka" {
-
-		fmt.Printf("Dmksajka\thaajaj\n\n\nsfdfdfsd\t\n")
-
-	}
 }
