@@ -16,7 +16,16 @@ var helpCommand = cli.Command{Name: "help"}
 var statusCommand = cli.Command{Name: "status"}
 var cmds []*cli.Command
 
+func help(cmd *cli.Command, args []string) {
+	fmt.Println("Etkö tiedä mitä auttaminen on!")
+	for _, arg := range args {
+		fmt.Println(arg)
+	}
+}
+
 func init() {
+	helpCommand.Run = help
+	statusCommand.Run = help
 	cmds = append(cmds, &helpCommand)
 	cmds = append(cmds, &statusCommand)
 }
@@ -28,7 +37,8 @@ func parseInput(input string) {
 	for _, name := range arr {
 		for _, cmd := range cmds {
 			if name == cmd.Name {
-				fmt.Printf(name)
+				// fmt.Printf(name)
+				cmd.Run(cmd, []string{"Miikka"})
 			}
 		}
 	}
