@@ -27,11 +27,12 @@ func (t *Termios) ToRaw() {
 	t.Cflag |= unix.CS8
 	t.Cc[unix.VMIN] = 1
 	t.Cc[unix.VTIME] = 0
+	t.ApplyMode()
 }
 
-// UseTo activates mode to file.
-func (t *Termios) UseTo(file *os.File) error {
-	fd := file.Fd()
+// ApplyMode activates current config to STDIN.
+func (t *Termios) ApplyMode() error {
+	fd := os.Stdin.Fd()
 	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), uintptr(unix.TCSETS), uintptr(unsafe.Pointer(t)))
 	if errno != 0 {
 		return errno
@@ -39,10 +40,10 @@ func (t *Termios) UseTo(file *os.File) error {
 	return nil
 }
 
-// GetMode (terminal related) attributes from file.
-func GetMode(file *os.File) (Termios, error) {
+// GetMode returns current config.
+func GetMode() (Termios, error) {
 	var t Termios
-	fd := file.Fd()
+	fd := os.Stdin.Fd()
 	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), uintptr(unix.TCGETS), uintptr(unsafe.Pointer(&t)))
 	if errno != 0 {
 		return t, errno

@@ -20,17 +20,16 @@ func main() {
 	}
 
 	// Dont edit this => restore terminal to same mode it was
-	defaultMode, err := tty.GetMode(os.Stdin)
+	defaultMode, err := tty.GetMode()
 	if err != nil {
 		fmt.Println("Can't read file mode!", err)
 		os.Exit(1)
 	}
 	// Restoring
-	defer defaultMode.UseTo(os.Stdin)
+	defer defaultMode.ApplyMode()
 
 	activeMode := defaultMode
 	activeMode.ToRaw()
-	activeMode.UseTo(os.Stdin)
 
 	var b []byte = make([]byte, 5)
 	pos := 0
@@ -38,16 +37,17 @@ func main() {
 
 	win := tty.New()
 	win.Clear()
-	fmt.Println("Eka")
-	win.Reposition()
-	fmt.Println("Toka")
-	win.Reposition()
-	fmt.Println("Kolmas")
-	win.Reposition()
-	fmt.Println("Neljas")
-	win.Reposition()
-	fmt.Println("Viides")
-	win.Reposition()
+	win.MoveCursor(0, 0)
+	// fmt.Println("Eka")
+	// win.Reposition()
+	// fmt.Println("Toka")
+	// win.Reposition()
+	// fmt.Println("Kolmas")
+	// win.Reposition()
+	// fmt.Println("Neljas")
+	// win.Reposition()
+	// fmt.Println("Viides")
+	// win.Reposition()
 
 	// PROMPT
 	win.Buffer.WriteString(win.Prompt)
@@ -58,6 +58,7 @@ func main() {
 		for i := 0; i < n; i++ {
 			code += int(b[i])
 		}
+		win.KeyCode = code
 		if code == 'x' {
 			break
 		} else if code == 186 {
@@ -85,12 +86,11 @@ func main() {
 			input := string(bytes[win.PromptLen:])
 
 			if input == "miikka" {
-				defaultMode.UseTo(os.Stdin)
+				defaultMode.ApplyMode()
 
 				fmt.Printf("Dmksajka\thaajaj\n\n\nsfdfdfsd\t\n")
 
 				activeMode.ToRaw()
-				activeMode.UseTo(os.Stdin)
 			}
 
 			// fmt.Printf("\n\rINPUT WAS:%s\n\r", input)

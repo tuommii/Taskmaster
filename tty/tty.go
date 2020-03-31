@@ -22,6 +22,7 @@ type Terminal struct {
 	state
 	// Cursor x position
 	Pos       int
+	KeyCode   int
 	Input     string
 	Prompt    string
 	OldPos    int
