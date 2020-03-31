@@ -11,14 +11,15 @@ import (
 var file *os.File
 var err error
 
-// Open ...
-func Open() {
+// OpenFile ...
+func OpenFile() {
 	file, err = os.OpenFile("/tmp/taskmaster_debug", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		fmt.Println("Debugging failed!")
 	}
 }
 
+// Write ...
 func Write(win *tty.Terminal, input string, debug bool) {
 	if !debug {
 		return
@@ -26,6 +27,7 @@ func Write(win *tty.Terminal, input string, debug bool) {
 	file.WriteString(fmt.Sprintf("POS: [%d], INPUT_LEN: [%d], KEY_PRESSED: [%d]\n", win.Pos, win.InputLen, win.KeyCode))
 }
 
-func Close() {
+// CloseFile ...
+func CloseFile() {
 	file.Close()
 }

@@ -32,8 +32,7 @@ func (t *Termios) ToRaw() {
 
 // ApplyMode activates current config to STDIN.
 func (t *Termios) ApplyMode() error {
-	fd := os.Stdin.Fd()
-	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), uintptr(unix.TCSETS), uintptr(unsafe.Pointer(t)))
+	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(os.Stdin.Fd()), uintptr(unix.TCSETS), uintptr(unsafe.Pointer(t)))
 	if errno != 0 {
 		return errno
 	}
@@ -43,8 +42,7 @@ func (t *Termios) ApplyMode() error {
 // GetMode returns current config.
 func GetMode() (Termios, error) {
 	var t Termios
-	fd := os.Stdin.Fd()
-	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), uintptr(unix.TCGETS), uintptr(unsafe.Pointer(&t)))
+	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(os.Stdin.Fd()), uintptr(unix.TCGETS), uintptr(unsafe.Pointer(&t)))
 	if errno != 0 {
 		return t, errno
 	}
