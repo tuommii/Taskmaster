@@ -81,10 +81,21 @@ func main() {
 		} else if code == 185 {
 			win.MoveCursorRight(1)
 		} else if code == 13 {
-			input := win.Buffer.Bytes()
-			fmt.Printf("\n\rINPUT WAS:%s\n\r", string(input[win.PromptLen:]))
-			win.Reposition()
+			bytes := win.Buffer.Bytes()
+			input := string(bytes[win.PromptLen:])
+
+			if input == "miikka" {
+				defaultMode.UseTo(os.Stdin)
+
+				fmt.Printf("Dmksajka\thaajaj\n\n\nsfdfdfsd\t\n")
+
+				activeMode.ToRaw()
+				activeMode.UseTo(os.Stdin)
+			}
+
+			// fmt.Printf("\n\rINPUT WAS:%s\n\r", input)
 			win.Buffer.Reset()
+			win.Reposition()
 			win.Buffer.WriteString(win.Prompt)
 			fmt.Print(win.Buffer.String())
 		}
