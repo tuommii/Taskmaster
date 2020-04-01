@@ -12,12 +12,19 @@ import (
 	"taskmaster/tty"
 )
 
-func parseInput(input string) {
-	// taskmaster.Testi()
+func parseInput(input string) []string {
+	// taskmaster.RealTimeExample()
 	if len(input) == 0 {
-		return
+		return nil
 	}
 	tokens := strings.Split(input, " ")
+	return tokens
+}
+
+func runCommand(tokens []string) {
+	if len(tokens) == 0 {
+		return
+	}
 	for _, cmd := range cli.Commands {
 		if tokens[0] == cmd.Name {
 			cmd.Run(cmd, tokens[1:])
@@ -25,18 +32,15 @@ func parseInput(input string) {
 	}
 }
 
-func runCommand(args []string) {
-	for _, name := range args {
-		for _, cmd := range cli.Commands {
-			if name == cmd.Name {
-				// fmt.Printf(name)
-				cmd.Run(cmd, []string{"Miikka"})
-			}
-		}
+func init() {
+	if !tty.Supported(os.Stdin.Fd()) {
+		fmt.Print("Terminal not supported!")
+		os.Exit(1)
 	}
 }
 
 func main() {
+
 	// Debug to file if flags is set. In Makefile this flag is present
 	debugFlag := flag.Bool("debug", false, "Write debug to file")
 	flag.Parse()
@@ -44,7 +48,6 @@ func main() {
 		debug.OpenFile()
 		defer debug.CloseFile()
 	}
-
 	// Dont edit this, instead restore terminal to same mode
 	// than it was when exiting.
 	defaultMode, err := tty.GetMode()
@@ -59,7 +62,7 @@ func main() {
 	activeMode.ToRaw()
 
 	win := tty.New(false)
-	win.Prompt("$taskmaster>")
+	win.Prompt("(taskmaster$>) ")
 
 	var code int
 	for {
@@ -81,13 +84,16 @@ func main() {
 			}
 		case code == pad.Enter:
 			defaultMode.ApplyMode()
+
+			// fmt.Printf("\n")
 			bytes := win.Buffer.Bytes()
 			input := string(bytes[win.PromptLen:])
-
-			parseInput(input)
+			runCommand(parseInput(strings.Trim(input, "\n")))
 			clear(win)
-
 			activeMode.ToRaw()
+		case code == pad.Backspace:
+			win.Pos--
+			win.MoveCursorLeft(1)
 		}
 		go debug.Write(win, win.Input, *debugFlag)
 	}

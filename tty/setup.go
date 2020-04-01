@@ -11,8 +11,8 @@ import (
 // Termios represents termios struct
 type Termios unix.Termios
 
-// IsTerminal returns if this is runned on valid tty
-func IsTerminal(fd uintptr) bool {
+// Supported returns if this is runned on valid tty
+func Supported(fd uintptr) bool {
 	_, err := unix.IoctlGetTermios(int(fd), unix.TCGETS)
 	return err == nil
 }
@@ -20,7 +20,6 @@ func IsTerminal(fd uintptr) bool {
 // ToRaw configures setting to raw mode...
 func (t *Termios) ToRaw() {
 	t.Iflag &^= unix.IGNBRK | unix.BRKINT | unix.PARMRK | unix.ISTRIP | unix.INLCR | unix.IGNCR | unix.ICRNL | unix.IXON
-	// t.Iflag &^= BRKINT |unix.ISTRIP | ICRNL | IXON // Stevens RAW
 	t.Oflag &^= unix.OPOST
 	t.Lflag &^= unix.ECHO | unix.ECHONL | unix.ICANON | unix.ISIG | unix.IEXTEN
 	t.Cflag &^= unix.CSIZE | unix.PARENB

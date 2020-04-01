@@ -111,7 +111,7 @@ func (t *Terminal) ToNextRow() {
 }
 
 // New creates new screen instance
-func New(clear bool) *Terminal {
+func New(clearScreen bool) *Terminal {
 	term := &Terminal{
 		LinesUsed: 1,
 		Cols:      80,
@@ -120,7 +120,7 @@ func New(clear bool) *Terminal {
 		PromptStr: "$>",
 		Buffer:    new(bytes.Buffer),
 	}
-	if clear {
+	if clearScreen {
 		term.Clear()
 		term.MoveCursor(0, 0)
 	}
