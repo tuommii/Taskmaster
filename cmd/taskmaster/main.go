@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"taskmaster"
 
 	"taskmaster/cli"
 	"taskmaster/debug"
@@ -14,7 +13,7 @@ import (
 )
 
 func parseInput(input string) {
-	taskmaster.Testi()
+	// taskmaster.Testi()
 	if len(input) == 0 {
 		return
 	}
@@ -59,13 +58,8 @@ func main() {
 	activeMode := defaultMode
 	activeMode.ToRaw()
 
-	// var b []byte = make([]byte, 5)
-	win := tty.New()
-	win.Clear()
-	win.MoveCursor(0, 0)
-
-	win.Buffer.WriteString(win.Prompt)
-	fmt.Print(win.Buffer.String())
+	win := tty.New(false)
+	win.Prompt("$taskmaster>")
 
 	var code int
 	for {
@@ -102,6 +96,5 @@ func main() {
 func clear(win *tty.Terminal) {
 	win.Buffer.Reset()
 	win.Reposition()
-	win.Buffer.WriteString(win.Prompt)
-	fmt.Print(win.Buffer.String())
+	win.PrintPrompt()
 }

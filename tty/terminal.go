@@ -34,6 +34,19 @@ type Terminal struct {
 	Buffer    *bytes.Buffer
 }
 
+// Prompt sets prompt and prints it
+func (t *Terminal) Prompt(prompt string) {
+	t.Prompt = prompt
+	t.PromptLen = len(prompt)
+	t.PrintPrompt()
+}
+
+// PrintPrompt prints prompt
+func (t *Terminal) PrintPrompt() {
+	t.Buffer.WriteString(t.Prompt)
+	fmt.Print(t.Buffer.String())
+}
+
 func (t *Terminal) Redraw() {
 	rows := (t.PromptLen + t.InputLen + t.Cols - 1) / t.Cols
 	t.ClearRows()
@@ -98,8 +111,12 @@ func (t *Terminal) Reposition() {
 }
 
 // New creates new screen instance
-func New() *Terminal {
+func New(clear bool) *Terminal {
 	term := &Terminal{Pos: 0, LinesUsed: 1, Cols: 80, Rows: 24, PromptLen: 2, Prompt: "$>", Buffer: new(bytes.Buffer)}
+	if clear {
+		term.Clear()
+		term.MoveCursor(0, 0)
+	}
 	return term
 }
 
