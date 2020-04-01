@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"taskmaster/tty"
+	"github.com/tuommii/taskmaster/tty"
 )
 
 const path = "/tmp/taskmaster_debug"

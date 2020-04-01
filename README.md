@@ -1,5 +1,9 @@
 # Taskmaster
 
+## If you publish module
+Increment the MAJOR version when you make a backwards incompatible change to the public API of your module. This should only be done when absolutely necessary.
+Increment the MINOR version when you make a backwards compatible change to the API, like changing dependencies or adding a new function, method, struct field, or type.
+Increment the PATCH version after making minor changes that don't affect your module's public API or dependencies, like fixing a bug.
 ## Commands
 add    clear  fg        open  quit    remove  restart   start   stop  update
 avail  exit   maintail  pid   reload  reread  shutdown  status  tail  version

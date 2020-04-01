@@ -6,10 +6,10 @@ import (
 	"os"
 	"strings"
 
-	"taskmaster/cli"
-	"taskmaster/debug"
-	"taskmaster/pad"
-	"taskmaster/tty"
+	"github.com/tuommii/taskmaster/cli"
+	"github.com/tuommii/taskmaster/debug"
+	"github.com/tuommii/taskmaster/pad"
+	"github.com/tuommii/taskmaster/tty"
 )
 
 func parseInput(input string) []string {
