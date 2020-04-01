@@ -6,6 +6,7 @@ import "fmt"
 var StatusCmd = &Command{
 	Name:  "status",
 	Usage: "Show status",
+	Alias: "stat",
 	Run:   status,
 }
 

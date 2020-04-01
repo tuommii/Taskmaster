@@ -12,7 +12,9 @@ var Commands []*Command
 type Command struct {
 	Run func(cmd *Command, args []string)
 	// Shown on available commands list
-	Name  string
+	Name string
+	// Another string that runs same command
+	Alias string
 	Usage string
 	// Possible subcommands
 	Commands []*Command

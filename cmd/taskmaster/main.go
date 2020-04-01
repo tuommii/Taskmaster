@@ -26,7 +26,7 @@ func runCommand(tokens []string) {
 		return
 	}
 	for _, cmd := range cli.Commands {
-		if tokens[0] == cmd.Name {
+		if tokens[0] == cmd.Name || tokens[0] == cmd.Alias {
 			cmd.Run(cmd, tokens[1:])
 		}
 	}
