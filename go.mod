@@ -1,4 +1,4 @@
-module miikka.xyz
+module taskmaster
 
 go 1.14
 

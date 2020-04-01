@@ -5,14 +5,16 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"taskmaster"
 
-	"miikka.xyz/cli"
-	"miikka.xyz/debug"
-	"miikka.xyz/pad"
-	"miikka.xyz/tty"
+	"taskmaster/cli"
+	"taskmaster/debug"
+	"taskmaster/pad"
+	"taskmaster/tty"
 )
 
 func parseInput(input string) {
+	taskmaster.Testi()
 	if len(input) == 0 {
 		return
 	}
