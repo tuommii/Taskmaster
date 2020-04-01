@@ -63,7 +63,10 @@ func main() {
 
 	win := tty.New(false)
 	win.Prompt("(taskmaster$>) ")
+	loop(win, &defaultMode, &activeMode, *debugFlag)
+}
 
+func loop(win *tty.Terminal, backup *tty.Termios, curr *tty.Termios, debugFlag bool) {
 	var code int
 	for {
 		code = pad.KeyPressed()
@@ -83,19 +86,19 @@ func main() {
 				// Insert
 			}
 		case code == pad.Enter:
-			defaultMode.ApplyMode()
+			backup.ApplyMode()
 
 			// fmt.Printf("\n")
 			bytes := win.Buffer.Bytes()
 			input := string(bytes[win.PromptLen:])
 			runCommand(parseInput(strings.Trim(input, "\n")))
 			clear(win)
-			activeMode.ToRaw()
+			curr.ToRaw()
 		case code == pad.Backspace:
 			win.Pos--
 			win.MoveCursorLeft(1)
 		}
-		go debug.Write(win, win.Input, *debugFlag)
+		go debug.Write(win, win.Input, debugFlag)
 	}
 }
 
