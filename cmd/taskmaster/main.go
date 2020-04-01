@@ -95,6 +95,6 @@ func main() {
 
 func clear(win *tty.Terminal) {
 	win.Buffer.Reset()
-	win.Reposition()
+	win.ToNextRow()
 	win.PrintPrompt()
 }

@@ -24,7 +24,7 @@ type Terminal struct {
 	Pos       int
 	KeyCode   int
 	Input     string
-	Prompt    string
+	PromptStr string
 	OldPos    int
 	Cols      int
 	Rows      int
@@ -36,14 +36,14 @@ type Terminal struct {
 
 // Prompt sets prompt and prints it
 func (t *Terminal) Prompt(prompt string) {
-	t.Prompt = prompt
+	t.PromptStr = prompt
 	t.PromptLen = len(prompt)
 	t.PrintPrompt()
 }
 
 // PrintPrompt prints prompt
 func (t *Terminal) PrintPrompt() {
-	t.Buffer.WriteString(t.Prompt)
+	t.Buffer.WriteString(t.PromptStr)
 	fmt.Print(t.Buffer.String())
 }
 
@@ -103,8 +103,8 @@ func (t *Terminal) ClearRows() {
 	t.ResetLine()
 }
 
-// Reposition ...
-func (t *Terminal) Reposition() {
+// ToNextRow handles newline after enter
+func (t *Terminal) ToNextRow() {
 	fmt.Printf("\r")
 	fmt.Printf("\n")
 	t.EraseInput()
@@ -112,7 +112,14 @@ func (t *Terminal) Reposition() {
 
 // New creates new screen instance
 func New(clear bool) *Terminal {
-	term := &Terminal{Pos: 0, LinesUsed: 1, Cols: 80, Rows: 24, PromptLen: 2, Prompt: "$>", Buffer: new(bytes.Buffer)}
+	term := &Terminal{
+		LinesUsed: 1,
+		Cols:      80,
+		Rows:      24,
+		PromptLen: 2,
+		PromptStr: "$>",
+		Buffer:    new(bytes.Buffer),
+	}
 	if clear {
 		term.Clear()
 		term.MoveCursor(0, 0)
