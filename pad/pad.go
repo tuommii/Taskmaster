@@ -1,4 +1,4 @@
-package keyboard
+package pad
 
 import (
 	"os"
@@ -19,8 +19,8 @@ const (
 
 var buffer = make([]byte, 5)
 
-// IsPrintable ...
-func IsPrintable(code int) bool {
+// Printable returns true if char can be printed
+func Printable(code int) bool {
 	if code >= 32 && code < 127 {
 		return true
 	}

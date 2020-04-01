@@ -8,7 +8,7 @@ import (
 
 	"miikka.xyz/cli"
 	"miikka.xyz/debug"
-	"miikka.xyz/keyboard"
+	"miikka.xyz/pad"
 	"miikka.xyz/tty"
 )
 
@@ -67,13 +67,13 @@ func main() {
 
 	var code int
 	for {
-		code = keyboard.KeyPressed()
+		code = pad.KeyPressed()
 		switch {
 		// ESC
-		case code == keyboard.Esc:
+		case code == pad.Esc:
 			return
 		// IsPrintable
-		case keyboard.IsPrintable(code):
+		case pad.Printable(code):
 			if win.Pos == win.InputLen {
 				win.Buffer.WriteRune(rune(code))
 				win.ResetLine()
@@ -83,7 +83,7 @@ func main() {
 			} else {
 				// Insert
 			}
-		case code == keyboard.Enter:
+		case code == pad.Enter:
 			defaultMode.ApplyMode()
 			bytes := win.Buffer.Bytes()
 			input := string(bytes[win.PromptLen:])
