@@ -33,6 +33,8 @@ func runCommand(tokens []string) {
 }
 
 func init() {
+
+	// TODO: test
 	if !tty.Supported(os.Stdin.Fd()) {
 		fmt.Print("Terminal not supported!")
 		os.Exit(1)

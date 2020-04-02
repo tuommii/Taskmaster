@@ -9,7 +9,6 @@ var HelpCmd = &Command{
 	Run:   help,
 }
 
-// Help ...
 func help(cmd *Command, args []string) {
 	fmt.Print("\nHELP!")
 	for _, arg := range args {
