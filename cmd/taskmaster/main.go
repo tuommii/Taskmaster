@@ -9,7 +9,12 @@ import (
 	"sync"
 
 	"github.com/tuommii/taskmaster/cli"
+<<<<<<< HEAD
 	"github.com/tuommii/taskmaster/pad"
+=======
+	"github.com/tuommii/taskmaster/debug"
+	"github.com/tuommii/taskmaster/tty"
+>>>>>>> 8335bd957d112732563dba8accfb1d937e192323
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -48,13 +53,13 @@ func parseInput(input string) []string {
 	return tokens
 }
 
-func runCommand(tokens []string) {
+func runCommand(tokens []string, t *terminal.Terminal) {
 	if len(tokens) == 0 {
 		return
 	}
 	for _, cmd := range cli.Commands {
 		if tokens[0] == cmd.Name || tokens[0] == cmd.Alias {
-			cmd.Run(cmd, tokens[1:])
+			cmd.Run(cmd, tokens[1:], t)
 		}
 	}
 }
