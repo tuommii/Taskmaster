@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"strings"
 
@@ -45,7 +44,7 @@ func main() {
 		}
 		terminal.Restore(0, oldState)
 		if input != "" {
-			fmt.Println(input)
+			runCommand(parseInput(input))
 		}
 		terminal.MakeRaw(0)
 	}
