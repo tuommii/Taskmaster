@@ -98,17 +98,10 @@ func main() {
 
 				s.Pos++
 				s.InputLen++
-				// s.buf[s.Pos] = byte(code)
-				// Clear line
-				// win.Buffer.WriteRune(rune(code))
-				// win.ResetLine()
-				// fmt.Print(win.Buffer.String())
-				// win.Pos++
-				// win.InputLen++
 			} else {
 				// make space for a new char
-
-				s.buf = append(s.buf, 'M')
+				s.buf = append(s.buf, '0')
+				// shift
 				copy(s.buf[s.Pos+1:], s.buf[s.Pos:])
 				s.buf[s.Pos] = byte(code)
 
@@ -179,68 +172,7 @@ func main() {
 			fmt.Print("\r\033[K")
 			fmt.Print(s.PromptStr)
 			fmt.Print(string(s.buf))
-
-			// win.Pos++
-			// win.MoveCursorRight(1)
 		}
-		// debug.Write(win, win.Input, debugFlag)
 	}
 
-}
-
-// func loop(win *tty.Terminal, backup *tty.Termios, curr *tty.Termios, debugFlag bool) {
-// 	var code int
-// 	for {
-// 		code = pad.KeyPressed()
-// 		switch {
-// 		case code == pad.Esc:
-// 			return
-// 		case pad.Printable(code):
-// 			if win.Pos == win.InputLen {
-// 				win.Buffer.WriteRune(rune(code))
-// 				win.ResetLine()
-// 				fmt.Print(win.Buffer.String())
-// 				win.Pos++
-// 				win.InputLen++
-// 			} else {
-// 				buf := bytes.NewBuffer(win.Buffer.Bytes()[win.Pos:win.Pos])
-// 				win.Buffer = buf
-// 				buf.WriteRune(rune(code))
-// 				// Insert
-// 			}
-// 		case code == pad.Enter:
-// 			backup.ApplyMode()
-
-// 			// fmt.Printf("\n")
-// 			bytes := win.Buffer.Bytes()
-// 			input := string(bytes[win.PromptLen:])
-// 			runCommand(parseInput(strings.Trim(input, "\n")))
-// 			clear(win)
-// 			curr.RawMode()
-// 		case code == pad.Backspace:
-// 			// win.Buffer.WriteRune(rune('\b'))
-// 			// win.Buffer.WriteRune(rune(' '))
-// 			// win.Buffer.WriteRune(rune('\b'))
-// 			win.Pos--
-// 			win.MoveCursorLeft(1)
-// 		case code == pad.Left:
-// 			win.Pos--
-// 			win.MoveCursorLeft(1)
-// 		case code == pad.Right:
-// 			win.Pos++
-// 			win.MoveCursorRight(1)
-// 		}
-
-// 		go debug.Write(win, win.Input, debugFlag)
-// 	}
-// }
-
-// func clear(win *tty.Terminal) {
-// 	win.Buffer.Reset()
-// 	win.ToNextRow()
-// 	win.PrintPrompt()
-// }
-
-func MoveCursor(x int, y int) {
-	fmt.Printf("\033[%d;%dH", y, x)
 }
