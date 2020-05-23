@@ -48,13 +48,13 @@ func parseInput(input string) []string {
 	return tokens
 }
 
-func runCommand(tokens []string, t *terminal.Terminal) {
+func runCommand(tokens []string) {
 	if len(tokens) == 0 {
 		return
 	}
 	for _, cmd := range cli.Commands {
 		if tokens[0] == cmd.Name || tokens[0] == cmd.Alias {
-			cmd.Run(cmd, tokens[1:], t)
+			cmd.Run(cmd, tokens[1:])
 		}
 	}
 }
@@ -108,7 +108,9 @@ func main() {
 			// fmt.Printf("\n")
 			// bytes := win.Buffer.Bytes()
 			// input := string(bytes[win.PromptLen:])
-			// runCommand(parseInput(strings.Trim(string(s.buf), "\n")))
+			terminal.Restore(0, oldState)
+			runCommand(parseInput(strings.Trim(string(s.buf), "\n")))
+			terminal.MakeRaw(0)
 			s.buf = s.buf[:0]
 			s.InputLen = 0
 			s.LinesUsed = 1

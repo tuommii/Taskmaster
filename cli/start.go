@@ -3,8 +3,6 @@ package cli
 import (
 	"fmt"
 	"os/exec"
-
-	"golang.org/x/crypto/ssh/terminal"
 )
 
 // StartCmd implements help command
@@ -15,7 +13,7 @@ var StartCmd = &Command{
 	Run:   start,
 }
 
-func start(cmd *Command, args []string, t *terminal.Terminal) {
+func start(cmd *Command, args []string) {
 	fmt.Print("\nSTART!")
 	for _, arg := range args {
 		fmt.Print("\nstart ", arg)

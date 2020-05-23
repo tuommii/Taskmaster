@@ -3,8 +3,6 @@ package cli
 import (
 	"os"
 	"sync"
-
-	"golang.org/x/crypto/ssh/terminal"
 )
 
 // Commands holds all commands
@@ -12,7 +10,7 @@ var Commands []*Command
 
 // Command represents command
 type Command struct {
-	Run func(cmd *Command, args []string, t *terminal.Terminal)
+	Run func(cmd *Command, args []string)
 	// Shown on available commands list
 	Name string
 	// Another string that runs same command
