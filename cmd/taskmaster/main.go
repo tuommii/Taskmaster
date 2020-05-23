@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"github.com/tuommii/taskmaster/cli"
+	"github.com/tuommii/taskmaster/debug"
 	"github.com/tuommii/taskmaster/pad"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -60,7 +61,7 @@ func runCommand(tokens []string) {
 }
 
 func main() {
-
+	debug.OpenFile()
 	oldState, err := terminal.MakeRaw(0)
 	if err != nil {
 		log.Fatal(err)
@@ -77,11 +78,11 @@ func main() {
 		Buffer:    new(bytes.Buffer),
 		buf:       make([]byte, 4096),
 	}
+	s.buf = s.buf[:0]
 	// win.Prompt("(taskmaster$>) ")
 	// loop(win, &defaultMode, &activeMode, *debugFlag)
 	var code int
-	s.Pos = 0
-	fmt.Print("$>")
+	fmt.Print(s.PromptStr)
 	for {
 		code = pad.KeyPressed()
 		switch {
@@ -107,14 +108,26 @@ func main() {
 			} else {
 				// make space for a new char
 
-				// s.buf = append(s.buf, 'M')
-				// copy(s.buf[s.Pos+1:], s.buf[s.Pos:])
-				// s.buf[s.Pos] = byte(code)
-				// s.Pos++
-				// s.InputLen++
+				s.buf = append(s.buf, 'M')
+				copy(s.buf[s.Pos+1:], s.buf[s.Pos:])
+				s.buf[s.Pos] = byte(code)
+
+				fmt.Print("\r\033[K")
+				fmt.Print(s.PromptStr)
+				fmt.Print(string(s.buf))
+
+				s.Pos++
+				s.InputLen++
+
+				// Move cursor
+				fmt.Print("\r")
+				for i := 0; i < s.Pos+s.PromptLen; i++ {
+					fmt.Print("\033[1C")
+				}
 
 				// Insert
 			}
+			debug.Write(s.buf, s.Pos)
 		case code == pad.Enter:
 			// backup.ApplyMode()
 
@@ -152,8 +165,10 @@ func main() {
 			}
 		case code == pad.Right:
 			// fmt.Print("DSDS")
-			s.Pos++
-			fmt.Print("\033[1C")
+			if s.Pos < s.InputLen {
+				s.Pos++
+				fmt.Print("\033[1C")
+			}
 			// win.MoveCursorLeft(1)
 		case code == pad.Right:
 		case code == pad.Up:
@@ -168,7 +183,7 @@ func main() {
 			// win.Pos++
 			// win.MoveCursorRight(1)
 		}
-		// go debug.Write(win, win.Input, debugFlag)
+		// debug.Write(win, win.Input, debugFlag)
 	}
 
 }
@@ -225,11 +240,7 @@ func main() {
 // 	win.ToNextRow()
 // 	win.PrintPrompt()
 // }
-var Esc = "\x1b"
 
-func escape(format string, args ...interface{}) string {
-	return fmt.Sprintf("%s%s", Esc, fmt.Sprintf(format, args...))
-}
-func MoveLeft(n int) string {
-	return escape("[%dD", n)
+func MoveCursor(x int, y int) {
+	fmt.Printf("\033[%d;%dH", y, x)
 }

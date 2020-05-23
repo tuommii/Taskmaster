@@ -4,8 +4,6 @@ package debug
 import (
 	"fmt"
 	"os"
-
-	"github.com/tuommii/taskmaster/tty"
 )
 
 const path = "/tmp/taskmaster_debug"
@@ -24,11 +22,8 @@ func OpenFile() {
 }
 
 // Write writes data to file
-func Write(win *tty.Terminal, input string, debug bool) {
-	if !debug {
-		return
-	}
-	file.WriteString(fmt.Sprintf("POS: [%d], INPUT_LEN: [%d], KEY_PRESSED: [%d]\n", win.Pos, win.InputLen, win.KeyCode))
+func Write(buf []byte, pos int) {
+	file.WriteString(fmt.Sprintf("BUF: [%s], POS: [%d]\n", string(buf), pos))
 }
 
 // CloseFile closes file
