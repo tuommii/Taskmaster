@@ -1,6 +1,10 @@
 package cli
 
-import "fmt"
+import (
+	"fmt"
+
+	"golang.org/x/crypto/ssh/terminal"
+)
 
 // StatusCmd implements help command
 var StatusCmd = &Command{
@@ -11,7 +15,7 @@ var StatusCmd = &Command{
 }
 
 // Help ...
-func status(cmd *Command, args []string) {
+func status(cmd *Command, args []string, t *terminal.Terminal) {
 	fmt.Print("\nSTATUS!")
 	for _, arg := range args {
 		fmt.Print("\nstatus ", arg)
