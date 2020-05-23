@@ -3,23 +3,20 @@ package tty
 import (
 	"bytes"
 	"fmt"
-
-	"golang.org/x/crypto/ssh/terminal"
 )
 
 // State represents terminal state
 type State struct {
 	// Cursor x position
-	Pos         int
-	Key         int
-	Input       string
-	Prompt      string
-	Cols        int
-	PromptLen   int
-	InputLen    int
-	Buffer      *bytes.Buffer
-	buf         []byte
-	DefaultMode *terminal.State
+	Pos       int
+	Key       int
+	Input     string
+	Prompt    string
+	Cols      int
+	PromptLen int
+	InputLen  int
+	Buffer    *bytes.Buffer
+	buf       []byte
 	// If multiline support:
 	// Rows      int
 	// LinesUsed int
@@ -27,29 +24,25 @@ type State struct {
 }
 
 // New returns new State
-func New(maxLen int) (*State, error) {
-	var err error
+func New(maxLen int) *State {
 	s := &State{
 		Cols:      80,
 		Prompt:    "$>",
 		PromptLen: 2,
 		buf:       make([]byte, maxLen),
 	}
-	s.DefaultMode, err = terminal.MakeRaw(0)
-	if err != nil {
-		return nil, err
-	}
-	return s, nil
+	return s
 }
 
 func (s *State) ReadKey() string {
 	var code int
+	s.PrintPrompt()
 	for {
 		code = keyPressed()
 		s.Key = code
 		switch {
 		case code == Esc:
-			return ""
+			return "exit"
 		case IsPrintable(code):
 			s.handlePrintable()
 		case code == Enter:
@@ -103,7 +96,8 @@ func (s *State) handlePrintable() {
 func (s *State) handleEnter() string {
 	input := string(s.buf)
 	s.ClearBuffer()
-	// fmt.Print("\n\r")
+	fmt.Print("\n\r")
+	// s.PrintPrompt()
 	return input
 }
 
