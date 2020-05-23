@@ -80,19 +80,24 @@ func main() {
 	// win.Prompt("(taskmaster$>) ")
 	// loop(win, &defaultMode, &activeMode, *debugFlag)
 	var code int
+	s.Pos = 0
 	fmt.Print("$>")
-	s.Pos = 2
 	for {
 		code = pad.KeyPressed()
 		switch {
 		case code == pad.Esc:
 			return
 		case pad.Printable(code):
-			if s.Pos == s.InputLen+s.PromptLen {
+			if s.Pos == s.InputLen {
 				s.buf = append(s.buf, byte(code))
-				// s.buf[s.Pos] = byte(code)
+
+				fmt.Print("\r\033[K")
+				fmt.Print(s.PromptStr)
+				fmt.Print(string(s.buf))
+
 				s.Pos++
 				s.InputLen++
+				// s.buf[s.Pos] = byte(code)
 				// Clear line
 				// win.Buffer.WriteRune(rune(code))
 				// win.ResetLine()
@@ -100,6 +105,14 @@ func main() {
 				// win.Pos++
 				// win.InputLen++
 			} else {
+				// make space for a new char
+
+				// s.buf = append(s.buf, 'M')
+				// copy(s.buf[s.Pos+1:], s.buf[s.Pos:])
+				// s.buf[s.Pos] = byte(code)
+				// s.Pos++
+				// s.InputLen++
+
 				// Insert
 			}
 		case code == pad.Enter:
@@ -114,29 +127,47 @@ func main() {
 			s.buf = s.buf[:0]
 			s.InputLen = 0
 			s.LinesUsed = 1
-			s.Pos = s.PromptLen
+			s.Pos = 0
 			fmt.Print("\n\r")
+			// fmt.Print("\r\033[K")
 			fmt.Print(s.PromptStr)
+			// fmt.Print(string(s.buf))
+
+			// fmt.Print(s.PromptStr)
 			// clear(win)
 			// curr.RawMode()
 		case code == pad.Backspace:
-			// win.Buffer.WriteRune(rune('\b'))
+			// win.Buffer.WriteRune(r	une('\b'))
 			// win.Buffer.WriteRune(rune(' '))
 			// win.Buffer.WriteRune(rune('\b'))
 			// win.Pos--
 			// win.MoveCursorLeft(1)
 		case code == pad.Left:
-			// win.Pos--
+			// fmt.Fprint(os.Stdin, MoveLeft(1))
+			// fmt.Print("DSDS")
+			if s.Pos > 0 {
+				s.Pos--
+				fmt.Print("\033[1D")
+				// fmt.Print(string(s.buf))
+			}
+		case code == pad.Right:
+			// fmt.Print("DSDS")
+			s.Pos++
+			fmt.Print("\033[1C")
 			// win.MoveCursorLeft(1)
 		case code == pad.Right:
 		case code == pad.Up:
 			s.buf = s.buf[:0]
 			s.buf = []byte("miikka")
+			s.Pos = 6
+			s.InputLen = 6
+			fmt.Print("\r\033[K")
+			fmt.Print(s.PromptStr)
+			fmt.Print(string(s.buf))
+
 			// win.Pos++
 			// win.MoveCursorRight(1)
 		}
-		fmt.Print("\r\033[K")
-		fmt.Print(s.PromptStr, string(s.buf))
 		// go debug.Write(win, win.Input, debugFlag)
 	}
 
@@ -194,3 +225,11 @@ func main() {
 // 	win.ToNextRow()
 // 	win.PrintPrompt()
 // }
+var Esc = "\x1b"
+
+func escape(format string, args ...interface{}) string {
+	return fmt.Sprintf("%s%s", Esc, fmt.Sprintf(format, args...))
+}
+func MoveLeft(n int) string {
+	return escape("[%dD", n)
+}
