@@ -35,6 +35,7 @@ func New(maxLen int) *State {
 	return s
 }
 
+// ReadKey reads one byte at time
 func (s *State) ReadKey(ch chan os.Signal) string {
 	var code int
 	s.ClearBuffer()
