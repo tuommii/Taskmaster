@@ -3,6 +3,7 @@ package tty
 import (
 	"bytes"
 	"fmt"
+	"os"
 )
 
 // State represents terminal state
@@ -34,13 +35,19 @@ func New(maxLen int) *State {
 	return s
 }
 
-func (s *State) ReadKey() string {
+func (s *State) ReadKey(ch chan os.Signal) string {
 	var code int
+	s.ClearBuffer()
 	s.PrintPrompt()
 	for {
 		code = keyPressed()
 		s.Key = code
 		switch {
+		case code == 3:
+			ch <- os.Interrupt
+		case code == 4:
+			ch <- os.Interrupt
+			// return "exit"
 		case code == Esc:
 			return "exit"
 		case IsPrintable(code):

@@ -3,7 +3,9 @@ package main
 import (
 	"log"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/tuommii/taskmaster/cli"
@@ -34,6 +36,7 @@ func runCommand(tokens []string) {
 }
 
 func main() {
+
 	file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatal(err)
@@ -42,24 +45,41 @@ func main() {
 
 	logger.Println("Starting....")
 
+	ch := make(chan os.Signal, 1)
+	done := make(chan bool, 1)
+	signal.Notify(ch, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+
 	oldState, err := terminal.MakeRaw(0)
 	if err != nil {
 		logger.Fatal(err)
 	}
-	defer terminal.Restore(0, oldState)
 
 	term := tty.New(4096)
-	for {
-		input := term.ReadKey()
-		if input == "exit" {
-			logger.Println("exit command")
-			break
+
+	go func() {
+		sig := <-ch
+		logger.Println("RECEIVED:", sig)
+		done <- true
+	}()
+
+	go func() {
+		for {
+			input := term.ReadKey(ch)
+			if input == "exit" {
+				logger.Println("exit command")
+				break
+			}
+			if input != "" {
+				terminal.Restore(0, oldState)
+				runCommand(parseInput(input))
+			}
+			terminal.MakeRaw(0)
 		}
-		terminal.Restore(0, oldState)
-		if input != "" {
-			runCommand(parseInput(input))
-		}
-		terminal.MakeRaw(0)
-	}
+		done <- true
+	}()
+
+	<-done
+	terminal.Restore(0, oldState)
 	logger.Println("quit")
+	os.Exit(1)
 }
