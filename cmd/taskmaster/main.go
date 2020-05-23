@@ -2,12 +2,16 @@ package main
 
 import (
 	"log"
+	"os"
 	"strings"
+	"time"
 
 	"github.com/tuommii/taskmaster/cli"
 	"github.com/tuommii/taskmaster/tty"
 	"golang.org/x/crypto/ssh/terminal"
 )
+
+const path = "/tmp/taskmaster_log"
 
 func parseInput(input string) []string {
 	// taskmaster.RealTimeExample()
@@ -30,9 +34,17 @@ func runCommand(tokens []string) {
 }
 
 func main() {
-	oldState, err := terminal.MakeRaw(0)
+	file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatal(err)
+	}
+	logger := log.New(file, time.Now().String()[:19]+" ", 0)
+
+	logger.Println("Starting....")
+
+	oldState, err := terminal.MakeRaw(0)
+	if err != nil {
+		logger.Fatal(err)
 	}
 	defer terminal.Restore(0, oldState)
 
@@ -40,6 +52,7 @@ func main() {
 	for {
 		input := term.ReadKey()
 		if input == "exit" {
+			logger.Println("exit command")
 			break
 		}
 		terminal.Restore(0, oldState)
@@ -48,4 +61,5 @@ func main() {
 		}
 		terminal.MakeRaw(0)
 	}
+	logger.Println("quit")
 }
