@@ -9,12 +9,7 @@ import (
 	"sync"
 
 	"github.com/tuommii/taskmaster/cli"
-<<<<<<< HEAD
 	"github.com/tuommii/taskmaster/pad"
-=======
-	"github.com/tuommii/taskmaster/debug"
-	"github.com/tuommii/taskmaster/tty"
->>>>>>> 8335bd957d112732563dba8accfb1d937e192323
 	"golang.org/x/crypto/ssh/terminal"
 )
 
