@@ -1,7 +1,6 @@
 package tty
 
 import (
-	"bytes"
 	"fmt"
 	"os"
 )
@@ -9,16 +8,21 @@ import (
 // State represents terminal state
 type State struct {
 	// Cursor x position
-	Pos       int
-	Key       int
-	Input     string
+	Pos int
+	// Width of user input
+	InputLen int
+	// Key presses
+	Key int
+	// $>
 	Prompt    string
-	Cols      int
 	PromptLen int
-	InputLen  int
-	Buffer    *bytes.Buffer
-	buf       []byte
-	// If multiline support:
+	// Width
+	Cols         int
+	buf          []byte
+	History      []string
+	HistoryCount int
+	HistoryPos   int
+	// Multiline support:
 	// Rows      int
 	// LinesUsed int
 	// OldPos    int
@@ -44,11 +48,12 @@ func (s *State) ReadKey(ch chan os.Signal) string {
 		code = keyPressed()
 		s.Key = code
 		switch {
+		// CTRL + C
 		case code == 3:
 			ch <- os.Interrupt
+		// CTRL + D
 		case code == 4:
 			ch <- os.Interrupt
-			// return "exit"
 		case code == Esc:
 			return "exit"
 		case IsPrintable(code):
@@ -93,16 +98,15 @@ func (s *State) handlePrintable() {
 		s.Pos++
 		s.InputLen++
 
-		// Move cursor
+		// Move cursor to right place
 		fmt.Print("\r")
-		for i := 0; i < s.Pos+s.PromptLen; i++ {
-			fmt.Print("\033[1C")
-		}
+		fmt.Printf("\033[%dC", s.Pos+s.PromptLen)
 	}
 }
 
 func (s *State) handleEnter() string {
 	input := string(s.buf)
+	s.HistoryAdd(input)
 	s.ClearBuffer()
 	fmt.Print("\n\r")
 	// s.PrintPrompt()
@@ -128,10 +132,16 @@ func (s *State) handleRight() {
 }
 
 func (s *State) handleUp() {
-	s.buf = s.buf[:0]
-	s.buf = []byte("miikka")
-	s.Pos = 6
-	s.InputLen = 6
+	if s.HistoryCount == 0 {
+		return
+	}
+	if s.HistoryPos < 0 {
+		s.HistoryPos = s.HistoryCount - 1
+	}
+	s.buf = []byte(s.History[s.HistoryPos])
+	s.Pos = len(s.History[s.HistoryPos])
+	s.InputLen = s.Pos
+	s.HistoryPos--
 	fmt.Print("\r\033[K")
 	fmt.Print(s.Prompt)
 	fmt.Print(string(s.buf))
@@ -139,7 +149,25 @@ func (s *State) handleUp() {
 }
 
 func (s *State) handleDown() {
-
+	if s.HistoryCount == 0 {
+		return
+	}
+	if s.HistoryPos == 1 && s.HistoryCount == 1 {
+		s.HistoryPos = 0
+	}
+	if s.HistoryPos == s.HistoryCount-1 {
+		s.HistoryPos = 0
+	}
+	if s.HistoryPos < 0 {
+		s.HistoryPos = s.HistoryCount - 1
+	}
+	s.buf = []byte(s.History[s.HistoryPos])
+	s.Pos = len(s.History[s.HistoryPos])
+	s.InputLen = s.Pos
+	s.HistoryPos++
+	fmt.Print("\r\033[K")
+	fmt.Print(s.Prompt)
+	fmt.Print(string(s.buf))
 }
 
 // ClearBuffer clears buffer

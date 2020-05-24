@@ -35,16 +35,18 @@ func runCommand(tokens []string) {
 	}
 }
 
-func main() {
-
-	file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0644)
+func createLogger(filePath string) *log.Logger {
+	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
 	logger := log.New(file, time.Now().String()[:19]+" ", 0)
+	logger.Println("Logger created")
+	return logger
+}
 
-	logger.Println("Starting....")
-
+func main() {
+	logger := createLogger(path)
 	ch := make(chan os.Signal, 1)
 	done := make(chan bool, 1)
 	signal.Notify(ch, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
@@ -54,14 +56,14 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	term := tty.New(4096)
-
+	// Signal handler
 	go func() {
 		sig := <-ch
 		logger.Println("RECEIVED:", sig)
 		done <- true
 	}()
 
+	term := tty.New(4096)
 	go func() {
 		for {
 			input := term.ReadKey(ch)
