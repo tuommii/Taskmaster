@@ -2,16 +2,22 @@ BIN_DIR = bin
 
 all: run
 
-client:
+build-client:
 	go build -o $(BIN_DIR)/client cmd/client/client.go
 
-server:
+build-server:
 	go build -o $(BIN_DIR)/server cmd/server/server.go
 
-build: server client
+build: build-server build-client
 
-run: client
+run: build-client
 	./bin/client
+
+client: build-client
+	./bin/client
+
+server: build-server
+	./bin/server
 
 test:
 	go test ./...

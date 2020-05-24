@@ -79,7 +79,7 @@ func (app *App) ReadInput() {
 				fmt.Fprintf(app.conn, input+"\n")
 			}
 			terminal.Restore(0, app.oldState)
-			runCommand(parseInput(input))
+			RunCommand(ParseInput(input))
 		}
 		terminal.MakeRaw(0)
 	}
@@ -94,7 +94,8 @@ func (app *App) Quit() {
 	os.Exit(1)
 }
 
-func parseInput(input string) []string {
+// ParseInput ...
+func ParseInput(input string) []string {
 	// taskmaster.RealTimeExample()
 	if len(input) == 0 {
 		return nil
@@ -103,7 +104,8 @@ func parseInput(input string) []string {
 	return tokens
 }
 
-func runCommand(tokens []string) {
+// RunCommand ...
+func RunCommand(tokens []string) {
 	if len(tokens) == 0 {
 		return
 	}

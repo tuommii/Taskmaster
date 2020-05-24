@@ -5,39 +5,62 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"strings"
+
+	"github.com/tuommii/taskmaster"
+	"golang.org/x/net/netutil"
 )
 
-var actions = make(map[string]string)
+func handleConnection(conn net.Conn) {
+	// read buffer from client after enter is hit
+	bufferBytes, err := bufio.NewReader(conn).ReadBytes('\n')
 
-func init() {
-	actions["help"] = "HELP!"
+	if err != nil {
+		log.Println("client left..")
+		conn.Close()
+
+		// escape recursion
+		return
+	}
+
+	// convert bytes from buffer to string
+	message := string(bufferBytes)
+	taskmaster.RunCommand(taskmaster.ParseInput(message))
+	// get the remote address of the client
+	clientAddr := conn.RemoteAddr().String()
+	// format a response
+	response := fmt.Sprintf(message + " from " + clientAddr + "\n")
+
+	// have server print out important information
+	log.Println(response)
+
+	// let the client know what happened
+	conn.Write([]byte("you sent: " + response))
+
+	// recursive func to handle io.EOF for random disconnects
+	handleConnection(conn)
 }
 
 func main() {
 	l, err := net.Listen("tcp", ":4200")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("LISTEN:", err)
 	}
 	defer l.Close()
 
-	conn, err := l.Accept()
-	if err != nil {
-		log.Fatal(err)
-	}
+	l = netutil.LimitListener(l, 1)
 
 	for {
-		data, err := bufio.NewReader(conn).ReadString('\n')
+		conn, err := l.Accept()
 		if err != nil {
-			log.Println(err)
-			return
+			log.Fatal("ACCEPT", err)
 		}
-		data = strings.TrimSpace(string(data))
-		if data == "exit" {
-			fmt.Println("EXIT command")
-			return
-		}
-		fmt.Println("->", string(actions[data]))
-		conn.Write([]byte("from server"))
+		go handleConnection(conn)
+
+		// data = strings.TrimSpace(string(data))
+		// taskmaster.RunCommand(taskmaster.ParseInput(data))
+		// if data != "" {
+		// 	fmt.Println("->", data)
+		// }
+		// conn.Write([]byte("from server"))
 	}
 }

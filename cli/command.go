@@ -61,4 +61,5 @@ func init() {
 	Commands = append(Commands, HelpCmd)
 	Commands = append(Commands, StatusCmd)
 	Commands = append(Commands, StartCmd)
+	Commands = append(Commands, ExitCmd)
 }
