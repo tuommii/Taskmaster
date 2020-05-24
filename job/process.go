@@ -1,19 +1,41 @@
 package job
 
 import (
-	"io"
+	"bufio"
+	"fmt"
+	"log"
 	"os/exec"
-	"sync"
-	"time"
+	"strings"
 )
 
 // Process represents runnable process
 type Process struct {
-	cmd   *exec.Cmd
-	start time.Time
-	stop  time.Time
-	lock  sync.RWMutex
-	stdin io.WriteCloser
-	// TODO: Change to whats needed
-	state string
+	Name    string
+	Command string
+	Cmd     *exec.Cmd
+}
+
+// Launch ...
+func (p *Process) Launch() {
+	splitted := strings.Fields(p.Command)
+	p.Cmd = exec.Command(splitted[0], splitted[1:]...)
+	stdout, err := p.Cmd.StdoutPipe()
+	if err != nil {
+		log.Fatal(err)
+	}
+	p.Cmd.Start()
+	buf := bufio.NewReader(stdout) // Notice that this is not in a loop
+	num := 1
+	for {
+		line, _, err := buf.ReadLine()
+		if err != nil {
+			return
+		}
+		// if num > 3 {
+		// 	return
+		// }
+		num++
+		fmt.Println(string(line))
+	}
+
 }

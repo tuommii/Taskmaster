@@ -32,7 +32,7 @@ func New(maxLen int) *State {
 	s := &State{
 		cols:      80,
 		prompt:    "taskmaster$>",
-		promptLen: 11,
+		promptLen: 12,
 		buf:       make([]byte, maxLen),
 	}
 	return s
@@ -98,8 +98,9 @@ func (s *State) handlePrintable() {
 		s.inputLen++
 
 		// Move cursor to right place
-		fmt.Print("\r")
-		fmt.Printf("\033[%dC", s.pos+s.promptLen)
+		// fmt.Print("\r")
+		// fmt.Printf("\033[%dC", s.pos+s.promptLen)
+		s.restoreCursor()
 	}
 	// reset autocomplete suggestions
 	s.resetSuggestions()
@@ -124,8 +125,9 @@ func (s *State) handleBackspace() {
 	s.clearLine()
 	s.printPrompt()
 	s.printBuffer()
-	fmt.Print("\r")
-	fmt.Printf("\033[%dC", s.pos+s.promptLen)
+	// fmt.Print("\r")
+	// fmt.Printf("\033[%dC", s.pos+s.promptLen)
+	s.restoreCursor()
 	s.resetSuggestions()
 }
 
@@ -198,6 +200,10 @@ func (s *State) clearBuffer() {
 	s.buf = s.buf[:0]
 	s.inputLen = 0
 	s.pos = 0
+}
+
+func (s *State) restoreCursor() {
+	fmt.Printf("\r\033[%dC", s.pos+s.promptLen)
 }
 
 // clearLine clears current line

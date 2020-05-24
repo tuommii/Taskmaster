@@ -34,7 +34,7 @@ type App struct {
 	conn     net.Conn
 }
 
-// Logger ...
+// Logger returns logger for server. Client gets logger from Create()
 func Logger() *log.Logger {
 	return logger
 }
@@ -91,17 +91,14 @@ func (app *App) ListenSignals() {
 	app.done <- true
 }
 
-// ReadInput ...
+// ReadInput reads input until exit command or terminating signal
 func (app *App) ReadInput() {
 	for {
 		input := app.term.ReadKey(app.signals)
-		if input == "exit" {
-			if app.conn != nil {
-				fmt.Fprintf(app.conn, "exit\n")
-			}
-			app.logger.Println("exit command")
-			break
-		} else if input != "" {
+		switch {
+		case input == "exit":
+			app.done <- true
+		case input != "":
 			if app.conn != nil {
 				fmt.Fprintf(app.conn, input+"\n")
 			}
@@ -110,10 +107,9 @@ func (app *App) ReadInput() {
 		}
 		terminal.MakeRaw(0)
 	}
-	app.done <- true
 }
 
-// Quit ...
+// Quit restores terminal mode before exit
 func (app *App) Quit() {
 	<-app.done
 	terminal.Restore(0, app.oldState)

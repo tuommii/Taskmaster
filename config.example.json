@@ -1,13 +1,13 @@
 {
 	"Hello": {
-		"command": "/usr/bin/ls",
+		"command": "ls",
 		"autostart": true,
 		"autorestart": true,
-		"stderr_log": "var/log",
-		"stdout_log": "log"
+		"stderr_log": "/tmp/taskmaster_err",
+		"stdout_log": "/tmp/taskmaster_out"
 	},
 	"Hello2": {
-		"command": "/usr/bin/ls",
+		"command": "ls -a",
 		"autostart": false,
 		"autorestart": true,
 		"stderr_log": "var/log",

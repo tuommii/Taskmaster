@@ -2,12 +2,16 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"log"
 	"net"
+	"os/exec"
 	"strings"
 
 	"github.com/tuommii/taskmaster"
+	"github.com/tuommii/taskmaster/config"
+	"github.com/tuommii/taskmaster/job"
 	"golang.org/x/net/netutil"
 )
 
@@ -41,9 +45,42 @@ func handleConnection(conn net.Conn, logger *log.Logger) {
 	handleConnection(conn, logger)
 }
 
+func launch(executable string, args []string) {
+	cmd := exec.Command(executable, args...)
+	stdout, err := cmd.StdoutPipe()
+	// stderr, err := cmd.StderrPipe()
+	if err != nil {
+		log.Fatal(err)
+	}
+	cmd.Start()
+	buf := bufio.NewReader(stdout) // Notice that this is not in a loop
+	num := 1
+	for {
+		line, _, err := buf.ReadLine()
+		if err != nil {
+			return
+		}
+		// if num > 3 {
+		// 	return
+		// }
+		num++
+		fmt.Println(string(line))
+	}
+}
+
 func main() {
 	logger := taskmaster.Logger()
 	logger.SetPrefix("SERVER: " + logger.Prefix())
+
+	pathFlag := flag.String("config", "./config.example.json", "path to config file")
+	flag.Parse()
+	conf := config.LoadConfig(*pathFlag)
+
+	for key, entry := range conf.Entries {
+		p := job.Process{Name: key, Command: entry.Command}
+		p.Launch()
+	}
+
 	l, err := net.Listen("tcp", ":4200")
 	if err != nil {
 		logger.Fatal("LISTEN:", err)
