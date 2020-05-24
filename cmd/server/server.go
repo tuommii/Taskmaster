@@ -42,6 +42,7 @@ func handleConnection(conn net.Conn, logger *log.Logger) {
 
 func main() {
 	logger := taskmaster.Logger()
+	logger.SetPrefix("SERVER: " + logger.Prefix() + " ")
 	l, err := net.Listen("tcp", ":4200")
 	if err != nil {
 		logger.Fatal("LISTEN:", err)

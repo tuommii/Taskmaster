@@ -129,11 +129,12 @@ func RunCommand(tokens []string) {
 }
 
 func createLogger(filePath string) *log.Logger {
-	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-	logger := log.New(file, time.Now().String()[:19]+" ", 0)
+	// file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0644)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// logger := log.New(file, "["+time.Now().String()[:19]+"]", 0)
+	logger := log.New(os.Stdout, "["+time.Now().String()[:19]+"]", 0)
 	logger.Println("Logger created")
 	return logger
 }
