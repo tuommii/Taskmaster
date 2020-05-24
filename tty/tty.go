@@ -17,12 +17,15 @@ type State struct {
 	prompt    string
 	promptLen int
 	// Width
-	cols         int
-	buf          []byte
-	history      []string
-	historyCount int
-	historyPos   int
-	proposer     Proposer
+	cols           int
+	buf            []byte
+	history        []string
+	historyCount   int
+	historyPos     int
+	proposer       Proposer
+	proposerPos    int
+	proposerStatus bool
+	suggestions    []string
 	// Multiline support:
 	// Rows      int
 	// LinesUsed int
@@ -112,12 +115,27 @@ func (s *State) handleEnter() string {
 	s.historyAdd(input)
 	s.clearBuffer()
 	fmt.Print("\n\r")
+	s.proposerPos = 0
 	// s.printPrompt()
 	return input
 }
 
-func (s *State) handleBackspace() {
+func remove(slice []byte, s int) []byte {
+	return append(slice[:s], slice[s+1:]...)
+}
 
+func (s *State) handleBackspace() {
+	if s.pos == 0 {
+		return
+	}
+	s.buf = remove(s.buf, s.pos-1)
+	s.pos--
+	s.inputLen--
+	fmt.Print("\r\033[K")
+	fmt.Print(s.prompt)
+	fmt.Print(string(s.buf))
+	fmt.Print("\r")
+	fmt.Printf("\033[%dC", s.pos+s.promptLen)
 }
 
 func (s *State) handleLeft() {
@@ -186,15 +204,24 @@ func (s *State) handleTab() {
 	if s.proposer == nil {
 		return
 	}
-	arr := s.proposer(string(s.buf))
-	if len(arr[0]) > 0 {
+	if s.proposerPos == 0 {
+		s.suggestions = s.proposer(string(s.buf))
+	}
+	if len(s.suggestions) == 0 {
+		return
+	}
+	if s.proposerPos >= len(s.suggestions) {
+		s.proposerPos = 0
+	}
+	if len(s.suggestions[s.proposerPos]) > 0 {
 		s.clearLine()
 		s.clearBuffer()
-		s.buf = []byte(arr[0])
+		s.buf = []byte(s.suggestions[s.proposerPos])
 		fmt.Print(s.prompt)
 		s.printBuffer()
 		s.inputLen = len(s.buf)
 		s.pos = len(s.buf)
+		s.proposerPos++
 	}
 }
 

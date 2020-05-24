@@ -14,8 +14,8 @@ var StatusCmd = &Command{
 
 // Help ...
 func status(cmd *Command, args []string) {
-	fmt.Print("\nSTATUS!")
+	fmt.Println("\nSTATUS!")
 	for _, arg := range args {
-		fmt.Print("\nstatus ", arg)
+		fmt.Println("\nstatus ", arg)
 	}
 }

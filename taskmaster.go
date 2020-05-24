@@ -57,14 +57,24 @@ func Create() *App {
 	// autocompletion
 	app.term.SetProposer(func(input string) []string {
 		var arr []string
-		arr = append(arr, "TAB")
-		return arr
+		var result []string
+		arr = append(arr, "help")
+		arr = append(arr, "status")
+		arr = append(arr, "reload")
+		arr = append(arr, "start")
+		arr = append(arr, "stop")
+		for _, item := range arr {
+			if strings.HasPrefix(item, input) {
+				result = append(result, item)
+			}
+		}
+		return result
 	})
 
 	// tcp client
 	app.conn, err = net.Dial("tcp", "127.0.0.1:4200")
 	if err != nil {
-		app.logger.Println(err)
+		// app.logger.Println(err)
 	}
 	return app
 }
