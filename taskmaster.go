@@ -1,7 +1,9 @@
 package taskmaster
 
 import (
+	"fmt"
 	"log"
+	"net"
 	"os"
 	"os/signal"
 	"strings"
@@ -22,6 +24,7 @@ type App struct {
 	done     chan bool
 	oldState *terminal.State
 	term     *tty.State
+	conn     net.Conn
 }
 
 // Create new app (taskmaster)
@@ -38,11 +41,19 @@ func Create() *App {
 		app.logger.Fatal(err)
 	}
 	app.term = tty.New(4096)
+
+	// autocompletion
 	app.term.SetProposer(func(input string) []string {
 		var arr []string
 		arr = append(arr, "TAB")
 		return arr
 	})
+
+	// tcp client
+	app.conn, err = net.Dial("tcp", "127.0.0.1:4200")
+	if err != nil {
+		app.logger.Println(err)
+	}
 	return app
 }
 
@@ -58,10 +69,15 @@ func (app *App) ReadInput() {
 	for {
 		input := app.term.ReadKey(app.signals)
 		if input == "exit" {
+			if app.conn != nil {
+				fmt.Fprintf(app.conn, "exit\n")
+			}
 			app.logger.Println("exit command")
 			break
-		}
-		if input != "" {
+		} else if input != "" {
+			if app.conn != nil {
+				fmt.Fprintf(app.conn, input+"\n")
+			}
 			terminal.Restore(0, app.oldState)
 			runCommand(parseInput(input))
 		}
