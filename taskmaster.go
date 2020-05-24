@@ -17,6 +17,13 @@ import (
 
 const logPath = "/tmp/taskmaster_log"
 
+// Shared between client and server
+var logger *log.Logger
+
+func init() {
+	logger = createLogger(logPath)
+}
+
 // App is wrapper for application data
 type App struct {
 	logger   *log.Logger
@@ -27,11 +34,16 @@ type App struct {
 	conn     net.Conn
 }
 
+// Logger ...
+func Logger() *log.Logger {
+	return logger
+}
+
 // Create new app (taskmaster)
 func Create() *App {
 	var err error
 	app := &App{
-		logger:  createLogger(logPath),
+		logger:  logger,
 		signals: make(chan os.Signal, 1),
 		done:    make(chan bool, 1),
 	}

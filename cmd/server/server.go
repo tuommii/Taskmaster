@@ -10,12 +10,12 @@ import (
 	"golang.org/x/net/netutil"
 )
 
-func handleConnection(conn net.Conn) {
+func handleConnection(conn net.Conn, logger *log.Logger) {
 	// read buffer from client after enter is hit
 	bufferBytes, err := bufio.NewReader(conn).ReadBytes('\n')
 
 	if err != nil {
-		log.Println("client left..")
+		logger.Println("client left..")
 		conn.Close()
 
 		// escape recursion
@@ -31,19 +31,20 @@ func handleConnection(conn net.Conn) {
 	response := fmt.Sprintf(message + " from " + clientAddr + "\n")
 
 	// have server print out important information
-	log.Println(response)
+	logger.Println(response)
 
 	// let the client know what happened
 	conn.Write([]byte("you sent: " + response))
 
 	// recursive func to handle io.EOF for random disconnects
-	handleConnection(conn)
+	handleConnection(conn, logger)
 }
 
 func main() {
+	logger := taskmaster.Logger()
 	l, err := net.Listen("tcp", ":4200")
 	if err != nil {
-		log.Fatal("LISTEN:", err)
+		logger.Fatal("LISTEN:", err)
 	}
 	defer l.Close()
 
@@ -52,9 +53,9 @@ func main() {
 	for {
 		conn, err := l.Accept()
 		if err != nil {
-			log.Fatal("ACCEPT", err)
+			logger.Fatal("ACCEPT", err)
 		}
-		go handleConnection(conn)
+		go handleConnection(conn, logger)
 
 		// data = strings.TrimSpace(string(data))
 		// taskmaster.RunCommand(taskmaster.ParseInput(data))
