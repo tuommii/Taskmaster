@@ -38,37 +38,12 @@ func Create() *App {
 		app.logger.Fatal(err)
 	}
 	app.term = tty.New(4096)
+	app.term.SetProposer(func(input string) []string {
+		var arr []string
+		arr = append(arr, "TAB")
+		return arr
+	})
 	return app
-}
-
-func parseInput(input string) []string {
-	// taskmaster.RealTimeExample()
-	if len(input) == 0 {
-		return nil
-	}
-	tokens := strings.Split(input, " ")
-	return tokens
-}
-
-func runCommand(tokens []string) {
-	if len(tokens) == 0 {
-		return
-	}
-	for _, cmd := range cli.Commands {
-		if tokens[0] == cmd.Name || tokens[0] == cmd.Alias {
-			cmd.Run(cmd, tokens[1:])
-		}
-	}
-}
-
-func createLogger(filePath string) *log.Logger {
-	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-	logger := log.New(file, time.Now().String()[:19]+" ", 0)
-	logger.Println("Logger created")
-	return logger
 }
 
 // ListenSignals ...
@@ -101,4 +76,34 @@ func (app *App) Quit() {
 	terminal.Restore(0, app.oldState)
 	app.logger.Println("quit")
 	os.Exit(1)
+}
+
+func parseInput(input string) []string {
+	// taskmaster.RealTimeExample()
+	if len(input) == 0 {
+		return nil
+	}
+	tokens := strings.Split(input, " ")
+	return tokens
+}
+
+func runCommand(tokens []string) {
+	if len(tokens) == 0 {
+		return
+	}
+	for _, cmd := range cli.Commands {
+		if tokens[0] == cmd.Name || tokens[0] == cmd.Alias {
+			cmd.Run(cmd, tokens[1:])
+		}
+	}
+}
+
+func createLogger(filePath string) *log.Logger {
+	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	logger := log.New(file, time.Now().String()[:19]+" ", 0)
+	logger.Println("Logger created")
+	return logger
 }

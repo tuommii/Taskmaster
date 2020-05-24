@@ -8,20 +8,21 @@ import (
 // State represents terminal state
 type State struct {
 	// Cursor x position
-	Pos int
+	pos int
 	// Width of user input
-	InputLen int
+	inputLen int
 	// Key presses
-	Key int
+	key int
 	// $>
-	Prompt    string
-	PromptLen int
+	prompt    string
+	promptLen int
 	// Width
-	Cols         int
+	cols         int
 	buf          []byte
-	History      []string
-	HistoryCount int
-	HistoryPos   int
+	history      []string
+	historyCount int
+	historyPos   int
+	proposer     Proposer
 	// Multiline support:
 	// Rows      int
 	// LinesUsed int
@@ -31,9 +32,9 @@ type State struct {
 // New returns new State
 func New(maxLen int) *State {
 	s := &State{
-		Cols:      80,
-		Prompt:    "$>",
-		PromptLen: 2,
+		cols:      80,
+		prompt:    "$>",
+		promptLen: 2,
 		buf:       make([]byte, maxLen),
 	}
 	return s
@@ -42,11 +43,11 @@ func New(maxLen int) *State {
 // ReadKey reads one byte at time
 func (s *State) ReadKey(ch chan os.Signal) string {
 	var code int
-	s.ClearBuffer()
-	s.PrintPrompt()
+	s.clearBuffer()
+	s.printPrompt()
 	for {
 		code = keyPressed()
-		s.Key = code
+		s.key = code
 		switch {
 		// CTRL + C
 		case code == 3:
@@ -70,46 +71,48 @@ func (s *State) ReadKey(ch chan os.Signal) string {
 			s.handleUp()
 		case code == Down:
 			s.handleDown()
+		case code == Tab:
+			s.handleTab()
 		}
 	}
 }
 
 func (s *State) handlePrintable() {
-	if s.Pos == s.InputLen {
-		s.buf = append(s.buf, byte(s.Key))
-		s.Pos++
-		s.InputLen++
-		s.ClearLine()
-		s.PrintPrompt()
-		s.PrintBuffer()
-		// s.Pos++
-		// s.InputLen++
+	if s.pos == s.inputLen {
+		s.buf = append(s.buf, byte(s.key))
+		s.pos++
+		s.inputLen++
+		s.clearLine()
+		s.printPrompt()
+		s.printBuffer()
+		// s.pos++
+		// s.inputLen++
 	} else {
 		// make space for a new char
 		s.buf = append(s.buf, '0')
 		// shift
-		copy(s.buf[s.Pos+1:], s.buf[s.Pos:])
-		s.buf[s.Pos] = byte(s.Key)
+		copy(s.buf[s.pos+1:], s.buf[s.pos:])
+		s.buf[s.pos] = byte(s.key)
 
-		s.ClearLine()
-		s.PrintPrompt()
-		s.PrintBuffer()
+		s.clearLine()
+		s.printPrompt()
+		s.printBuffer()
 
-		s.Pos++
-		s.InputLen++
+		s.pos++
+		s.inputLen++
 
 		// Move cursor to right place
 		fmt.Print("\r")
-		fmt.Printf("\033[%dC", s.Pos+s.PromptLen)
+		fmt.Printf("\033[%dC", s.pos+s.promptLen)
 	}
 }
 
 func (s *State) handleEnter() string {
 	input := string(s.buf)
-	s.HistoryAdd(input)
-	s.ClearBuffer()
+	s.historyAdd(input)
+	s.clearBuffer()
 	fmt.Print("\n\r")
-	// s.PrintPrompt()
+	// s.printPrompt()
 	return input
 }
 
@@ -118,85 +121,100 @@ func (s *State) handleBackspace() {
 }
 
 func (s *State) handleLeft() {
-	if s.Pos > 0 {
-		s.Pos--
+	if s.pos > 0 {
+		s.pos--
 		fmt.Print("\033[1D")
 	}
 }
 
 func (s *State) handleRight() {
-	if s.Pos < s.InputLen {
-		s.Pos++
+	if s.pos < s.inputLen {
+		s.pos++
 		fmt.Print("\033[1C")
 	}
 }
 
 func (s *State) handleUp() {
-	if s.HistoryCount == 0 {
+	if s.historyCount == 0 {
 		return
 	}
-	if s.HistoryPos < 0 {
-		s.ClearLine()
-		s.ClearBuffer()
-		fmt.Print(s.Prompt)
-		s.InputLen = 0
-		s.Pos = 0
-		s.HistoryPos = s.HistoryCount - 1
+	if s.historyPos < 0 {
+		s.clearLine()
+		s.clearBuffer()
+		fmt.Print(s.prompt)
+		s.inputLen = 0
+		s.pos = 0
+		s.historyPos = s.historyCount - 1
 		return
 	}
-	s.buf = []byte(s.History[s.HistoryPos])
-	s.Pos = len(s.History[s.HistoryPos])
-	s.InputLen = s.Pos
-	s.HistoryPos--
+	s.buf = []byte(s.history[s.historyPos])
+	s.pos = len(s.history[s.historyPos])
+	s.inputLen = s.pos
+	s.historyPos--
 	fmt.Print("\r\033[K")
-	fmt.Print(s.Prompt)
+	fmt.Print(s.prompt)
 	fmt.Print(string(s.buf))
 
 }
 
 func (s *State) handleDown() {
-	// if s.HistoryCount == 0 {
+	// if s.historyCount == 0 {
 	// 	return
 	// }
-	// if s.HistoryPos < 0 {
-	// 	s.HistoryPos = 0
+	// if s.historyPos < 0 {
+	// 	s.historyPos = 0
 	// }
-	// if s.HistoryPos == s.HistoryCount-1 {
-	// 	s.ClearLine()
-	// 	s.ClearBuffer()
+	// if s.historyPos == s.historyCount-1 {
+	// 	s.clearLine()
+	// 	s.clearBuffer()
 	// 	fmt.Print(s.Prompt)
-	// 	s.InputLen = 0
-	// 	s.Pos = 0
-	// 	// s.HistoryPos = s.HistoryCount - 1
+	// 	s.inputLen = 0
+	// 	s.pos = 0
+	// 	// s.historyPos = s.historyCount - 1
 	// 	return
 	// }
-	// s.HistoryPos++
-	// s.buf = []byte(s.History[s.HistoryPos])
-	// s.Pos = len(s.History[s.HistoryPos])
-	// s.InputLen = s.Pos
+	// s.historyPos++
+	// s.buf = []byte(s.History[s.historyPos])
+	// s.pos = len(s.History[s.historyPos])
+	// s.inputLen = s.pos
 	// fmt.Print("\r\033[K")
 	// fmt.Print(s.Prompt)
 	// fmt.Print(string(s.buf))
 }
 
-// ClearBuffer clears buffer
-func (s *State) ClearBuffer() {
-	s.buf = s.buf[:0]
-	s.InputLen = 0
-	s.Pos = 0
+func (s *State) handleTab() {
+	if s.proposer == nil {
+		return
+	}
+	arr := s.proposer(string(s.buf))
+	if len(arr[0]) > 0 {
+		s.clearLine()
+		s.clearBuffer()
+		s.buf = []byte(arr[0])
+		fmt.Print(s.prompt)
+		s.printBuffer()
+		s.inputLen = len(s.buf)
+		s.pos = len(s.buf)
+	}
 }
 
-// ClearLine clears current line
-func (s *State) ClearLine() {
+func (s *State) clearBuffer() {
+	s.buf = s.buf[:0]
+	s.inputLen = 0
+	s.pos = 0
+}
+
+// clearLine clears current line
+func (s *State) clearLine() {
 	fmt.Print("\r\033[K")
 }
 
-// PrintPrompt prints prompt
-func (s *State) PrintPrompt() {
-	fmt.Print(s.Prompt)
+// printPrompt prints prompt
+func (s *State) printPrompt() {
+	fmt.Print(s.prompt)
 }
 
-// PrintBuffer prints buffer
-func (s *State) PrintBuffer() {
+// printBuffer prints buffer
+func (s *State) printBuffer() {
 	fmt.Print(string(s.buf))
 }
