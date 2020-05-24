@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strings"
 
 	"github.com/tuommii/taskmaster"
 	"golang.org/x/net/netutil"
@@ -12,7 +13,7 @@ import (
 
 func handleConnection(conn net.Conn, logger *log.Logger) {
 	// read buffer from client after enter is hit
-	bufferBytes, err := bufio.NewReader(conn).ReadBytes('\n')
+	data, err := bufio.NewReader(conn).ReadBytes('\n')
 
 	if err != nil {
 		logger.Println("client left..")
@@ -23,7 +24,7 @@ func handleConnection(conn net.Conn, logger *log.Logger) {
 	}
 
 	// convert bytes from buffer to string
-	message := string(bufferBytes)
+	message := strings.Trim(string(data), "\n")
 	taskmaster.RunCommand(taskmaster.ParseInput(message))
 	// get the remote address of the client
 	clientAddr := conn.RemoteAddr().String()
