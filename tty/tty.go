@@ -108,6 +108,7 @@ func (s *State) handlePrintable() {
 		fmt.Print("\r")
 		fmt.Printf("\033[%dC", s.pos+s.promptLen)
 	}
+	s.proposerPos = 0
 }
 
 func (s *State) handleEnter() string {
@@ -136,6 +137,7 @@ func (s *State) handleBackspace() {
 	fmt.Print(string(s.buf))
 	fmt.Print("\r")
 	fmt.Printf("\033[%dC", s.pos+s.promptLen)
+	s.proposerPos = 0
 }
 
 func (s *State) handleLeft() {
