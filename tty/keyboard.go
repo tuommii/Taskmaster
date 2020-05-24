@@ -4,6 +4,8 @@ import "os"
 
 // Keycodes
 const (
+	CtrlC     = 3
+	CtrlD     = 4
 	Tab       = 9
 	Enter     = 13
 	Esc       = 27

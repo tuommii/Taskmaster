@@ -1,13 +1,25 @@
 package tty
 
-import "strings"
-
 const historyLimit = 3
 
-// Proposer takes current input and returns all possible completions
+// Proposer (autocompleter) takes current input and returns all possible completions
 type Proposer func(input string) []string
 
-// SetProposer ...
+type hist struct {
+	history      []string
+	historyCount int
+	historyPos   int
+}
+
+type autocomplete struct {
+	// autocomplete func
+	proposer    Proposer
+	proposerPos int
+	// Currently available suggestions
+	suggestions []string
+}
+
+// SetProposer sets autocomplete function
 func (s *State) SetProposer(f Proposer) {
 	s.proposer = f
 }
@@ -27,12 +39,12 @@ func (s *State) historyAdd(item string) {
 	}
 }
 
-func (s *State) historySearch(prefix string) []string {
-	var result []string
-	for _, item := range s.history {
-		if strings.HasPrefix(item, prefix) {
-			result = append(result, item)
-		}
-	}
-	return result
-}
+// func (s *State) historySearch(prefix string) []string {
+// 	var result []string
+// 	for _, item := range s.history {
+// 		if strings.HasPrefix(item, prefix) {
+// 			result = append(result, item)
+// 		}
+// 	}
+// 	return result
+// }

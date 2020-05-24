@@ -9,23 +9,18 @@ import (
 type State struct {
 	// Cursor x position
 	pos int
-	// Width of user input
+	// Length of user input
 	inputLen int
-	// Key presses
+	// Key pressed
 	key int
-	// $>
+	// Prompt string e.g "$>""
 	prompt    string
 	promptLen int
 	// Width
-	cols           int
-	buf            []byte
-	history        []string
-	historyCount   int
-	historyPos     int
-	proposer       Proposer
-	proposerPos    int
-	proposerStatus bool
-	suggestions    []string
+	cols int
+	buf  []byte
+	hist
+	autocomplete
 	// Multiline support:
 	// Rows      int
 	// LinesUsed int
@@ -52,11 +47,9 @@ func (s *State) ReadKey(ch chan os.Signal) string {
 		code = keyPressed()
 		s.key = code
 		switch {
-		// CTRL + C
-		case code == 3:
+		case code == CtrlC:
 			ch <- os.Interrupt
-		// CTRL + D
-		case code == 4:
+		case code == CtrlD:
 			ch <- os.Interrupt
 		case code == Esc:
 			return "exit"
@@ -82,15 +75,15 @@ func (s *State) ReadKey(ch chan os.Signal) string {
 
 func (s *State) handlePrintable() {
 	if s.pos == s.inputLen {
+		// append
 		s.buf = append(s.buf, byte(s.key))
 		s.pos++
 		s.inputLen++
 		s.clearLine()
 		s.printPrompt()
 		s.printBuffer()
-		// s.pos++
-		// s.inputLen++
 	} else {
+		// insert
 		// make space for a new char
 		s.buf = append(s.buf, '0')
 		// shift
@@ -108,7 +101,8 @@ func (s *State) handlePrintable() {
 		fmt.Print("\r")
 		fmt.Printf("\033[%dC", s.pos+s.promptLen)
 	}
-	s.proposerPos = 0
+	// reset autocomplete suggestions
+	s.resetSuggestions()
 }
 
 func (s *State) handleEnter() string {
@@ -116,13 +110,8 @@ func (s *State) handleEnter() string {
 	s.historyAdd(input)
 	s.clearBuffer()
 	fmt.Print("\n\r")
-	s.proposerPos = 0
-	// s.printPrompt()
+	s.resetSuggestions()
 	return input
-}
-
-func remove(slice []byte, s int) []byte {
-	return append(slice[:s], slice[s+1:]...)
 }
 
 func (s *State) handleBackspace() {
@@ -132,12 +121,12 @@ func (s *State) handleBackspace() {
 	s.buf = remove(s.buf, s.pos-1)
 	s.pos--
 	s.inputLen--
-	fmt.Print("\r\033[K")
-	fmt.Print(s.prompt)
-	fmt.Print(string(s.buf))
+	s.clearLine()
+	s.printPrompt()
+	s.printBuffer()
 	fmt.Print("\r")
 	fmt.Printf("\033[%dC", s.pos+s.promptLen)
-	s.proposerPos = 0
+	s.resetSuggestions()
 }
 
 func (s *State) handleLeft() {
@@ -161,7 +150,7 @@ func (s *State) handleUp() {
 	if s.historyPos < 0 {
 		s.clearLine()
 		s.clearBuffer()
-		fmt.Print(s.prompt)
+		s.printPrompt()
 		s.inputLen = 0
 		s.pos = 0
 		s.historyPos = s.historyCount - 1
@@ -171,35 +160,13 @@ func (s *State) handleUp() {
 	s.pos = len(s.history[s.historyPos])
 	s.inputLen = s.pos
 	s.historyPos--
-	fmt.Print("\r\033[K")
-	fmt.Print(s.prompt)
-	fmt.Print(string(s.buf))
-
+	s.clearLine()
+	s.printPrompt()
+	s.printBuffer()
 }
 
 func (s *State) handleDown() {
-	// if s.historyCount == 0 {
-	// 	return
-	// }
-	// if s.historyPos < 0 {
-	// 	s.historyPos = 0
-	// }
-	// if s.historyPos == s.historyCount-1 {
-	// 	s.clearLine()
-	// 	s.clearBuffer()
-	// 	fmt.Print(s.Prompt)
-	// 	s.inputLen = 0
-	// 	s.pos = 0
-	// 	// s.historyPos = s.historyCount - 1
-	// 	return
-	// }
-	// s.historyPos++
-	// s.buf = []byte(s.History[s.historyPos])
-	// s.pos = len(s.History[s.historyPos])
-	// s.inputLen = s.pos
-	// fmt.Print("\r\033[K")
-	// fmt.Print(s.Prompt)
-	// fmt.Print(string(s.buf))
+	// TODO: Figure this out
 }
 
 func (s *State) handleTab() {
@@ -213,13 +180,13 @@ func (s *State) handleTab() {
 		return
 	}
 	if s.proposerPos >= len(s.suggestions) {
-		s.proposerPos = 0
+		s.resetSuggestions()
 	}
 	if len(s.suggestions[s.proposerPos]) > 0 {
 		s.clearLine()
 		s.clearBuffer()
 		s.buf = []byte(s.suggestions[s.proposerPos])
-		fmt.Print(s.prompt)
+		s.printPrompt()
 		s.printBuffer()
 		s.inputLen = len(s.buf)
 		s.pos = len(s.buf)
@@ -246,4 +213,12 @@ func (s *State) printPrompt() {
 // printBuffer prints buffer
 func (s *State) printBuffer() {
 	fmt.Print(string(s.buf))
+}
+
+func (s *State) resetSuggestions() {
+	s.proposerPos = 0
+}
+
+func remove(slice []byte, s int) []byte {
+	return append(slice[:s], slice[s+1:]...)
 }
