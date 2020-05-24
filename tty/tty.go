@@ -31,8 +31,8 @@ type State struct {
 func New(maxLen int) *State {
 	s := &State{
 		cols:      80,
-		prompt:    "$>",
-		promptLen: 2,
+		prompt:    "taskmaster$>",
+		promptLen: 11,
 		buf:       make([]byte, maxLen),
 	}
 	return s
@@ -53,7 +53,7 @@ func (s *State) ReadKey(ch chan os.Signal) string {
 			ch <- os.Interrupt
 		case code == Esc:
 			return "exit"
-		case IsPrintable(code):
+		case isPrintable(code):
 			s.handlePrintable()
 		case code == Enter:
 			return s.handleEnter()

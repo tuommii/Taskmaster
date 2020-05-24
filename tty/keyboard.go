@@ -19,8 +19,7 @@ const (
 
 var buffer = make([]byte, 5)
 
-// IsPrintable returns true if char can be printed
-func IsPrintable(code int) bool {
+func isPrintable(code int) bool {
 	if code >= 32 && code < 127 {
 		return true
 	}

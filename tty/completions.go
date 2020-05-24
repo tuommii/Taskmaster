@@ -5,18 +5,18 @@ const historyLimit = 3
 // Proposer (autocompleter) takes current input and returns all possible completions
 type Proposer func(input string) []string
 
-type hist struct {
-	history      []string
-	historyCount int
-	historyPos   int
-}
-
 type autocomplete struct {
 	// autocomplete func
 	proposer    Proposer
 	proposerPos int
 	// Currently available suggestions
 	suggestions []string
+}
+
+type hist struct {
+	history      []string
+	historyCount int
+	historyPos   int
 }
 
 // SetProposer sets autocomplete function

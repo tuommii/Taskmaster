@@ -79,6 +79,11 @@ func Create() *App {
 	return app
 }
 
+// AddLoggerPrefix adds prefix for logger
+func (app *App) AddLoggerPrefix(prefix string) {
+	app.logger.SetPrefix(prefix + app.logger.Prefix())
+}
+
 // ListenSignals ...
 func (app *App) ListenSignals() {
 	sig := <-app.signals
@@ -139,12 +144,11 @@ func RunCommand(tokens []string) {
 }
 
 func createLogger(filePath string) *log.Logger {
-	// file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0644)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// logger := log.New(file, "["+time.Now().String()[:19]+"]", 0)
-	logger := log.New(os.Stdout, "["+time.Now().String()[:19]+"]", 0)
-	logger.Println("Logger created")
+	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_TRUNC|os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	logger = log.New(file, "["+time.Now().String()[:19]+"] ", 0)
+	// logger := log.New(os.Stdout, "["+time.Now().String()[:19]+"]", 0)
 	return logger
 }
