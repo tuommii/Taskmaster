@@ -2,17 +2,32 @@ package job
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os/exec"
 	"strings"
 )
 
+var tasks = make(map[string]*Process)
+
 // Process represents runnable process
 type Process struct {
-	Name    string
-	Command string
-	Cmd     *exec.Cmd
+	Name    string    `json:"name"`
+	Command string    `json:"command"`
+	Cmd     *exec.Cmd `json:"cmd"`
+}
+
+// Load ...
+func Load(path string) map[string]*Process {
+	file, err := ioutil.ReadFile(path)
+	if err != nil {
+		fmt.Println("Error while opening config file: ", err)
+		panic(err)
+	}
+	err = json.Unmarshal([]byte(file), &tasks)
+	return tasks
 }
 
 // Launch ...

@@ -7,7 +7,7 @@ import (
 	"os/exec"
 )
 
-func Testi() {
+func testi() {
 
 	dateCmd := exec.Command("ls")
 	dateOut, err := dateCmd.Output()
@@ -20,7 +20,7 @@ func Testi() {
 
 }
 
-func RealTimeExample() {
+func realTimeExample() {
 	cmd := exec.Command("ping", "127.0.0.1")
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {

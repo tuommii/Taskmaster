@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/tuommii/taskmaster"
-	"github.com/tuommii/taskmaster/config"
 	"github.com/tuommii/taskmaster/job"
 	"golang.org/x/net/netutil"
 )
@@ -74,11 +73,12 @@ func main() {
 
 	pathFlag := flag.String("config", "./config.example.json", "path to config file")
 	flag.Parse()
-	conf := config.LoadConfig(*pathFlag)
+	tasks := job.Load(*pathFlag)
+	// conf := config.LoadConfig(*pathFlag)
 
-	for key, entry := range conf.Entries {
-		p := job.Process{Name: key, Command: entry.Command}
-		p.Launch()
+	for key, entry := range tasks {
+		task := job.Process{Name: key, Command: entry.Command}
+		task.Launch()
 	}
 
 	l, err := net.Listen("tcp", ":4200")
