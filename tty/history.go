@@ -20,13 +20,6 @@ func (s *State) HistoryAdd(item string) {
 	}
 }
 
-// HistoryPop ...
-func (s *State) HistoryPop() string {
-	if s.HistoryCount == 0 {
-		return ""
-	}
-}
-
 // HistorySearch ...
 func (s *State) HistorySearch(prefix string) []string {
 	var result []string

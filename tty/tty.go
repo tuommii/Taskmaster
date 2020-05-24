@@ -136,7 +136,13 @@ func (s *State) handleUp() {
 		return
 	}
 	if s.HistoryPos < 0 {
+		s.ClearLine()
+		s.ClearBuffer()
+		fmt.Print(s.Prompt)
+		s.InputLen = 0
+		s.Pos = 0
 		s.HistoryPos = s.HistoryCount - 1
+		return
 	}
 	s.buf = []byte(s.History[s.HistoryPos])
 	s.Pos = len(s.History[s.HistoryPos])
@@ -149,25 +155,28 @@ func (s *State) handleUp() {
 }
 
 func (s *State) handleDown() {
-	if s.HistoryCount == 0 {
-		return
-	}
-	if s.HistoryPos == 1 && s.HistoryCount == 1 {
-		s.HistoryPos = 0
-	}
-	if s.HistoryPos == s.HistoryCount-1 {
-		s.HistoryPos = 0
-	}
-	if s.HistoryPos < 0 {
-		s.HistoryPos = s.HistoryCount - 1
-	}
-	s.buf = []byte(s.History[s.HistoryPos])
-	s.Pos = len(s.History[s.HistoryPos])
-	s.InputLen = s.Pos
-	s.HistoryPos++
-	fmt.Print("\r\033[K")
-	fmt.Print(s.Prompt)
-	fmt.Print(string(s.buf))
+	// if s.HistoryCount == 0 {
+	// 	return
+	// }
+	// if s.HistoryPos < 0 {
+	// 	s.HistoryPos = 0
+	// }
+	// if s.HistoryPos == s.HistoryCount-1 {
+	// 	s.ClearLine()
+	// 	s.ClearBuffer()
+	// 	fmt.Print(s.Prompt)
+	// 	s.InputLen = 0
+	// 	s.Pos = 0
+	// 	// s.HistoryPos = s.HistoryCount - 1
+	// 	return
+	// }
+	// s.HistoryPos++
+	// s.buf = []byte(s.History[s.HistoryPos])
+	// s.Pos = len(s.History[s.HistoryPos])
+	// s.InputLen = s.Pos
+	// fmt.Print("\r\033[K")
+	// fmt.Print(s.Prompt)
+	// fmt.Print(string(s.buf))
 }
 
 // ClearBuffer clears buffer
