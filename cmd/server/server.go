@@ -45,11 +45,8 @@ func signalHandler(signalsCh chan os.Signal) {
 	for s := range signalsCh {
 		switch {
 		case s == syscall.SIGHUP:
-			fmt.Println("RELOAD CONFIG!")
-		case s == syscall.SIGINT:
-			fmt.Printf("\nABORT!")
-			os.Exit(0)
-		case s == syscall.SIGTERM:
+			fmt.Println("RELOAD")
+		case s == syscall.SIGTERM || s == syscall.SIGINT:
 			fmt.Printf("\nABORT!")
 			os.Exit(0)
 		default:
