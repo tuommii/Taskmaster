@@ -13,9 +13,9 @@ import (
 
 // Process statuses
 const (
-	STARTING = iota
+	STOPPED = iota
+	STARTING
 	RUNNING
-	STOPPED
 	TIMEOUT
 )
 
@@ -32,6 +32,8 @@ type Process struct {
 	Procs        int    `json:"procs"`
 	StartTime    int    `json:"startTime"`
 	StartRetries int    `json:"startRetries"`
+	StopTime     int    `json:"stopTime"`
+	StopSignal   string `json:"stopSignal"`
 	Cmd          *exec.Cmd
 	Status       int
 	stdout       io.ReadCloser
@@ -59,12 +61,19 @@ func (p *Process) Launch() {
 	go p.clean()
 }
 
+// Kill process
+func (p *Process) Kill() error {
+	return p.Cmd.Process.Kill()
+	// p.Cmd.Process.Release()
+}
+
 // clean process when ready
 func (p *Process) clean() {
 	// Wait until process is done
 	err := p.Cmd.Wait()
+	// p.Cmd.ProcessState
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("CLEAN:", err)
 	}
 	// No need to call Close() when using pipes ?
 	// p.stdout.Close()

@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"os/exec"
+	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/tuommii/taskmaster"
@@ -20,7 +22,7 @@ func handleConnection(conn net.Conn, logger *log.Logger) {
 	data, err := bufio.NewReader(conn).ReadBytes('\n')
 
 	if err != nil {
-		logger.Println("client left..")
+		fmt.Println("client left..")
 		conn.Close()
 
 		// escape recursion
@@ -36,7 +38,7 @@ func handleConnection(conn net.Conn, logger *log.Logger) {
 	response := fmt.Sprintf(message + " from " + clientAddr + "\n")
 
 	// have server print out important information
-	logger.Println(response)
+	fmt.Println(response)
 
 	// let the client know what happened
 	conn.Write([]byte("you sent: " + response))
@@ -45,30 +47,20 @@ func handleConnection(conn net.Conn, logger *log.Logger) {
 	handleConnection(conn, logger)
 }
 
-func launch(executable string, args []string) {
-	cmd := exec.Command(executable, args...)
-	stdout, err := cmd.StdoutPipe()
-	// stderr, err := cmd.StderrPipe()
-	if err != nil {
-		log.Fatal(err)
-	}
-	cmd.Start()
-	buf := bufio.NewReader(stdout) // Notice that this is not in a loop
-	num := 1
-	for {
-		line, _, err := buf.ReadLine()
-		if err != nil {
-			return
-		}
-		// if num > 3 {
-		// 	return
-		// }
-		num++
-		fmt.Println(string(line))
-	}
-}
-
 func main() {
+
+	// We must use a buffered channel or risk missing the signal
+	// if we're not ready to receive when the signal is sent
+	signalsCh := make(chan os.Signal, 1)
+	// Passing no signals to Notify means that
+	// all signals will be sent to the channel.
+	// signal.Notify(signalsCh)
+	signal.Ignore(syscall.SIGCHLD)
+	go func() {
+		s := <-signalsCh
+		fmt.Println("GOT SIGNAL", s)
+	}()
+
 	logger := taskmaster.Logger()
 	logger.SetPrefix("SERVER: " + logger.Prefix())
 
@@ -84,9 +76,11 @@ func main() {
 	// Simulate killing
 	time.Sleep(time.Second * 2)
 	fmt.Println("2sec")
+	signalsCh <- syscall.SIGALRM
 	for _, task := range tasks {
 		// task.Done <- true
-		task.Cmd.Process.Kill()
+		// task.Cmd.Process.Kill()
+		task.Kill()
 	}
 
 	l, err := net.Listen("tcp", ":4200")
