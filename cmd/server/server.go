@@ -8,6 +8,7 @@ import (
 	"net"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/tuommii/taskmaster"
 	"github.com/tuommii/taskmaster/job"
@@ -80,12 +81,21 @@ func main() {
 		task.Launch()
 	}
 
+	// Simulate killing
+	time.Sleep(time.Second * 2)
+	fmt.Println("2sec")
+	for _, task := range tasks {
+		// task.Done <- true
+		task.Cmd.Process.Kill()
+	}
+
 	l, err := net.Listen("tcp", ":4200")
 	if err != nil {
 		logger.Fatal("LISTEN:", err)
 	}
 	defer l.Close()
 
+	// Only one client at time allowed
 	l = netutil.LimitListener(l, 1)
 
 	for {
@@ -94,12 +104,5 @@ func main() {
 			logger.Fatal("ACCEPT", err)
 		}
 		go handleConnection(conn, logger)
-
-		// data = strings.TrimSpace(string(data))
-		// taskmaster.RunCommand(taskmaster.ParseInput(data))
-		// if data != "" {
-		// 	fmt.Println("->", data)
-		// }
-		// conn.Write([]byte("from server"))
 	}
 }

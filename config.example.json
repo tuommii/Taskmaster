@@ -1,16 +1,26 @@
 {
-	"Hello": {
-		"command": "ls -al /home/miikka",
-		"autostart": true,
+	"TAIL -F 1": {
+		"name": "TAIL -F 1",
+		"command": "tail -f /var/log/syslog",
+		"autostart": false,
 		"autorestart": true,
 		"stderr": "/tmp/taskmaster_err",
 		"stdout": "/tmp/taskmaster_out"
 	},
-	"Hello2": {
-		"command": "ls -a",
+	"TAIL -F 2": {
+		"name": "TAIL -F 2",
+		"command": "tail -f /var/log/kern.log",
 		"autostart": false,
 		"autorestart": true,
-		"stderr": "var/log",
-		"stdout": "log"
+		"stderr": "/tmp/taskmaster_err2",
+		"stdout": "/tmp/taskmaster_out2"
+	},
+	"LS": {
+		"name": "LS",
+		"command": "ls",
+		"autostart": false,
+		"autorestart": true,
+		"stderr": "/tmp/taskmaster_err3",
+		"stdout": "/tmp/taskmaster_out3"
 	}
 }

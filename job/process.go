@@ -1,6 +1,7 @@
 package job
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -27,10 +28,11 @@ type Process struct {
 	Stdout  string `json:"stdout"`
 	Stderr  string `json:"stderr"`
 	Cmd     *exec.Cmd
+	Done    chan bool
 	Status  int
 }
 
-// LoadAll jobs from config file
+// LoadAll loads all jobs from config file
 func LoadAll(path string) map[string]*Process {
 	file, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -41,52 +43,53 @@ func LoadAll(path string) map[string]*Process {
 	return tasks
 }
 
-// GetStdout ... Remember close file
-func (p *Process) GetStdout() *os.File {
-	if p.Stdout == "" {
-		fmt.Println("out was empty")
-		return nil
-	}
-	file, err := os.OpenFile(p.Stdout, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
-	p.Cmd.Stdout = file
-	return file
-}
-
-// GetStderr ... Remember close file
-func (p *Process) GetStderr() *os.File {
-	if p.Stderr == "" {
-		fmt.Println("err was empty")
-		return nil
-	}
-	file, err := os.OpenFile(p.Stderr, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
-	p.Cmd.Stderr = file
-	return file
-}
-
 // Launch ...
 func (p *Process) Launch() {
 	tokens := strings.Fields(p.Command)
 	p.Cmd = exec.Command(tokens[0], tokens[1:]...)
 
-	errFile := p.GetStderr()
-	if errFile != nil {
-		defer errFile.Close()
-	}
+	p.Done = make(chan bool, 1)
+	out, _ := p.Cmd.StdoutPipe()
+	// if err != nil {
+	// 	log.Println("pipe error", err)
+	// }
+	// defer out.Close()
+	go func() {
+		s := bufio.NewScanner(out)
+		file, err := os.OpenFile(p.Stdout, os.O_CREATE|os.O_TRUNC|os.O_APPEND|os.O_WRONLY, 0644)
+		if err != nil {
+			fmt.Println("FILE OPEN ERROR", err)
+			return
+		}
+		for s.Scan() {
+			fmt.Fprintln(file, s.Text())
+		}
+		fmt.Println(p.Name, "stopped reading")
+		// defer out.Close()
+	}()
 
-	outFile := p.GetStdout()
-	if outFile != nil {
-		defer outFile.Close()
-	}
+	// errFile := p.GetStderr()
+	// if errFile != nil {
+	// 	defer errFile.Close()
+	// }
+
+	// outFile := p.GetStdout()
+	// if outFile != nil {
+	// 	defer outFile.Close()
+	// }
 
 	p.Cmd.Start()
+	go func() {
+		// Wait until process is done
+		err := p.Cmd.Wait()
+		if err != nil {
+			fmt.Println(err)
+		}
+		out.Close()
+		// Inform
+		p.Done <- true
+	}()
+	// p.Done <- true
 	// stdout, err := p.Cmd.StdoutPipe()
 	// if err != nil {
 	// 	log.Fatal(err)
