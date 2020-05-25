@@ -12,16 +12,13 @@ import (
 	"strings"
 )
 
-// Process statuses
+// Statuses
 const (
 	STOPPED = iota
 	STARTING
 	RUNNING
 	TIMEOUT
 )
-
-// Holds all processes
-var tasks = make(map[string]*Process)
 
 // Process represents runnable process
 type Process struct {
@@ -43,6 +40,7 @@ type Process struct {
 
 // LoadAll loads all jobs from config file
 func LoadAll(path string) map[string]*Process {
+	tasks := make(map[string]*Process)
 	file, err := ioutil.ReadFile(path)
 	if err != nil {
 		log.Fatal("Error while opening config file: ", err)
@@ -52,7 +50,7 @@ func LoadAll(path string) map[string]*Process {
 	return tasks
 }
 
-// Launch ...
+// Launch executes task
 func (p *Process) Launch() {
 	p.prepare()
 	go p.redirect(p.stdout, p.OutputLog, os.Stdout)
@@ -64,6 +62,7 @@ func (p *Process) Launch() {
 // Kill process
 func (p *Process) Kill() error {
 	return p.Cmd.Process.Kill()
+	// Maybe ?
 	// p.Cmd.Process.Release()
 }
 
@@ -71,10 +70,10 @@ func (p *Process) Kill() error {
 func (p *Process) clean() {
 	// Wait until process is done
 	err := p.Cmd.Wait()
-	// p.Cmd.ProcessState
 	if err != nil {
 		fmt.Println("CLEAN:", err)
 	}
+	// Maybe some use for p.Cmd.ProcessState later ?
 	// No need to call Close() when using pipes ?
 	// p.stdout.Close()
 	// p.stderr.Close()
@@ -86,11 +85,11 @@ func (p *Process) prepare() {
 	p.Cmd = exec.Command(tokens[0], tokens[1:]...)
 
 	var err error
-	// TODO: err checks
 	p.stdout, err = p.Cmd.StdoutPipe()
 	if err != nil {
 		fmt.Println("PIPE:", err)
 	}
+
 	p.stderr, err = p.Cmd.StderrPipe()
 	if err != nil {
 		fmt.Println("PIPE", err)
