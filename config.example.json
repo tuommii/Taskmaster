@@ -1,16 +1,16 @@
 {
 	"Hello": {
-		"command": "ls",
+		"command": "ls -al /home/miikka",
 		"autostart": true,
 		"autorestart": true,
-		"stderr_log": "/tmp/taskmaster_err",
-		"stdout_log": "/tmp/taskmaster_out"
+		"stderr": "/tmp/taskmaster_err",
+		"stdout": "/tmp/taskmaster_out"
 	},
 	"Hello2": {
 		"command": "ls -a",
 		"autostart": false,
 		"autorestart": true,
-		"stderr_log": "var/log",
-		"stdout_log": "log"
+		"stderr": "var/log",
+		"stdout": "log"
 	}
 }

@@ -73,11 +73,10 @@ func main() {
 
 	pathFlag := flag.String("config", "./config.example.json", "path to config file")
 	flag.Parse()
-	tasks := job.Load(*pathFlag)
-	// conf := config.LoadConfig(*pathFlag)
+	tasks := job.LoadAll(*pathFlag)
 
-	for key, entry := range tasks {
-		task := job.Process{Name: key, Command: entry.Command}
+	for key, task := range tasks {
+		fmt.Println(key, task)
 		task.Launch()
 	}
 
