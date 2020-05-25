@@ -1,11 +1,36 @@
 {
+	"TAIL -F 1": {
+		"name": "TAIL -F 1",
+		"command": "tail -f /var/log/syslog",
+		"autostart": false,
+		"autorestart": true,
+		"stderr": "/tmp/taskmaster_err",
+		"stdout": "/tmp/taskmaster_out"
+	},
+	"TAIL -F 2": {
+		"name": "TAIL -F 2",
+		"command": "tail -f /var/log/kern.log",
+		"autostart": false,
+		"autorestart": true,
+		"stderr": "/tmp/taskmaster_err2",
+		"stdout": "/tmp/taskmaster_out2"
+	},
+	"LS": {
+		"name": "LS",
+		"command": "ls",
+		"autostart": false,
+		"autorestart": true,
+		"workingDir": "aaa",
+		"stderr": "aaaa/tmp/taskmaster_err3",
+		"stdout": "aaaa/tmp/taskmaster_out3"
+	},
 	"LS 2": {
 		"name": "LS 2",
 		"command": "ls",
 		"workingDir": "/tmp/",
 		"autostart": false,
 		"autorestart": true,
-		"stderr": "/tmp/taskmaster_err4",
-		"stdout": "/tmp/taskmaster_out4"
+		"stderr": "aaaa/tmp/taskmaster_err4",
+		"stdout": "aaaa/tmp/taskmaster_out4"
 	}
 }
