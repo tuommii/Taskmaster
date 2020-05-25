@@ -24,14 +24,18 @@ var tasks = make(map[string]*Process)
 
 // Process represents runnable process
 type Process struct {
-	Name      string `json:"name"`
-	Command   string `json:"command"`
-	OutputLog string `json:"stdout"`
-	ErrorLog  string `json:"stderr"`
-	Cmd       *exec.Cmd
-	Status    int
-	stdout    io.ReadCloser
-	stderr    io.ReadCloser
+	Name         string `json:"name"`
+	Command      string `json:"command"`
+	OutputLog    string `json:"stdout"`
+	ErrorLog     string `json:"stderr"`
+	WorkingDir   string `json:"workingDir"`
+	Procs        int    `json:"procs"`
+	StartTime    int    `json:"startTime"`
+	StartRetries int    `json:"startRetries"`
+	Cmd          *exec.Cmd
+	Status       int
+	stdout       io.ReadCloser
+	stderr       io.ReadCloser
 }
 
 // LoadAll loads all jobs from config file
@@ -81,6 +85,20 @@ func (p *Process) prepare() {
 	p.stderr, err = p.Cmd.StderrPipe()
 	if err != nil {
 		fmt.Println("PIPE", err)
+	}
+	p.cwd(p.WorkingDir)
+}
+
+// Change current working directory if path exists and is directory
+func (p *Process) cwd(dir string) {
+	var stat os.FileInfo
+	var err error
+
+	if stat, err = os.Stat(p.WorkingDir); err != nil {
+		return
+	}
+	if stat.IsDir() {
+		p.Cmd.Dir = p.WorkingDir
 	}
 }
 
