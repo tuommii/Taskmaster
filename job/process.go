@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -23,13 +24,14 @@ var tasks = make(map[string]*Process)
 
 // Process represents runnable process
 type Process struct {
-	Name    string `json:"name"`
-	Command string `json:"command"`
-	Stdout  string `json:"stdout"`
-	Stderr  string `json:"stderr"`
-	Cmd     *exec.Cmd
-	Done    chan bool
-	Status  int
+	Name      string `json:"name"`
+	Command   string `json:"command"`
+	OutputLog string `json:"stdout"`
+	ErrorLog  string `json:"stderr"`
+	Cmd       *exec.Cmd
+	Status    int
+	stdout    io.ReadCloser
+	stderr    io.ReadCloser
 }
 
 // LoadAll loads all jobs from config file
@@ -40,7 +42,23 @@ func LoadAll(path string) map[string]*Process {
 		panic(err)
 	}
 	err = json.Unmarshal([]byte(file), &tasks)
+	fmt.Printf("%+v\n", tasks)
 	return tasks
+}
+
+// Redirects standard stream to file. If path aint valid, then using alternative.
+func (p *Process) redirect(stream io.ReadCloser, path string, alternative *os.File) {
+	s := bufio.NewScanner(stream)
+	file, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		file = alternative
+		fmt.Println("FILE OPEN ERROR", err)
+	}
+	for s.Scan() {
+		fmt.Fprintln(file, s.Text())
+	}
+	// When ReadCloser is closed this will executed
+	fmt.Println(p.Name, "stopped reading")
 }
 
 // Launch ...
@@ -48,25 +66,25 @@ func (p *Process) Launch() {
 	tokens := strings.Fields(p.Command)
 	p.Cmd = exec.Command(tokens[0], tokens[1:]...)
 
-	p.Done = make(chan bool, 1)
-	out, _ := p.Cmd.StdoutPipe()
-	// if err != nil {
-	// 	log.Println("pipe error", err)
-	// }
-	// defer out.Close()
-	go func() {
-		s := bufio.NewScanner(out)
-		file, err := os.OpenFile(p.Stdout, os.O_CREATE|os.O_TRUNC|os.O_APPEND|os.O_WRONLY, 0644)
-		if err != nil {
-			fmt.Println("FILE OPEN ERROR", err)
-			return
-		}
-		for s.Scan() {
-			fmt.Fprintln(file, s.Text())
-		}
-		fmt.Println(p.Name, "stopped reading")
-		// defer out.Close()
-	}()
+	// TODO: err checks
+	p.stdout, _ = p.Cmd.StdoutPipe()
+	p.stderr, _ = p.Cmd.StderrPipe()
+	go p.redirect(p.stdout, p.OutputLog, os.Stdout)
+	go p.redirect(p.stderr, p.ErrorLog, os.Stderr)
+
+	// go func() {
+	// 	s := bufio.NewScanner(p.stdout)
+	// 	file, err := os.OpenFile(p.StdoutLog, os.O_CREATE|os.O_TRUNC|os.O_APPEND|os.O_WRONLY, 0644)
+	// 	if err != nil {
+	// 		file = os.Stdout
+	// 		fmt.Println("FILE OPEN ERROR", err)
+	// 	}
+	// 	for s.Scan() {
+	// 		fmt.Fprintln(file, s.Text())
+	// 	}
+	// 	// When ReadCloser is closed this will executed
+	// 	fmt.Println(p.Name, "stopped reading")
+	// }()
 
 	// errFile := p.GetStderr()
 	// if errFile != nil {
@@ -85,9 +103,8 @@ func (p *Process) Launch() {
 		if err != nil {
 			fmt.Println(err)
 		}
-		out.Close()
-		// Inform
-		p.Done <- true
+		p.stdout.Close()
+		p.stderr.Close()
 	}()
 	// p.Done <- true
 	// stdout, err := p.Cmd.StdoutPipe()

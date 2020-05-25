@@ -20,7 +20,7 @@
 		"command": "ls",
 		"autostart": false,
 		"autorestart": true,
-		"stderr": "/tmp/taskmaster_err3",
-		"stdout": "/tmp/taskmaster_out3"
+		"stderr": "aaaa/tmp/taskmaster_err3",
+		"stdout": "aaaa/tmp/taskmaster_out3"
 	}
 }
