@@ -17,49 +17,52 @@ import (
 	"golang.org/x/net/netutil"
 )
 
-func handleConnection(conn net.Conn, logger *log.Logger) {
-	// read buffer from client after enter is hit
-	data, err := bufio.NewReader(conn).ReadBytes('\n')
-
-	if err != nil {
-		fmt.Println("client left..")
-		conn.Close()
-
-		// escape recursion
-		return
-	}
-
-	// convert bytes from buffer to string
-	message := strings.Trim(string(data), "\n")
-	taskmaster.RunCommand(taskmaster.ParseInput(message))
-	// get the remote address of the client
-	clientAddr := conn.RemoteAddr().String()
-	// format a response
-	response := fmt.Sprintf(message + " from " + clientAddr + "\n")
-
-	// have server print out important information
-	fmt.Println(response)
-
-	// let the client know what happened
-	conn.Write([]byte("you sent: " + response))
-
-	// recursive func to handle io.EOF for random disconnects
-	handleConnection(conn, logger)
-}
-
-func main() {
-
+func listenSignals() {
 	// We must use a buffered channel or risk missing the signal
 	// if we're not ready to receive when the signal is sent
 	signalsCh := make(chan os.Signal, 1)
-	// Passing no signals to Notify means that
-	// all signals will be sent to the channel.
-	// signal.Notify(signalsCh)
-	signal.Ignore(syscall.SIGCHLD)
+	signal.Notify(signalsCh)
+
 	go func() {
-		s := <-signalsCh
-		fmt.Println("GOT SIGNAL", s)
+		// Must be in loop or otherwise config can be reloaded only once
+		for s := range signalsCh {
+			switch {
+			case s == syscall.SIGHUP:
+				fmt.Println("RELOAD CONFIG!")
+			case s == syscall.SIGINT:
+				fmt.Printf("\nABORT!")
+				os.Exit(0)
+			case s == syscall.SIGTERM:
+				fmt.Printf("\nABORT!")
+				os.Exit(0)
+			default:
+			}
+		}
 	}()
+}
+
+func main() {
+	listenSignals()
+	// // We must use a buffered channel or risk missing the signal
+	// // if we're not ready to receive when the signal is sent
+	// signalsCh := make(chan os.Signal, 1)
+	// // Passing no signals to Notify means that
+	// // all signals will be sent to the channel.
+	// signal.Notify(signalsCh, syscall.SIGHUP, syscall.SIGTERM, syscall.SIGABRT)
+	// // signal.Ignore(syscall.SIGCHLD)
+
+	// go func() {
+	// 	// Must be in loop or otherwise config can be reloaded only once
+	// 	for {
+	// 		s := <-signalsCh
+	// 		if s == syscall.SIGHUP {
+	// 			fmt.Println("RELOAD CONFIG!")
+	// 		}
+	// 		if s == syscall.SIGABRT || s == syscall.SIGTERM {
+	// 			os.Exit(0)
+	// 		}
+	// 	}
+	// }()
 
 	logger := taskmaster.Logger()
 	logger.SetPrefix("SERVER: " + logger.Prefix())
@@ -76,7 +79,6 @@ func main() {
 	// Simulate killing
 	time.Sleep(time.Second * 2)
 	fmt.Println("2sec")
-	signalsCh <- syscall.SIGALRM
 	for _, task := range tasks {
 		// task.Done <- true
 		// task.Cmd.Process.Kill()
@@ -99,4 +101,23 @@ func main() {
 		}
 		go handleConnection(conn, logger)
 	}
+}
+
+func handleConnection(conn net.Conn, logger *log.Logger) {
+	data, err := bufio.NewReader(conn).ReadBytes('\n')
+	if err != nil {
+		fmt.Println("client left..")
+		conn.Close()
+		// escape recursion
+		return
+	}
+	msg := strings.Trim(string(data), "\n")
+	taskmaster.RunCommand(taskmaster.ParseInput(msg))
+	// get the remote address of the client
+	clientAddr := conn.RemoteAddr().String()
+	fmt.Println(msg, "from", clientAddr+"\n")
+	conn.Write([]byte("you sent: " + "sended to client"))
+
+	// recursive func to handle io.EOF for random disconnects
+	handleConnection(conn, logger)
 }
