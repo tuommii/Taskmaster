@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -44,8 +45,7 @@ type Process struct {
 func LoadAll(path string) map[string]*Process {
 	file, err := ioutil.ReadFile(path)
 	if err != nil {
-		fmt.Println("Error while opening config file: ", err)
-		panic(err)
+		log.Fatal("Error while opening config file: ", err)
 	}
 	err = json.Unmarshal([]byte(file), &tasks)
 	fmt.Printf("%+v\n", tasks)
