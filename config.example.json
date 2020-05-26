@@ -10,6 +10,7 @@
 	"TAIL -F 2": {
 		"name": "TAIL -F 2",
 		"command": "tail -f /var/log/kern.log",
+		"stopTime": 3,
 		"autostart": false,
 		"autorestart": true,
 		"stderr": "/tmp/taskmaster_err2",
@@ -27,7 +28,7 @@
 	"LS 2": {
 		"name": "LS 2",
 		"command": "ls",
-		"startTime": 5,
+		"startDelay": 5,
 		"workingDir": "/home/miikka/projects/hive/",
 		"autostart": false,
 		"autorestart": true,

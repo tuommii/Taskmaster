@@ -30,12 +30,13 @@ type Process struct {
 	ErrorLog     string `json:"stderr"`
 	WorkingDir   string `json:"workingDir"`
 	Procs        int    `json:"procs"`
-	StartTime    int    `json:"startTime"`
+	StartDelay   int    `json:"startDelay"`
 	StartRetries int    `json:"startRetries"`
 	StopTime     int    `json:"stopTime"`
 	StopSignal   string `json:"stopSignal"`
 	Umask        int    `json:"umask"`
 	Cmd          *exec.Cmd
+	StartTime    time.Time
 	Status       int
 	stdout       io.ReadCloser
 	stderr       io.ReadCloser
@@ -59,15 +60,31 @@ func (p *Process) Launch() {
 	go p.redirect(p.stdout, p.OutputLog, os.Stdout)
 	go p.redirect(p.stderr, p.ErrorLog, os.Stderr)
 	oldMask := syscall.Umask(p.Umask)
+
+	// Wait before execution if needed
 	go func() {
-		fmt.Println(p.Name, "Sleeping", p.StartTime, "seconds")
-		time.Sleep(time.Duration(p.StartTime) * time.Second)
-		fmt.Println(p.Name, "Sleeped", p.StartTime, "seconds")
+		time.Sleep(time.Duration(p.StartDelay) * time.Second)
+		fmt.Println(p.Name, "Sleeped", p.StartDelay, "seconds")
 		p.Cmd.Start()
+		p.StartTime = time.Now()
 	}()
+
+	p.killAfter()
+
 	syscall.Umask(oldMask)
-	// p.Cmd.SysProcAttr.
 	go p.clean()
+}
+
+func (p *Process) killAfter() {
+	if p.StopTime <= 0 {
+		return
+	}
+	timeoutCh := time.After(time.Duration(p.StopTime) * time.Second)
+	go func() {
+		<-timeoutCh
+		fmt.Println(p.Name, "timed out")
+		p.Kill()
+	}()
 }
 
 // Kill process
