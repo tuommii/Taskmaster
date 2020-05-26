@@ -10,6 +10,8 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"syscall"
+	"time"
 )
 
 // Statuses
@@ -32,6 +34,7 @@ type Process struct {
 	StartRetries int    `json:"startRetries"`
 	StopTime     int    `json:"stopTime"`
 	StopSignal   string `json:"stopSignal"`
+	Umask        int    `json:"umask"`
 	Cmd          *exec.Cmd
 	Status       int
 	stdout       io.ReadCloser
@@ -55,7 +58,15 @@ func (p *Process) Launch() {
 	p.prepare()
 	go p.redirect(p.stdout, p.OutputLog, os.Stdout)
 	go p.redirect(p.stderr, p.ErrorLog, os.Stderr)
-	p.Cmd.Start()
+	oldMask := syscall.Umask(p.Umask)
+	go func() {
+		fmt.Println(p.Name, "Sleeping", p.StartTime, "seconds")
+		time.Sleep(time.Duration(p.StartTime) * time.Second)
+		fmt.Println(p.Name, "Sleeped", p.StartTime, "seconds")
+		p.Cmd.Start()
+	}()
+	syscall.Umask(oldMask)
+	// p.Cmd.SysProcAttr.
 	go p.clean()
 }
 

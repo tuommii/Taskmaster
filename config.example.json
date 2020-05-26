@@ -27,7 +27,8 @@
 	"LS 2": {
 		"name": "LS 2",
 		"command": "ls",
-		"workingDir": "/tmp/",
+		"startTime": 5,
+		"workingDir": "/home/miikka/projects/hive/",
 		"autostart": false,
 		"autorestart": true,
 		"stderr": "aaaa/tmp/taskmaster_err4",
