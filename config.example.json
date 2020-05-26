@@ -34,5 +34,14 @@
 		"autorestart": true,
 		"stderr": "aaaa/tmp/taskmaster_err4",
 		"stdout": "aaaa/tmp/taskmaster_out4"
+	},
+	"TESTI": {
+		"name": "TESTI",
+		"command": "sleep 30",
+		"workingDir": "/home/miikka/projects/hive/",
+		"autostart": false,
+		"autorestart": true,
+		"stderr": "aaaa/tmp/taskmaster_err4",
+		"stdout": "aaaa/tmp/taskmaster_out4"
 	}
 }

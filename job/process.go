@@ -60,7 +60,9 @@ func (p *Process) Launch() {
 	go p.redirect(p.stdout, p.OutputLog, os.Stdout)
 	go p.redirect(p.stderr, p.ErrorLog, os.Stderr)
 	oldMask := syscall.Umask(p.Umask)
+	// TODO: use same techniue than kill after
 	go p.launchAfter()
+	// p.Cmd.SysProcAttr.Ctty
 	// Not creating goroutine if no delay
 	p.killAfter()
 	syscall.Umask(oldMask)
