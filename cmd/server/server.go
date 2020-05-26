@@ -16,6 +16,9 @@ import (
 	"golang.org/x/net/netutil"
 )
 
+// reloader func, takes path to config and old processes
+type reloaderF func(string, map[string]*job.Process)
+
 func main() {
 	configPath := flag.String("config", "./config.example.json", "path to config file")
 	flag.Parse()
@@ -31,6 +34,20 @@ func main() {
 	listenConnections()
 }
 
+func reloadConfig(configPath string, tasks map[string]*job.Process) {
+	fmt.Println("RELOAD")
+	for key, task := range tasks {
+		fmt.Println("Killing and deleting", key)
+		task.Kill()
+		delete(tasks, key)
+	}
+	tasks = job.LoadAll(configPath)
+	for _, task := range tasks {
+		task.Launch()
+	}
+	fmt.Println("LOADED", len(tasks), "TASKS")
+}
+
 func listenSignals(configPath string, tasks map[string]*job.Process) {
 	// We must use a buffered channel or risk missing the signal
 	// if we're not ready to receive when the signal is sent
@@ -43,17 +60,19 @@ func listenSignals(configPath string, tasks map[string]*job.Process) {
 		for s := range signalsCh {
 			switch {
 			case s == syscall.SIGHUP:
-				fmt.Println("RELOAD")
-				for key, task := range tasks {
-					fmt.Println("Killing and deleting", key)
-					task.Kill()
-					delete(tasks, key)
-				}
-				tasks = job.LoadAll(configPath)
-				for _, task := range tasks {
-					task.Launch()
-				}
-				fmt.Println("LOADED", len(tasks), "TASKS")
+				fmt.Println("VITTUTUTUT")
+				reloadConfig(configPath, tasks)
+				// fmt.Println("RELOAD")
+				// for key, task := range tasks {
+				// 	fmt.Println("Killing and deleting", key)
+				// 	task.Kill()
+				// 	delete(tasks, key)
+				// }
+				// tasks = job.LoadAll(configPath)
+				// for _, task := range tasks {
+				// 	task.Launch()
+				// }
+				// fmt.Println("LOADED", len(tasks), "TASKS")
 			case s == syscall.SIGTERM || s == syscall.SIGINT:
 				fmt.Printf("\nABORT!")
 				os.Exit(0)

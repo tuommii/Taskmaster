@@ -7,7 +7,8 @@ type Proposer func(input string) []string
 
 type autocomplete struct {
 	// autocomplete func
-	proposer    Proposer
+	proposer Proposer
+	// index in suggestions arr
 	proposerPos int
 	// Currently available suggestions
 	suggestions []string

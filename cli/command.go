@@ -20,6 +20,23 @@ type Command struct {
 	Commands []*Command
 }
 
+func init() {
+	Commands = append(Commands, HelpCmd)
+	Commands = append(Commands, StatusCmd)
+	Commands = append(Commands, StartCmd)
+	Commands = append(Commands, ExitCmd)
+}
+
+// GetCommands returns map with all commands, command name and alias are keys
+func GetCommands() map[string]*Command {
+	var commands = make(map[string]*Command)
+	for _, c := range Commands {
+		commands[c.Name] = c
+		commands[c.Alias] = c
+	}
+	return commands
+}
+
 // Runnable test if command can be run
 func (c *Command) Runnable() bool {
 	return c.Run != nil
@@ -53,13 +70,4 @@ func Exit() {
 		f()
 	}
 	os.Exit(exitStatus)
-}
-
-// TODO: This could also be dynamic
-// Add all commands to slice
-func init() {
-	Commands = append(Commands, HelpCmd)
-	Commands = append(Commands, StatusCmd)
-	Commands = append(Commands, StartCmd)
-	Commands = append(Commands, ExitCmd)
 }
