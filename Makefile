@@ -3,10 +3,10 @@ BIN_DIR = bin
 all: run
 
 build-client:
-	go build -o $(BIN_DIR)/client cmd/client/client.go
+	go build -o $(BIN_DIR)/client cmd/client/*.go
 
 build-server:
-	go build -o $(BIN_DIR)/server cmd/server/server.go
+	go build -o $(BIN_DIR)/server cmd/server/*.go
 
 build: build-server build-client
 
