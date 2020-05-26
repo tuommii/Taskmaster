@@ -54,25 +54,34 @@ func LoadAll(path string) map[string]*Process {
 	return tasks
 }
 
-// Launch executes task
+// Launch executes a task
 func (p *Process) Launch() {
 	p.prepare()
 	go p.redirect(p.stdout, p.OutputLog, os.Stdout)
 	go p.redirect(p.stderr, p.ErrorLog, os.Stderr)
 	oldMask := syscall.Umask(p.Umask)
-
-	// Wait before execution if needed
-	go func() {
-		time.Sleep(time.Duration(p.StartDelay) * time.Second)
-		fmt.Println(p.Name, "Sleeped", p.StartDelay, "seconds")
-		p.Cmd.Start()
-		p.StartTime = time.Now()
-	}()
-
+	go p.launchAfter()
+	// Not creating goroutine if no delay
 	p.killAfter()
-
 	syscall.Umask(oldMask)
 	go p.clean()
+}
+
+// Kill process
+func (p *Process) Kill() error {
+	return p.Cmd.Process.Kill()
+	// Maybe ?
+	// p.Cmd.Process.Release()
+}
+
+// TODO: Subject maybe means set running/started after x seconds
+func (p *Process) launchAfter() {
+	if p.StartDelay > 0 {
+		time.Sleep(time.Duration(p.StartDelay) * time.Second)
+		fmt.Println(p.Name, "Sleeped", p.StartDelay, "seconds")
+	}
+	p.Cmd.Start()
+	p.StartTime = time.Now()
 }
 
 func (p *Process) killAfter() {
@@ -87,19 +96,12 @@ func (p *Process) killAfter() {
 	}()
 }
 
-// Kill process
-func (p *Process) Kill() error {
-	return p.Cmd.Process.Kill()
-	// Maybe ?
-	// p.Cmd.Process.Release()
-}
-
 // clean process when ready
 func (p *Process) clean() {
 	// Wait until process is done
 	err := p.Cmd.Wait()
 	if err != nil {
-		fmt.Println("CLEAN:", err)
+		fmt.Println("CLEAN:", p.Name, err)
 	}
 	// Maybe some use for p.Cmd.ProcessState later ?
 	// No need to call Close() when using pipes ?
@@ -139,6 +141,7 @@ func (p *Process) cwd(dir string) {
 }
 
 // redirect standard stream to file. If path wasn't valid, then using alternative.
+// TODO: when ready maybe use /dev/null
 func (p *Process) redirect(stream io.ReadCloser, path string, alternative *os.File) {
 	s := bufio.NewScanner(stream)
 	file, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_APPEND|os.O_WRONLY, 0644)

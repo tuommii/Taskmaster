@@ -25,8 +25,8 @@
 		"stderr": "aaaa/tmp/taskmaster_err3",
 		"stdout": "aaaa/tmp/taskmaster_out3"
 	},
-	"LS 2": {
-		"name": "LS 2",
+	"LS DELAY 5": {
+		"name": "LS DELAY 5",
 		"command": "ls",
 		"startDelay": 5,
 		"workingDir": "/home/miikka/projects/hive/",
