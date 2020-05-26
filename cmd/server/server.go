@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -29,38 +28,28 @@ func newServer(configPath string, tasks map[string]*job.Process) *server {
 	return s
 }
 
-func (s *server) launchAll() {
+func (s *server) launchTasks() {
 	for key, task := range s.tasks {
 		fmt.Println(key, task)
 		task.Launch()
 	}
 }
 
-// reloader func, takes path to config and old processes
-type reloaderF func(string, map[string]*job.Process)
-
-func main() {
-	configPath := flag.String("config", "./config.example.json", "path to config file")
-	flag.Parse()
-	// tasks := job.LoadAll(*configPath)
-	s := newServer(*configPath, job.LoadAll(*configPath))
-	s.listenSignals()
-	s.launchAll()
-	s.listenConnections()
+func (s *server) removeTasks() {
+	for key, task := range s.tasks {
+		fmt.Println("Killing and deleting", key)
+		task.Kill()
+		delete(s.tasks, key)
+	}
 }
 
-func reloadConfig(configPath string, tasks map[string]*job.Process) {
-	fmt.Println("RELOAD")
-	// for key, task := range tasks {
-	// 	fmt.Println("Killing and deleting", key)
-	// 	task.Kill()
-	// 	delete(tasks, key)
-	// }
-	// tasks = job.LoadAll(configPath)
-	// for _, task := range tasks {
-	// 	task.Launch()
-	// }
-	// fmt.Println("LOADED", len(tasks), "TASKS")
+// Hot-reload config
+func (s *server) reloadConfig() {
+	fmt.Println("reload config...")
+	s.removeTasks()
+	s.tasks = job.LoadAll(s.configPath)
+	s.launchTasks()
+	fmt.Println("Loaded", len(s.tasks), "tasks")
 }
 
 func (s *server) listenSignals() {
@@ -72,11 +61,11 @@ func (s *server) listenSignals() {
 	signal.Notify(signalsCh)
 
 	go func(tasks map[string]*job.Process) {
-		for s := range signalsCh {
+		for sig := range signalsCh {
 			switch {
-			case s == syscall.SIGHUP:
-				fmt.Println("RELOAD", len(tasks))
-			case s == syscall.SIGTERM || s == syscall.SIGINT:
+			case sig == syscall.SIGHUP:
+				s.reloadConfig()
+			case sig == syscall.SIGTERM || sig == syscall.SIGINT:
 				fmt.Printf("\nABORT!")
 				os.Exit(0)
 			default:
