@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	configPath := flag.String("config", "./config.example.json", "path to config file")
+	configPath := flag.String("config", "./config.example2.json", "path to config file")
 	flag.Parse()
 	s := newServer(*configPath, job.LoadAll(*configPath))
 	s.listenSignals()

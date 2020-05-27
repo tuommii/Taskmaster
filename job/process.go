@@ -64,7 +64,7 @@ func (p *Process) Launch() {
 	go p.redirect(p.stderr, p.ErrorLog, os.Stderr)
 	oldMask := syscall.Umask(p.Umask)
 	// TODO: use same techniue than kill after
-	go p.launchAfter()
+	p.launchAfter()
 	// p.Cmd.SysProcAttr.Ctty
 	// Not creating goroutine if no delay
 	p.killAfter()
@@ -81,12 +81,16 @@ func (p *Process) Kill() error {
 
 // TODO: Subject maybe means set running/started after x seconds
 func (p *Process) launchAfter() {
-	if p.StartDelay > 0 {
-		time.Sleep(time.Duration(p.StartDelay) * time.Second)
-		fmt.Println(p.Name, "Sleeped", p.StartDelay, "seconds")
-	}
 	p.Cmd.Start()
 	p.StartTime = time.Now()
+	if p.StartDelay <= 0 {
+		return
+	}
+	timeoutCh := time.After(time.Duration(p.StartDelay) * time.Second)
+	go func() {
+		<-timeoutCh
+		fmt.Println(p.Name, "is consired started")
+	}()
 }
 
 func (p *Process) killAfter() {
@@ -107,7 +111,7 @@ func (p *Process) clean() {
 	// Wait until process is done
 	err := p.Cmd.Wait()
 	if err != nil {
-		fmt.Println("CLEAN:", p.Name, err)
+		fmt.Println("Error while executing program:", p.Name, err)
 	}
 	// Maybe some use for p.Cmd.ProcessState later ?
 	// No need to call Close() when using pipes ?

@@ -1,21 +1,10 @@
 {
-	"Hello": {
-		"command": "ls -al /home/miikka",
+	"REALTIME": {
+		"command": "bash test.sh",
+		"workingDir": "/home/miikka/projects/hive/taskmaster/",
+		"startDelay": 3,
 		"autostart": true,
-		"autorestart": true
-	},
-	"Hello2": {
-		"command": "ls -a",
-		"autostart": false,
 		"autorestart": true,
-		"stderr": "var/log",
-		"stdout": "log"
-	},
-	"Hello3": {
-		"command": "tail -f /var/log/syslog",
-		"autostart": false,
-		"autorestart": true,
-		"stderr": "/tmp/taskmaster_err",
-		"stdout": "/tmp/taskmaster_out"
+		"stdout": "sadas/fdfd"
 	}
 }
