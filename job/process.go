@@ -50,6 +50,9 @@ func LoadAll(path string) map[string]*Process {
 		log.Fatal("Error while opening config file: ", err)
 	}
 	err = json.Unmarshal([]byte(file), &tasks)
+	for name, proc := range tasks {
+		proc.Name = name
+	}
 	fmt.Printf("%+v\n", tasks)
 	return tasks
 }
@@ -87,6 +90,7 @@ func (p *Process) launchAfter() {
 }
 
 func (p *Process) killAfter() {
+	fmt.Println("STOPTIME:", p.StopTime)
 	if p.StopTime <= 0 {
 		return
 	}
