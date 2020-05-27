@@ -3,6 +3,7 @@ package job
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -24,19 +25,20 @@ const (
 
 // Process represents runnable process
 type Process struct {
-	Name         string `json:"name"`
-	Command      string `json:"command"`
-	OutputLog    string `json:"stdout"`
-	ErrorLog     string `json:"stderr"`
-	WorkingDir   string `json:"workingDir"`
-	Procs        int    `json:"procs"`
-	StartDelay   int    `json:"startDelay"`
+	Name       string `json:"name"`
+	Command    string `json:"command"`
+	OutputLog  string `json:"stdout"`
+	ErrorLog   string `json:"stderr"`
+	WorkingDir string `json:"workingDir"`
+	Procs      int    `json:"procs"`
+	// Time when process is consired started
+	StartTime    int    `json:"startTime"`
 	StartRetries int    `json:"startRetries"`
 	StopTime     int    `json:"stopTime"`
 	StopSignal   string `json:"stopSignal"`
 	Umask        int    `json:"umask"`
 	Cmd          *exec.Cmd
-	StartTime    time.Time
+	Started      time.Time
 	Status       int
 	stdout       io.ReadCloser
 	stderr       io.ReadCloser
@@ -50,26 +52,29 @@ func LoadAll(path string) map[string]*Process {
 		log.Fatal("Error while opening config file: ", err)
 	}
 	err = json.Unmarshal([]byte(file), &tasks)
-	for name, proc := range tasks {
-		proc.Name = name
+	for name, process := range tasks {
+		process.Name = name
+		// TODO: check support with config reloading
+		process.Status = STOPPED
 	}
-	fmt.Printf("%+v\n", tasks)
 	return tasks
 }
 
 // Launch executes a task
-func (p *Process) Launch() {
+func (p *Process) Launch() error {
+	if p.Status != STOPPED {
+		return errors.New("Can't launch started process")
+	}
+	p.Status = STARTING
 	p.prepare()
 	go p.redirect(p.stdout, p.OutputLog, os.Stdout)
 	go p.redirect(p.stderr, p.ErrorLog, os.Stderr)
 	oldMask := syscall.Umask(p.Umask)
-	// TODO: use same techniue than kill after
-	p.launchAfter()
-	// p.Cmd.SysProcAttr.Ctty
-	// Not creating goroutine if no delay
+	p.launch()
 	p.killAfter()
 	syscall.Umask(oldMask)
 	go p.clean()
+	return nil
 }
 
 // Kill process
@@ -80,28 +85,31 @@ func (p *Process) Kill() error {
 }
 
 // TODO: Subject maybe means set running/started after x seconds
-func (p *Process) launchAfter() {
+func (p *Process) launch() {
 	p.Cmd.Start()
-	p.StartTime = time.Now()
-	if p.StartDelay <= 0 {
+	p.Started = time.Now()
+	if p.StartTime <= 0 {
+		p.Status = RUNNING
 		return
 	}
-	timeoutCh := time.After(time.Duration(p.StartDelay) * time.Second)
+	timeoutCh := time.After(time.Duration(p.StartTime) * time.Second)
 	go func() {
 		<-timeoutCh
+		p.Status = RUNNING
 		fmt.Println(p.Name, "is consired started")
 	}()
 }
 
 func (p *Process) killAfter() {
-	fmt.Println("STOPTIME:", p.StopTime)
 	if p.StopTime <= 0 {
 		return
 	}
-	timeoutCh := time.After(time.Duration(p.StopTime) * time.Second)
+	// add timestart also
+	timeoutCh := time.After(time.Duration(p.StopTime)*time.Second + time.Duration(p.StartTime)*time.Second)
 	go func() {
 		<-timeoutCh
-		fmt.Println(p.Name, "timed out")
+		p.Status = STOPPED
+		fmt.Println(p.Name, "stopped")
 		p.Kill()
 	}()
 }
@@ -113,6 +121,7 @@ func (p *Process) clean() {
 	if err != nil {
 		fmt.Println("Error while executing program:", p.Name, err)
 	}
+	p.Status = STOPPED
 	// Maybe some use for p.Cmd.ProcessState later ?
 	// No need to call Close() when using pipes ?
 	// p.stdout.Close()
@@ -157,7 +166,7 @@ func (p *Process) redirect(stream io.ReadCloser, path string, alternative *os.Fi
 	file, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		file = alternative
-		fmt.Println("FILE OPEN ERROR", err)
+		fmt.Println("Error while opening log file:", err)
 	}
 	for s.Scan() {
 		fmt.Fprintln(file, s.Text())

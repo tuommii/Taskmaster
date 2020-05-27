@@ -2,9 +2,10 @@
 	"REALTIME": {
 		"command": "bash test.sh",
 		"workingDir": "/home/miikka/projects/hive/taskmaster/",
-		"startDelay": 3,
+		"startTime": 3,
 		"autostart": true,
 		"autorestart": true,
+		"stopTime": 5,
 		"stdout": "sadas/fdfd"
 	}
 }

@@ -29,8 +29,7 @@ func newServer(configPath string, tasks map[string]*job.Process) *server {
 }
 
 func (s *server) launchTasks() {
-	for key, task := range s.tasks {
-		fmt.Println(key, task)
+	for _, task := range s.tasks {
 		task.Launch()
 	}
 }
