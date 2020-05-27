@@ -40,6 +40,7 @@ type Process struct {
 	StopSignal   string `json:"stopSignal"`
 	Umask        int    `json:"umask"`
 	Retries      int    `json:"retries"`
+	ExitCodes    []int  `json:"exitCodes"`
 	Cmd          *exec.Cmd
 	Started      time.Time
 	Status       int
@@ -134,10 +135,11 @@ func (p *Process) clean() {
 		return
 	}
 	go func() {
-		err := p.Cmd.Wait()
-		if err != nil {
+		if err := p.Cmd.Wait(); err != nil {
 			p.Status = STOPPED
-			fmt.Println("Error while executing program:", p.Name, err)
+			// fmt.Println("Error while executing program:", p.Name, err)
+			code := p.Cmd.ProcessState.ExitCode()
+			fmt.Println("EXIT CODE:", code)
 		}
 	}()
 	// Maybe some use for p.Cmd.ProcessState later ?

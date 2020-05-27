@@ -16,5 +16,13 @@
 		"autostart": true,
 		"autorestart": true,
 		"stdout": "sadas/fdfd"
+	},
+	"exit value": {
+		"command": "bash test3.sh",
+		"workingDir": "/home/miikka/projects/hive/taskmaster/",
+		"retries": 3,
+		"autostart": true,
+		"autorestart": true,
+		"stdout": "sadas/fdfd"
 	}
 }
