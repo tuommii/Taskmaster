@@ -8,13 +8,13 @@
 		"stopTime": 5,
 		"stdout": "sadas/fdfd"
 	},
-	"REALTIME 2": {
-		"command": "bash test2.sh",
+	"FAILING": {
+		"command": "notexist",
 		"workingDir": "/home/miikka/projects/hive/taskmaster/",
-		"startTime": 4,
+		"startTime": 2,
+		"retries": 3,
 		"autostart": true,
 		"autorestart": true,
-		"stopTime": 15,
 		"stdout": "sadas/fdfd"
 	}
 }

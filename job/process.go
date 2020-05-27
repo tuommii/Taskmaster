@@ -37,6 +37,7 @@ type Process struct {
 	StopTime     int    `json:"stopTime"`
 	StopSignal   string `json:"stopSignal"`
 	Umask        int    `json:"umask"`
+	Retries      int    `json:"retries"`
 	Cmd          *exec.Cmd
 	Started      time.Time
 	Status       int
@@ -86,7 +87,16 @@ func (p *Process) Kill() error {
 
 // TODO: Subject maybe means set running/started after x seconds
 func (p *Process) launch() {
-	p.Cmd.Start()
+	err := p.Cmd.Start()
+	if err != nil {
+		fmt.Println("exec error", p.Name, err)
+		p.Status = STOPPED
+		// Move down if retries + 1 is wanted
+		p.Retries--
+		if p.Retries > 0 {
+			p.launch()
+		}
+	}
 	p.Started = time.Now()
 	if p.StartTime <= 0 {
 		p.Status = RUNNING
@@ -95,8 +105,11 @@ func (p *Process) launch() {
 	timeoutCh := time.After(time.Duration(p.StartTime) * time.Second)
 	go func() {
 		<-timeoutCh
-		p.Status = RUNNING
-		fmt.Println(p.Name, "is consired started")
+		// Do not set running if execution has failed
+		if p.Status == STARTING {
+			p.Status = RUNNING
+			fmt.Println(p.Name, "is consired started")
+		}
 	}()
 }
 
