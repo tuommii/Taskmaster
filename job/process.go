@@ -23,6 +23,8 @@ const (
 	TIMEOUT
 )
 
+const maxRetries = 10
+
 // Process represents runnable process
 type Process struct {
 	Name       string `json:"name"`
@@ -68,13 +70,11 @@ func (p *Process) Launch() error {
 	}
 	p.Status = STARTING
 	p.prepare()
-	go p.redirect(p.stdout, p.OutputLog, os.Stdout)
-	go p.redirect(p.stderr, p.ErrorLog, os.Stderr)
 	oldMask := syscall.Umask(p.Umask)
 	p.launch()
 	p.killAfter()
 	syscall.Umask(oldMask)
-	go p.clean()
+	p.clean()
 	return nil
 }
 
@@ -93,7 +93,7 @@ func (p *Process) launch() {
 		p.Status = STOPPED
 		// Move down if retries + 1 is wanted
 		p.Retries--
-		if p.Retries > 0 {
+		if p.Retries > 0 && p.Retries < maxRetries {
 			p.launch()
 		}
 	}
@@ -133,11 +133,13 @@ func (p *Process) clean() {
 	if p.Status != RUNNING {
 		return
 	}
-	err := p.Cmd.Wait()
-	if err != nil {
-		p.Status = STOPPED
-		fmt.Println("Error while executing program:", p.Name, err)
-	}
+	go func() {
+		err := p.Cmd.Wait()
+		if err != nil {
+			p.Status = STOPPED
+			fmt.Println("Error while executing program:", p.Name, err)
+		}
+	}()
 	// Maybe some use for p.Cmd.ProcessState later ?
 	// No need to call Close() when using pipes ?
 	// p.stdout.Close()
@@ -160,6 +162,8 @@ func (p *Process) prepare() {
 		fmt.Println("PIPE", err)
 	}
 	p.cwd(p.WorkingDir)
+	go p.redirect(p.stdout, p.OutputLog, os.Stdout)
+	go p.redirect(p.stderr, p.ErrorLog, os.Stderr)
 }
 
 // Change current working directory if path exists and is directory
