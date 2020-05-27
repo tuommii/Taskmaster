@@ -1,1 +1,1 @@
-while sleep 3; do echo "Hi"; done
+while sleep 2; do echo "Hi"; done

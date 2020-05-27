@@ -117,11 +117,14 @@ func (p *Process) killAfter() {
 // clean process when ready
 func (p *Process) clean() {
 	// Wait until process is done
+	if p.Status != RUNNING {
+		return
+	}
 	err := p.Cmd.Wait()
 	if err != nil {
+		p.Status = STOPPED
 		fmt.Println("Error while executing program:", p.Name, err)
 	}
-	p.Status = STOPPED
 	// Maybe some use for p.Cmd.ProcessState later ?
 	// No need to call Close() when using pipes ?
 	// p.stdout.Close()
