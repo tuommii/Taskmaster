@@ -56,7 +56,7 @@ func Create() *Client {
 	// tcp client
 	app.conn, err = net.Dial("tcp", "127.0.0.1:4200")
 	if err != nil {
-		log.Println(err)
+		// log.Println(err)
 	}
 	return app
 }
@@ -70,29 +70,29 @@ func (app *Client) ListenSignals() {
 
 // ReadInput reads input until exit command or terminating signal
 func (app *Client) ReadInput() {
+	reply := make([]byte, 1024)
 	for {
 		input := app.term.ReadKey(app.signals)
+		terminal.Restore(0, app.oldState)
 		switch {
 		case input == "exit":
 			app.done <- true
 		case input != "":
-			// TODO: clean
 			if app.conn == nil {
 				fmt.Println("No connection to server...")
+				terminal.MakeRaw(0)
 				continue
 			}
-			if app.conn != nil {
-				fmt.Fprintf(app.conn, input+"\n")
-			}
+			fmt.Fprintf(app.conn, input+"\n")
 			terminal.Restore(0, app.oldState)
-			// RunCommand(ParseInput(input))
-			reply := make([]byte, 1024)
 			_, err := app.conn.Read(reply)
 			if err != nil {
 				log.Println("Error reading reply", err)
+				terminal.MakeRaw(0)
 				continue
 			}
-			fmt.Println("REPLY: ", string(reply))
+			fmt.Println(string(reply))
+			// terminal.MakeRaw(0)
 		}
 		terminal.MakeRaw(0)
 	}

@@ -4,6 +4,8 @@ import (
 	"os"
 	"strings"
 	"sync"
+
+	"github.com/tuommii/taskmaster/job"
 )
 
 // Commands holds all commands
@@ -11,7 +13,7 @@ var Commands []*Command
 
 // Command represents command
 type Command struct {
-	Run func(cmd *Command, args []string)
+	Run func(*Command, []string, map[string]*job.Process)
 	// Shown on available commands list
 	Name string
 	// Another string that runs same command
@@ -84,13 +86,13 @@ func ParseInput(input string) []string {
 }
 
 // RunCommand ...
-func RunCommand(tokens []string) {
+func RunCommand(tokens []string, tasks map[string]*job.Process) {
 	if len(tokens) == 0 {
 		return
 	}
 	for _, cmd := range Commands {
 		if tokens[0] == cmd.Name || tokens[0] == cmd.Alias {
-			cmd.Run(cmd, tokens[1:])
+			cmd.Run(cmd, tokens[1:], tasks)
 		}
 	}
 }

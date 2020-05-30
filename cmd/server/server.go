@@ -10,7 +10,6 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/tuommii/taskmaster/cli"
 	"github.com/tuommii/taskmaster/job"
 	"golang.org/x/net/netutil"
 )
@@ -101,11 +100,20 @@ func (s *server) handleConnection(conn net.Conn) {
 		return
 	}
 	msg := strings.Trim(string(data), "\n")
-	cli.RunCommand(cli.ParseInput(msg))
+	// cli.RunCommand(cli.ParseInput(msg), s.tasks)
 	// get the remote address of the client
-	clientAddr := conn.RemoteAddr().String()
-	fmt.Println(msg, "from", clientAddr+"\n")
-	conn.Write([]byte(msg + " sended to client"))
+	// clientAddr := conn.RemoteAddr().String()
+	// fmt.Println(msg, "from", clientAddr+"\n")
+
+	if msg == "status" {
+		var res string
+		for _, task := range s.tasks {
+			res += task.Name + ",  " + task.Status + "\n"
+		}
+		conn.Write([]byte(res))
+	} else {
+		conn.Write([]byte("FROM SERVER: " + msg))
+	}
 
 	if msg == "fg" {
 		fmt.Println("FOREGROUND")

@@ -2,6 +2,9 @@
 
 Todo app * Fun + UNIX = Taskmaster
 
+## Requirements
+- Only standard library allowed
+
 ## Features
 
 - Client/Server, via TCP

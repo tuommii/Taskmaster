@@ -3,6 +3,8 @@ package cli
 import (
 	"fmt"
 	"os/exec"
+
+	"github.com/tuommii/taskmaster/job"
 )
 
 // StartCmd implements help command
@@ -13,7 +15,7 @@ var StartCmd = &Command{
 	Run:   start,
 }
 
-func start(cmd *Command, args []string) {
+func start(cmd *Command, args []string, tasks map[string]*job.Process) {
 	fmt.Print("\nSTART!")
 	for _, arg := range args {
 		fmt.Print("\nstart ", arg)

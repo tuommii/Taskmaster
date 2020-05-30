@@ -17,10 +17,10 @@ import (
 
 // Statuses
 const (
-	STOPPED = iota
-	STARTING
-	RUNNING
-	TIMEOUT
+	STOPPED  = "STOPPED"
+	STARTING = "STARTING"
+	RUNNING  = "RUNNING"
+	TIMEOUT  = "TIMEOUT"
 )
 
 const maxRetries = 10
@@ -56,7 +56,7 @@ type Process struct {
 	IsForeground bool
 	Cmd          *exec.Cmd
 	Started      time.Time
-	Status       int
+	Status       string
 	stdout       io.ReadCloser
 	stderr       io.ReadCloser
 }
