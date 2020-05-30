@@ -103,7 +103,13 @@ func (app *App) ReadInput() {
 				fmt.Fprintf(app.conn, input+"\n")
 			}
 			terminal.Restore(0, app.oldState)
-			RunCommand(ParseInput(input))
+			// RunCommand(ParseInput(input))
+			reply := make([]byte, 1024)
+			_, err := app.conn.Read(reply)
+			if err != nil {
+				log.Println("Error reading reply", err)
+			}
+			fmt.Println("REPLY: ", string(reply))
 		}
 		terminal.MakeRaw(0)
 	}

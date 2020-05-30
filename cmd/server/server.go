@@ -105,7 +105,7 @@ func handleConnection(conn net.Conn) {
 	// get the remote address of the client
 	clientAddr := conn.RemoteAddr().String()
 	fmt.Println(msg, "from", clientAddr+"\n")
-	conn.Write([]byte("you sent: " + "sended to client"))
+	conn.Write([]byte(msg + " sended to client"))
 
 	// recursive func to handle io.EOF for random disconnects
 	handleConnection(conn)
