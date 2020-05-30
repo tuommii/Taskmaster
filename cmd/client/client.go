@@ -70,8 +70,8 @@ func (app *Client) ListenSignals() {
 
 // ReadInput reads input until exit command or terminating signal
 func (app *Client) ReadInput() {
-	reply := make([]byte, 1024)
 	for {
+		reply := make([]byte, 1024)
 		input := app.term.ReadKey(app.signals)
 		terminal.Restore(0, app.oldState)
 		switch {
@@ -91,7 +91,7 @@ func (app *Client) ReadInput() {
 				terminal.MakeRaw(0)
 				continue
 			}
-			fmt.Println(string(reply))
+			fmt.Println("CLIENT PRINT", string(reply))
 			// terminal.MakeRaw(0)
 		}
 		terminal.MakeRaw(0)
