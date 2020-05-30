@@ -2,6 +2,7 @@ package cli
 
 import (
 	"os"
+	"strings"
 	"sync"
 )
 
@@ -70,4 +71,26 @@ func Exit() {
 		f()
 	}
 	os.Exit(exitStatus)
+}
+
+// ParseInput ...
+func ParseInput(input string) []string {
+	// taskmaster.RealTimeExample()
+	if len(input) == 0 {
+		return nil
+	}
+	tokens := strings.Split(input, " ")
+	return tokens
+}
+
+// RunCommand ...
+func RunCommand(tokens []string) {
+	if len(tokens) == 0 {
+		return
+	}
+	for _, cmd := range Commands {
+		if tokens[0] == cmd.Name || tokens[0] == cmd.Alias {
+			cmd.Run(cmd, tokens[1:])
+		}
+	}
 }

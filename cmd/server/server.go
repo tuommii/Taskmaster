@@ -10,7 +10,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/tuommii/taskmaster"
+	"github.com/tuommii/taskmaster/cli"
 	"github.com/tuommii/taskmaster/job"
 	"golang.org/x/net/netutil"
 )
@@ -101,7 +101,7 @@ func (s *server) handleConnection(conn net.Conn) {
 		return
 	}
 	msg := strings.Trim(string(data), "\n")
-	taskmaster.RunCommand(taskmaster.ParseInput(msg))
+	cli.RunCommand(cli.ParseInput(msg))
 	// get the remote address of the client
 	clientAddr := conn.RemoteAddr().String()
 	fmt.Println(msg, "from", clientAddr+"\n")
