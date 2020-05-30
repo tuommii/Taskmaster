@@ -36,7 +36,10 @@ func (s *server) launchTasks() {
 func (s *server) removeTasks() {
 	for key, task := range s.tasks {
 		fmt.Println("Killing and deleting", key)
-		task.Kill()
+		err := task.Kill()
+		if err != nil {
+			log.Println(err)
+		}
 		delete(s.tasks, key)
 	}
 }

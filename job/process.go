@@ -94,6 +94,9 @@ func (p *Process) Launch() error {
 
 // Kill process
 func (p *Process) Kill() error {
+	if p.Status != RUNNING {
+		return nil
+	}
 	return p.Cmd.Process.Kill()
 	// Maybe ?
 	// p.Cmd.Process.Release()
