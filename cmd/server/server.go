@@ -88,11 +88,11 @@ func (s *server) listenConnections() {
 		if err != nil {
 			log.Fatal("ACCEPT", err)
 		}
-		go handleConnection(conn)
+		go s.handleConnection(conn)
 	}
 }
 
-func handleConnection(conn net.Conn) {
+func (s *server) handleConnection(conn net.Conn) {
 	data, err := bufio.NewReader(conn).ReadBytes('\n')
 	if err != nil {
 		fmt.Println("client left..")
@@ -107,6 +107,14 @@ func handleConnection(conn net.Conn) {
 	fmt.Println(msg, "from", clientAddr+"\n")
 	conn.Write([]byte(msg + " sended to client"))
 
+	if msg == "fg" {
+		fmt.Println("FOREGROUND")
+		s.tasks["REALTIME"].SetForeground(true)
+	} else if msg == "bg" {
+		fmt.Println("BACKGROUND")
+		s.tasks["REALTIME"].SetForeground(false)
+	}
+
 	// recursive func to handle io.EOF for random disconnects
-	handleConnection(conn)
+	s.handleConnection(conn)
 }

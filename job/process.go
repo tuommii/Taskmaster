@@ -48,12 +48,13 @@ type Process struct {
 	Umask      int    `json:"umask"`
 	Retries    int    `json:"retries"`
 	// If process exits in any other way than whit stop request
-	ExitCodes []int `json:"exitCodes"`
-	Cmd       *exec.Cmd
-	Started   time.Time
-	Status    int
-	stdout    io.ReadCloser
-	stderr    io.ReadCloser
+	ExitCodes    []int `json:"exitCodes"`
+	IsForeground bool
+	Cmd          *exec.Cmd
+	Started      time.Time
+	Status       int
+	stdout       io.ReadCloser
+	stderr       io.ReadCloser
 }
 
 // LoadAll loads all jobs from config file
@@ -205,6 +206,9 @@ func (p *Process) redirect(stream io.ReadCloser, path string, alternative *os.Fi
 		fmt.Println("Error while opening log file:", err)
 	}
 	for s.Scan() {
+		if p.IsForeground {
+			fmt.Fprintln(os.Stdout, s.Text())
+		}
 		fmt.Fprintln(file, s.Text())
 	}
 	// When stream is closed this will executed
@@ -213,4 +217,15 @@ func (p *Process) redirect(stream io.ReadCloser, path string, alternative *os.Fi
 		which = "STDERR"
 	}
 	fmt.Println(p.Name, which, "stopped")
+}
+
+// SetForeground ...
+func (p *Process) SetForeground(val bool) {
+	p.IsForeground = val
+	// p.stdout = os.Stdout
+	// s := bufio.NewScanner(p.stdout)
+	// for s.Scan() {
+	// 	fmt.Fprintln(os.Stdout, s.Text())
+	// }
+	// p.redirect()
 }

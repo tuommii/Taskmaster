@@ -5,8 +5,7 @@
 		"startTime": 3,
 		"autostart": true,
 		"autorestart": true,
-		"stopTime": 5,
-		"stdout": "sadas/fdfd"
+		"stdout": "/tmp/realtime"
 	},
 	"FAILING": {
 		"command": "notexist",
