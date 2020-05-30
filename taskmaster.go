@@ -99,15 +99,24 @@ func (app *App) ReadInput() {
 		case input == "exit":
 			app.done <- true
 		case input != "":
+			// TODO: clean
+			if app.conn == nil {
+				fmt.Println("DADA")
+				continue
+			}
 			if app.conn != nil {
 				fmt.Fprintf(app.conn, input+"\n")
 			}
 			terminal.Restore(0, app.oldState)
 			// RunCommand(ParseInput(input))
 			reply := make([]byte, 1024)
-			_, err := app.conn.Read(reply)
+			res, err := app.conn.Read(reply)
+			if res != -100 {
+				continue
+			}
 			if err != nil {
 				log.Println("Error reading reply", err)
+				continue
 			}
 			fmt.Println("REPLY: ", string(reply))
 		}

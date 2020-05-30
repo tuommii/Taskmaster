@@ -25,8 +25,7 @@ const (
 
 const maxRetries = 10
 
-// Process represents runnable process
-type Process struct {
+type options struct {
 	// Tasks name
 	Name string `json:"name"`
 	// Command with arguments
@@ -48,7 +47,12 @@ type Process struct {
 	Umask      int    `json:"umask"`
 	Retries    int    `json:"retries"`
 	// If process exits in any other way than whit stop request
-	ExitCodes    []int `json:"exitCodes"`
+	ExitCodes []int `json:"exitCodes"`
+}
+
+// Process represents runnable process
+type Process struct {
+	options
 	IsForeground bool
 	Cmd          *exec.Cmd
 	Started      time.Time
