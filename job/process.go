@@ -27,25 +27,33 @@ const maxRetries = 10
 
 // Process represents runnable process
 type Process struct {
-	Name       string `json:"name"`
-	Command    string `json:"command"`
-	OutputLog  string `json:"stdout"`
-	ErrorLog   string `json:"stderr"`
+	// Tasks name
+	Name string `json:"name"`
+	// Command with arguments
+	Command string `json:"command"`
+	// Log files
+	OutputLog string `json:"stdout"`
+	ErrorLog  string `json:"stderr"`
+	// Tasks working directory
 	WorkingDir string `json:"workingDir"`
-	Procs      int    `json:"procs"`
+	// How many instances is launched
+	Procs int `json:"procs"`
 	// Time when process is consired started
-	StartTime    int    `json:"startTime"`
-	StartRetries int    `json:"startRetries"`
-	StopTime     int    `json:"stopTime"`
-	StopSignal   string `json:"stopSignal"`
-	Umask        int    `json:"umask"`
-	Retries      int    `json:"retries"`
-	ExitCodes    []int  `json:"exitCodes"`
-	Cmd          *exec.Cmd
-	Started      time.Time
-	Status       int
-	stdout       io.ReadCloser
-	stderr       io.ReadCloser
+	StartTime int `json:"startTime"`
+	// Max tries to start a task
+	StartRetries int `json:"startRetries"`
+	// After StopTime task quits. Counted from StartTime
+	StopTime   int    `json:"stopTime"`
+	StopSignal string `json:"stopSignal"`
+	Umask      int    `json:"umask"`
+	Retries    int    `json:"retries"`
+	// If process exits in any other way than whit stop request
+	ExitCodes []int `json:"exitCodes"`
+	Cmd       *exec.Cmd
+	Started   time.Time
+	Status    int
+	stdout    io.ReadCloser
+	stderr    io.ReadCloser
 }
 
 // LoadAll loads all jobs from config file
@@ -139,6 +147,12 @@ func (p *Process) clean() {
 			p.Status = STOPPED
 			// fmt.Println("Error while executing program:", p.Name, err)
 			code := p.Cmd.ProcessState.ExitCode()
+			for _, val := range p.ExitCodes {
+				if code == val {
+					fmt.Println("EXITED WITH PROPER CODE:", code)
+					return
+				}
+			}
 			fmt.Println("EXIT CODE:", code)
 		}
 	}()
