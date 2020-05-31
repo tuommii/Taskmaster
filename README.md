@@ -6,7 +6,7 @@
 
 ## Requirements
 - Only standard library allowed
-
+- For bonuses, libraries are allowed
 ## Features
 
 ### Client
@@ -14,6 +14,7 @@
 - Autocompletion
 - History
 - Sends input to server via TCP
+- mention logger when ready
 
 | KEY | ACTION |
 |---------|---------|
