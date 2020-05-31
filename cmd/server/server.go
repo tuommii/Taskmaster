@@ -97,6 +97,13 @@ func (s *server) listenConnections() {
 	}
 }
 
+func (s *server) jobFound(name string) bool {
+	if _, found := s.tasks[name]; found {
+		return true
+	}
+	return false
+}
+
 func (s *server) handleConnection(conn net.Conn) {
 	data, err := bufio.NewReader(conn).ReadBytes('\n')
 	if err != nil {
@@ -106,32 +113,46 @@ func (s *server) handleConnection(conn net.Conn) {
 		return
 	}
 	msg := strings.Trim(string(data), "\n")
+	input := strings.Split(msg, " ")
 	fmt.Println(msg)
 
 	// cli.RunCommand(cli.ParseInput(msg), s.tasks)
 	// get the remote address of the client
 	// clientAddr := conn.RemoteAddr().String()
 	// fmt.Println(msg, "from", clientAddr+"\n")
-
+	cmd := input[0]
+	var arg string
+	if len(input) >= 2 {
+		arg = input[1]
+	}
 	switch {
-	case msg == "help" || msg == "h":
+	case cmd == "help" || cmd == "h":
 		conn.Write([]byte("help cmd"))
-	case msg == "status" || msg == "st":
+	case cmd == "status" || cmd == "st":
 		conn.Write([]byte(s.tasks.Status()))
-	case msg == "start" || msg == "run":
-		conn.Write([]byte("start or run"))
-	case msg == "stop":
+	case cmd == "start" || cmd == "run":
+		if s.jobFound(arg) {
+			if s.tasks[arg].Status == job.LOADED || s.tasks[arg].Status == job.STOPPED {
+				s.tasks[arg].Status = job.STOPPED
+				s.tasks[arg].Launch()
+				conn.Write([]byte("started"))
+			}
+		} else {
+			conn.Write([]byte("job not found"))
+		}
+		break
+	case cmd == "stop":
 		conn.Write([]byte("stop"))
-	case msg == "restart":
+	case cmd == "restart":
 		conn.Write([]byte("restart"))
-	case msg == "exit" || msg == "quit":
+	case cmd == "exit" || cmd == "quit":
 		conn.Write([]byte("exit or quit"))
-	case msg == "fg":
+	case cmd == "fg":
 		s.tasks["REALTIME"].SetForeground(true)
-	case msg == "bg":
+	case cmd == "bg":
 		s.tasks["REALTIME"].SetForeground(false)
 	default:
-		conn.Write([]byte("server received: " + msg))
+		conn.Write([]byte("server received: " + cmd))
 	}
 
 	// recursive func to handle io.EOF for random disconnects
