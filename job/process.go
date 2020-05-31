@@ -17,13 +17,14 @@ import (
 
 // Statuses
 const (
-	CREATED  = "CREATED"
-	STOPPED  = "STOPPED"
+	LOADED   = "LOADED"
 	STARTING = "STARTING"
 	RUNNING  = "RUNNING"
+	STOPPED  = "STOPPED"
 	FAILED   = "FAILED"
 )
 
+// Even config file has more, this is max
 const maxRetries = 10
 
 type options struct {
@@ -73,29 +74,24 @@ func LoadAll(path string) Tasks {
 	err = json.Unmarshal([]byte(file), &tasks)
 	for name, task := range tasks {
 		task.Name = name
-		// TODO: check support with config reloading
-		task.Status = CREATED
-		fmt.Println(task.AutoStart)
+		task.Status = LOADED
 	}
 	return tasks
 }
 
 // Launch executes a task
 func (p *Process) Launch() error {
-	if p.Status == CREATED && p.AutoStart == false {
-		fmt.Println("NO AUTO")
-		return errors.New("No autostart defined")
+	if p.Status == LOADED && p.AutoStart == false {
+		return errors.New(p.Name + " loaded, but not started")
 	}
-	if p.Status != STOPPED && p.Status != CREATED {
-		fmt.Println("VITTU")
-		return errors.New("Can't launch started process")
+	if p.Status != STOPPED && p.Status != LOADED {
+		return errors.New("Can't launch a already started process")
 	}
 	p.Status = STARTING
 	p.prepare()
 	oldMask := syscall.Umask(p.Umask)
-	p.launch()
-	if p.Status == FAILED {
-		fmt.Println(p.Name, p.Status)
+	if err := p.launch(); err != nil {
+		fmt.Println(p.Name, p.Status, err)
 	}
 	p.killAfter()
 	syscall.Umask(oldMask)
@@ -115,22 +111,22 @@ func (p *Process) Kill() error {
 }
 
 // TODO: Subject maybe means set running/started after x seconds
-func (p *Process) launch() {
+func (p *Process) launch() error {
 	err := p.Cmd.Start()
 	if err != nil {
 		p.Status = FAILED
-		fmt.Println("exec error", p.Name, err)
+		// fmt.Println("exec error", p.Name, err)
 		// Move down if retries + 1 is wanted
 		p.Retries--
 		if p.Retries > 0 && p.Retries < maxRetries {
 			p.launch()
 		}
-		return
+		return err
 	}
 	p.Started = time.Now()
 	if p.StartTime <= 0 {
 		p.Status = RUNNING
-		return
+		return nil
 	}
 	timeoutCh := time.After(time.Duration(p.StartTime) * time.Second)
 	go func() {
@@ -141,6 +137,7 @@ func (p *Process) launch() {
 			fmt.Println(p.Name, "is consired started", p.Status)
 		}
 	}()
+	return nil
 }
 
 func (p *Process) killAfter() {
@@ -225,7 +222,7 @@ func (p *Process) redirect(stream io.ReadCloser, path string, alternative *os.Fi
 	file, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		file = alternative
-		if p.Status != STOPPED || p.Status != FAILED {
+		if p.Status == STOPPED || p.Status != FAILED {
 			if path != "" {
 				fmt.Println("Error while opening log file:", err, path, p.Name)
 			}

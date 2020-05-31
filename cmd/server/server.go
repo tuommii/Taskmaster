@@ -30,7 +30,9 @@ func newServer(configPath string, tasks map[string]*job.Process) *server {
 func (s *server) launchTasks() {
 	for _, task := range s.tasks {
 		// TODO: handle err
-		task.Launch()
+		if err := task.Launch(); err != nil {
+			fmt.Println(err)
+		}
 	}
 }
 
