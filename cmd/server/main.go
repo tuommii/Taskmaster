@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	configPath := flag.String("config", "./config.example2.json", "path to config file")
+	configPath := flag.String("config", "./assets/config.example2.json", "path to config file")
 	daemonFlag := flag.Bool("d", false, "run as a daemon")
 	_ = logger.Get()
 	log.Print("Systemlog test")
@@ -20,11 +20,11 @@ func main() {
 	if *daemonFlag {
 		fmt.Println("DAEMON")
 		cntxt := &daemon.Context{
-			PidFileName: "taskmaster.pid",
+			PidFileName: "assets/taskmaster.pid",
 			PidFilePerm: 0644,
-			LogFileName: "taskmaster.log",
+			LogFileName: "assets/taskmaster.log",
 			LogFilePerm: 0640,
-			WorkDir:     "./",
+			WorkDir:     "./assets",
 			Umask:       027,
 			Args:        []string{"[taskmaster-daemon]"},
 		}

@@ -1,0 +1,11 @@
+{
+	"REALTIME": {
+		"command": "bash /home/miikka/projects/hive/taskmaster/assets/test.sh",
+		"workingDir": "./assets",
+		"startTime": 3,
+		"numprocs": 1,
+		"autostart": true,
+		"autorestart": true,
+		"stdout": "/tmp/realtime.log"
+	}
+}

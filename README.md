@@ -21,6 +21,40 @@
 
 ## How To Use
 
+### Example config
+```json
+{
+	"REALTIME": {
+		"command": "bash test.sh",
+		"workingDir": "/home/miikka/projects/hive/taskmaster/assets",
+		"startTime": 3,
+		"numprocs": 1,
+		"autostart": true,
+		"autorestart": true,
+		"stdout": "/tmp/realtime"
+	},
+	"FAILING": {
+		"command": "notexist",
+		"workingDir": "/home/miikka/projects/hive/taskmaster/assets",
+		"startTime": 2,
+		"stopTime": 7,
+		"retries": 3,
+		"autostart": true,
+		"autorestart": true,
+		"stdout": "sadas/fdfd"
+	},
+	"exit value": {
+		"command": "bash test3.sh",
+		"workingDir": "/home/miikka/projects/hive/taskmaster/assets",
+		"retries": 3,
+		"autostart": true,
+		"exitCodes": [0, 1, 2],
+		"autorestart": true,
+		"stdout": "sadas/fdfd"
+	}
+}
+```
+
 ### Keys
 | Key | Action |
 |---------|---------|
@@ -39,19 +73,9 @@
 
 ## TODO
 - [ ] Logger
-- [ ] Implement commands
+- [ ] Implement commands via cli
 - [ ] Get config file via arg
 - [ ] Config validation
 - [ ] Validate restarting processes
 - [ ] Remove x-packages
 - [ ] Mutex ?
-
-## Notes
-
-If u hot reload config, maybe scroll up to see was it reloaded
-
-Send SIGHUP
-
-`kill -1 4200`
-
-Maybe use `/dev/null`

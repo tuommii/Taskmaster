@@ -20,7 +20,7 @@ const (
 	STOPPED  = "STOPPED"
 	STARTING = "STARTING"
 	RUNNING  = "RUNNING"
-	TIMEOUT  = "TIMEOUT"
+	FAILED   = "FAILED"
 )
 
 const maxRetries = 10
@@ -106,13 +106,14 @@ func (p *Process) Kill() error {
 func (p *Process) launch() {
 	err := p.Cmd.Start()
 	if err != nil {
+		p.Status = FAILED
 		fmt.Println("exec error", p.Name, err)
-		p.Status = STOPPED
 		// Move down if retries + 1 is wanted
 		p.Retries--
 		if p.Retries > 0 && p.Retries < maxRetries {
 			p.launch()
 		}
+		return
 	}
 	p.Started = time.Now()
 	if p.StartTime <= 0 {
@@ -125,7 +126,7 @@ func (p *Process) launch() {
 		// Do not set running if execution has failed
 		if p.Status == STARTING {
 			p.Status = RUNNING
-			fmt.Println(p.Name, "is consired started")
+			fmt.Println(p.Name, "is consired started", p.Status)
 		}
 	}()
 }
@@ -138,8 +139,10 @@ func (p *Process) killAfter() {
 	timeoutCh := time.After(time.Duration(p.StopTime)*time.Second + time.Duration(p.StartTime)*time.Second)
 	go func() {
 		<-timeoutCh
-		p.Status = STOPPED
-		fmt.Println(p.Name, "stopped")
+		if p.Status == RUNNING {
+			p.Status = STOPPED
+			fmt.Println(p.Name, "stopped")
+		}
 		p.Kill()
 	}()
 }
@@ -210,7 +213,11 @@ func (p *Process) redirect(stream io.ReadCloser, path string, alternative *os.Fi
 	file, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		file = alternative
-		fmt.Println("Error while opening log file:", err)
+		if p.Status != STOPPED || p.Status != FAILED {
+			if path != "" {
+				fmt.Println("Error while opening log file:", err, path, p.Name)
+			}
+		}
 	}
 	for s.Scan() {
 		if p.IsForeground {
