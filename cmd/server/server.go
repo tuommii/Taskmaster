@@ -142,15 +142,37 @@ func (s *server) handleConnection(conn net.Conn) {
 		}
 		break
 	case cmd == "stop":
-		conn.Write([]byte("stop"))
+		if s.jobFound(arg) {
+			s.tasks[arg].Kill()
+			conn.Write([]byte("placeholder"))
+		} else {
+			conn.Write([]byte("job not found"))
+		}
+		break
 	case cmd == "restart":
 		conn.Write([]byte("restart"))
 	case cmd == "exit" || cmd == "quit":
 		conn.Write([]byte("exit or quit"))
 	case cmd == "fg":
-		s.tasks["REALTIME"].SetForeground(true)
+		if s.jobFound(arg) {
+			s.tasks[arg].SetForeground(true)
+			conn.Write([]byte("fore"))
+		} else {
+			conn.Write([]byte("job not found"))
+		}
+		break
 	case cmd == "bg":
-		s.tasks["REALTIME"].SetForeground(false)
+		if s.jobFound(arg) {
+			if s.tasks[arg].Status != job.RUNNING {
+				conn.Write([]byte("aint running"))
+			} else {
+				s.tasks[arg].SetForeground(false)
+				conn.Write([]byte("foreground"))
+			}
+		} else {
+			conn.Write([]byte("job not found"))
+		}
+		break
 	default:
 		conn.Write([]byte("server received: " + cmd))
 	}

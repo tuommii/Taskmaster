@@ -98,7 +98,7 @@ func (app *Client) ReadInput() {
 				continue
 			}
 			// Print server response
-			fmt.Println("RESPONSE:", string(reply))
+			fmt.Println(string(reply))
 		}
 		terminal.MakeRaw(0)
 	}

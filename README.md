@@ -21,7 +21,7 @@
 
 ## How To Use
 
-### Example config
+### Config example, also in `assets` folder
 ```json
 {
 	"REALTIME": {
@@ -72,6 +72,7 @@
 | <kbd>**reload**</kbd> | reload config file |
 
 ## TODO
+- [ ] Job names to client (suggestions)
 - [ ] Logger
 - [ ] Implement commands via cli
 - [ ] Get config file via arg
