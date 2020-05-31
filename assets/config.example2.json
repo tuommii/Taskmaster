@@ -2,10 +2,19 @@
 	"REALTIME": {
 		"command": "bash /home/miikka/projects/hive/taskmaster/assets/test.sh",
 		"workingDir": "./assets",
-		"startTime": 3,
+		"startTime": 30,
 		"numprocs": 1,
 		"autostart": true,
 		"autorestart": true,
 		"stdout": "/tmp/realtime.log"
+	},
+	"FAILING": {
+		"command": "notfound",
+		"startTime": 3,
+		"stopTime": 7,
+		"numprocs": 1,
+		"autostart": true,
+		"autorestart": true,
+		"stdout": "/tmp/failing.log"
 	}
 }
