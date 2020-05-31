@@ -7,17 +7,27 @@ Todo app * Fun + UNIX = Taskmaster
 
 ## Features
 
-- Client/Server, via TCP
-- Option to daemonize
-- Selfmade CLI-interface
-- fg command
-- Hot-reload config file
-- Only Stdlib is used
-- clients are limited one at time
-- if client exist, server remains listening for new client
+### Client
+- Terminal in rawmode
+- Autocompletion
+- History
+- Sends input to server via TCP
+
+| KEY | ACTION |
+|---------|---------|
+| <kbd>Up</kbd> | Next history item |
+| <kbd>Tab</kbd> | Next suggestion (autocomplete) |
+
+### Server (daemon)
+
+- Option to daemonize with `-d` flag
+- Hot-reload config file by sending `SIGHUP`
+- Clients are limited one at time
+- If client exist, server remains listening for new client
 
 ## TODO
 - Config validation
+- config file via arg
 
 ## Notes
 

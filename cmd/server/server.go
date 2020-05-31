@@ -16,7 +16,7 @@ import (
 
 type server struct {
 	configPath string
-	tasks      map[string]*job.Process
+	tasks      job.Tasks
 }
 
 func newServer(configPath string, tasks map[string]*job.Process) *server {
@@ -110,22 +110,15 @@ func (s *server) handleConnection(conn net.Conn) {
 	// clientAddr := conn.RemoteAddr().String()
 	// fmt.Println(msg, "from", clientAddr+"\n")
 
-	if msg == "status" {
-		var res string
-		for _, task := range s.tasks {
-			res += task.Name + ",  " + task.Status + "\n"
-		}
-		conn.Write([]byte(res + "\n"))
-	} else {
-		conn.Write([]byte("server received: " + msg))
-	}
-
-	if msg == "fg" {
-		fmt.Println("FOREGROUND")
+	switch {
+	case msg == "status" || msg == "st":
+		conn.Write([]byte(s.tasks.Status()))
+	case msg == "fg":
 		s.tasks["REALTIME"].SetForeground(true)
-	} else if msg == "bg" {
-		fmt.Println("BACKGROUND")
+	case msg == "bg":
 		s.tasks["REALTIME"].SetForeground(false)
+	default:
+		conn.Write([]byte("server received: " + msg))
 	}
 
 	// recursive func to handle io.EOF for random disconnects

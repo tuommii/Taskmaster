@@ -62,17 +62,17 @@ type Process struct {
 }
 
 // LoadAll loads all jobs from config file
-func LoadAll(path string) map[string]*Process {
+func LoadAll(path string) Tasks {
 	tasks := make(map[string]*Process)
 	file, err := ioutil.ReadFile(path)
 	if err != nil {
 		log.Fatal("Error while opening config file: ", err)
 	}
 	err = json.Unmarshal([]byte(file), &tasks)
-	for name, process := range tasks {
-		process.Name = name
+	for name, task := range tasks {
+		task.Name = name
 		// TODO: check support with config reloading
-		process.Status = STOPPED
+		task.Status = STOPPED
 	}
 	return tasks
 }

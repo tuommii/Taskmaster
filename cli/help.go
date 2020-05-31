@@ -9,6 +9,7 @@ import (
 // HelpCmd implements help command
 var HelpCmd = &Command{
 	Name:  "help",
+	Alias: "h",
 	Usage: "Show help",
 	Run:   help,
 }

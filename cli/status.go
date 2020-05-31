@@ -10,7 +10,7 @@ import (
 var StatusCmd = &Command{
 	Name:  "status",
 	Usage: "Show status",
-	Alias: "stat",
+	Alias: "st",
 	Run:   status,
 }
 
