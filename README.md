@@ -15,7 +15,7 @@
 
 ### Server (daemon)
 - [x] Option to daemonize with `-d` flag
-- [x] Hot-reload config file by sending `SIGHUP`
+- [x] Hot-reload config file by sending `SIGHUP` signal
 - [x] Only one client at time is allowed
 - [x] Server remains listening for a new client if client exits
 
