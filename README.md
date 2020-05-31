@@ -1,6 +1,6 @@
 <h1 align="center">
 	Taskmaster
-	<br>
+	<br><br>
 	<img width=100% src="assets/taskmaster.png">
 </h1>
 
