@@ -4,33 +4,43 @@
 	<img width=100% src="assets/taskmaster.png">
 </p>
 
-## Requirements
-- Only standard library allowed
-- For bonuses, libraries are allowed
 ## Features
 
 ### Client
-- Terminal in rawmode
-- Autocompletion
-- History
-- Sends input to server via TCP
-- mention logger when ready
+- [x] Terminal in raw mode
+- [x] Autocompletion
+- [x] History
+- [x] Aliases
+- [x] Sends user input to server via TCP
 
-| KEY | ACTION |
+### Server (daemon)
+- Option to daemonize with `-d` flag
+- Hot-reload config file by sending `SIGHUP`
+- Clients are limited one at time
+- Server remains listening for a new client if client exits
+
+## How To Use
+
+### Keys
+| Key | Action |
 |---------|---------|
 | <kbd>Up</kbd> | Next history item |
 | <kbd>Tab</kbd> | Next suggestion (autocomplete) |
 
-### Server (daemon)
-
-- Option to daemonize with `-d` flag
-- Hot-reload config file by sending `SIGHUP`
-- Clients are limited one at time
-- If client exist, server remains listening for new client
+### Commands
+| Command (alias) | Action |
+|---------|---------|
+| help (h) | Show help |
+| status (st) | show job statuses |
+| start (run) | start a job |
+| stop (pause) | stop a job |
+| restart | restart a job |
+| reload | reload config file |
 
 ## TODO
 - Config validation
 - config file via arg
+- check duplicates in config (reload also)
 
 ## Notes
 
