@@ -17,6 +17,7 @@ import (
 
 // Statuses
 const (
+	CREATED  = "CREATED"
 	STOPPED  = "STOPPED"
 	STARTING = "STARTING"
 	RUNNING  = "RUNNING"
@@ -33,6 +34,7 @@ type options struct {
 	// Log files
 	OutputLog string `json:"stdout"`
 	ErrorLog  string `json:"stderr"`
+	AutoStart bool   `json:"autostart"`
 	// Tasks working directory
 	WorkingDir string `json:"workingDir"`
 	// How many instances is launched
@@ -72,20 +74,29 @@ func LoadAll(path string) Tasks {
 	for name, task := range tasks {
 		task.Name = name
 		// TODO: check support with config reloading
-		task.Status = STOPPED
+		task.Status = CREATED
+		fmt.Println(task.AutoStart)
 	}
 	return tasks
 }
 
 // Launch executes a task
 func (p *Process) Launch() error {
-	if p.Status != STOPPED {
+	if p.Status == CREATED && p.AutoStart == false {
+		fmt.Println("NO AUTO")
+		return errors.New("No autostart defined")
+	}
+	if p.Status != STOPPED && p.Status != CREATED {
+		fmt.Println("VITTU")
 		return errors.New("Can't launch started process")
 	}
 	p.Status = STARTING
 	p.prepare()
 	oldMask := syscall.Umask(p.Umask)
 	p.launch()
+	if p.Status == FAILED {
+		fmt.Println(p.Name, p.Status)
+	}
 	p.killAfter()
 	syscall.Umask(oldMask)
 	p.clean()
@@ -94,6 +105,7 @@ func (p *Process) Launch() error {
 
 // Kill process
 func (p *Process) Kill() error {
+	// TODO: Fix
 	if p.Status != RUNNING {
 		return nil
 	}
