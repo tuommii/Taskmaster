@@ -4,21 +4,26 @@
 	<img width=100% src="assets/taskmaster.png">
 </p>
 
-## Requirements
-- Only standard library allowed
-
 ## Features
 
 ### Client
-- Terminal in rawmode
-- Autocompletion
-- History
-- Sends input to server via TCP
+- [x] Terminal in rawm ode
+- [x] Autocompletion
+- [x] History
+- [x] Sends user input to server via TCP
 
-| KEY | ACTION |
+| Key | Action |
 |---------|---------|
 | <kbd>Up</kbd> | Next history item |
 | <kbd>Tab</kbd> | Next suggestion (autocomplete) |
+
+#### Commands
+
+| Command (alias) | Action |
+|---------|---------|
+| help (h) | Show help |
+| status (st) | show job statuses |
+
 
 ### Server (daemon)
 
