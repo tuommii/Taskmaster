@@ -24,8 +24,8 @@
 ### Keys
 | Key | Action |
 |---------|---------|
-| <kbd>Up</kbd> | Next history item |
-| <kbd>Tab</kbd> | Next suggestion (autocomplete) |
+| <kbd>**Up**</kbd> | Next history item |
+| <kbd>**Tab**</kbd> | Next suggestion (autocomplete) |
 
 ### Commands
 | Command (alias) | Action |
