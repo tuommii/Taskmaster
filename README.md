@@ -30,12 +30,12 @@
 ### Commands
 | Command (alias) | Action |
 |---------|---------|
-| help (h) | Show help |
-| status (st) | show job statuses |
-| start (run) | start a job |
-| stop (pause) | stop a job |
-| restart | restart a job |
-| reload | reload config file |
+| <kbd>**help** (h)</kbd> | Show help |
+| <kbd>**status** (st)</kbd> | show job statuses |
+| <kbd>**start** (run)</kbd> | start a job |
+| <kbd>**stop** (pause)</kbd> | stop a job |
+| <kbd>**restart**</kbd> | restart a job |
+| <kbd>**reload**</kbd> | reload config file |
 
 ## TODO
 - [ ] Logger
