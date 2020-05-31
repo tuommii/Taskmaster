@@ -21,7 +21,23 @@
 
 ## How To Use
 
-### Config example, also in `assets` folder
+### Keys
+| Key | Action |
+|---------|---------|
+| <kbd>**Up**</kbd> | Next history item |
+| <kbd>**Tab**</kbd> | Next suggestion (autocomplete) |
+
+### Commands
+| Command (alias) | Action |
+|---------|---------|
+| <kbd>**help** (h)</kbd> | Show help |
+| <kbd>**status** (st)</kbd> | show job statuses |
+| <kbd>**start** (run)</kbd> | start a job |
+| <kbd>**stop** (pause)</kbd> | stop a job |
+| <kbd>**restart**</kbd> | restart a job |
+| <kbd>**reload**</kbd> | reload config file |
+
+Config example, also in `assets` folder
 ```json
 {
 	"REALTIME": {
@@ -54,22 +70,6 @@
 	}
 }
 ```
-
-### Keys
-| Key | Action |
-|---------|---------|
-| <kbd>**Up**</kbd> | Next history item |
-| <kbd>**Tab**</kbd> | Next suggestion (autocomplete) |
-
-### Commands
-| Command (alias) | Action |
-|---------|---------|
-| <kbd>**help** (h)</kbd> | Show help |
-| <kbd>**status** (st)</kbd> | show job statuses |
-| <kbd>**start** (run)</kbd> | start a job |
-| <kbd>**stop** (pause)</kbd> | stop a job |
-| <kbd>**restart**</kbd> | restart a job |
-| <kbd>**reload**</kbd> | reload config file |
 
 ## TODO
 - [ ] Job names to client (suggestions)
