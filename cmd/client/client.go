@@ -25,19 +25,19 @@ type Client struct {
 // Create new app (taskmaster)
 func Create() *Client {
 	var err error
-	app := &Client{
+	client := &Client{
 		signals: make(chan os.Signal, 1),
 		done:    make(chan bool, 1),
 	}
-	signal.Notify(app.signals, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-	app.oldState, err = terminal.MakeRaw(0)
+	signal.Notify(client.signals, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	client.oldState, err = terminal.MakeRaw(0)
 	if err != nil {
 		log.Fatal(err)
 	}
-	app.term = tty.New(4096)
+	client.term = tty.New(4096)
 
 	// autocompletion
-	app.term.SetProposer(func(input string) []string {
+	client.term.SetProposer(func(input string) []string {
 		var arr []string
 		var result []string
 		arr = append(arr, "help")
@@ -53,12 +53,12 @@ func Create() *Client {
 		return result
 	})
 
-	// tcp client
-	app.conn, err = net.Dial("tcp", "127.0.0.1:4200")
+	client.conn, err = net.Dial("tcp", "127.0.0.1:4200")
 	if err != nil {
+		// TODO: Messes ui (raw/normal)
 		// log.Println(err)
 	}
-	return app
+	return client
 }
 
 // ListenSignals ...
@@ -83,6 +83,7 @@ func (app *Client) ReadInput() {
 				terminal.MakeRaw(0)
 				continue
 			}
+			// Send to server
 			fmt.Fprintf(app.conn, input+"\n")
 			terminal.Restore(0, app.oldState)
 			_, err := app.conn.Read(reply)
@@ -91,8 +92,8 @@ func (app *Client) ReadInput() {
 				terminal.MakeRaw(0)
 				continue
 			}
-			fmt.Println("CLIENT PRINT", string(reply))
-			// terminal.MakeRaw(0)
+			// Print server response
+			fmt.Println("RESPONSE:", string(reply))
 		}
 		terminal.MakeRaw(0)
 	}

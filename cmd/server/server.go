@@ -95,7 +95,6 @@ func (s *server) listenConnections() {
 }
 
 func (s *server) handleConnection(conn net.Conn) {
-	var res string
 	data, err := bufio.NewReader(conn).ReadBytes('\n')
 	if err != nil {
 		fmt.Println("client left..")
@@ -105,19 +104,20 @@ func (s *server) handleConnection(conn net.Conn) {
 	}
 	msg := strings.Trim(string(data), "\n")
 	fmt.Println(msg)
+
 	// cli.RunCommand(cli.ParseInput(msg), s.tasks)
 	// get the remote address of the client
 	// clientAddr := conn.RemoteAddr().String()
 	// fmt.Println(msg, "from", clientAddr+"\n")
 
 	if msg == "status" {
-		res = ""
+		var res string
 		for _, task := range s.tasks {
 			res += task.Name + ",  " + task.Status + "\n"
 		}
 		conn.Write([]byte(res + "\n"))
 	} else {
-		conn.Write([]byte("FROM SERVER: " + msg + "\n"))
+		conn.Write([]byte("server received: " + msg))
 	}
 
 	if msg == "fg" {

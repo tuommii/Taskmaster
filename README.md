@@ -8,6 +8,7 @@ Todo app * Fun + UNIX = Taskmaster
 ## Features
 
 - Client/Server, via TCP
+- Option to daemonize
 - Selfmade CLI-interface
 - fg command
 - Hot-reload config file
