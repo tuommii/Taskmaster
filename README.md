@@ -7,7 +7,7 @@
 ## Features
 
 ### Client
-- [x] Terminal in rawm ode
+- [x] Terminal in raw ode
 - [x] Autocompletion
 - [x] History
 - [x] Sends user input to server via TCP
