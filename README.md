@@ -7,17 +7,17 @@
 ## Features
 
 ### Client
-- [x] Terminal in raw mode
+- [x] UI with raw mode
 - [x] Autocompletion
 - [x] History
 - [x] Aliases
 - [x] Sends user input to server via TCP
 
 ### Server (daemon)
-- Option to daemonize with `-d` flag
-- Hot-reload config file by sending `SIGHUP`
-- Clients are limited one at time
-- Server remains listening for a new client if client exits
+- [x] Option to daemonize with `-d` flag
+- [x] Hot-reload config file by sending `SIGHUP`
+- [x] Only one client at time is allowed
+- [x] Server remains listening for a new client if client exits
 
 ## How To Use
 
@@ -38,9 +38,13 @@
 | reload | reload config file |
 
 ## TODO
-- Config validation
-- config file via arg
-- check duplicates in config (reload also)
+- [ ] Logger
+- [ ] Implement commands
+- [ ] Get config file via arg
+- [ ] Config validation
+- [ ] Validate restarting processes
+- [ ] Remove x-packages
+- [ ] Mutex ?
 
 ## Notes
 
