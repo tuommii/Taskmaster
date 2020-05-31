@@ -1,3 +1,6 @@
+<p align="center">
+	<img width=100% src="assets/taskmaster.png">
+</p>
 # Unix job control + Go = **Taskmaster** = A lot of fun :stars:
 
 Todo app * Fun + UNIX = Taskmaster

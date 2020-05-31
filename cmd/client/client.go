@@ -41,10 +41,15 @@ func Create() *Client {
 		var arr []string
 		var result []string
 		arr = append(arr, "help")
+		arr = append(arr, "h")
 		arr = append(arr, "status")
+		arr = append(arr, "st")
 		arr = append(arr, "reload")
 		arr = append(arr, "start")
+		arr = append(arr, "run")
 		arr = append(arr, "stop")
+		arr = append(arr, "exit")
+		arr = append(arr, "quit")
 		for _, item := range arr {
 			if strings.HasPrefix(item, input) {
 				result = append(result, item)

@@ -29,6 +29,7 @@ func newServer(configPath string, tasks map[string]*job.Process) *server {
 
 func (s *server) launchTasks() {
 	for _, task := range s.tasks {
+		// TODO: handle err
 		task.Launch()
 	}
 }
@@ -111,8 +112,18 @@ func (s *server) handleConnection(conn net.Conn) {
 	// fmt.Println(msg, "from", clientAddr+"\n")
 
 	switch {
+	case msg == "help" || msg == "h":
+		conn.Write([]byte("help cmd"))
 	case msg == "status" || msg == "st":
 		conn.Write([]byte(s.tasks.Status()))
+	case msg == "start" || msg == "run":
+		conn.Write([]byte("start or run"))
+	case msg == "stop":
+		conn.Write([]byte("stop"))
+	case msg == "restart":
+		conn.Write([]byte("restart"))
+	case msg == "exit" || msg == "quit":
+		conn.Write([]byte("exit or quit"))
 	case msg == "fg":
 		s.tasks["REALTIME"].SetForeground(true)
 	case msg == "bg":
