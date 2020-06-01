@@ -50,6 +50,8 @@ func Create() *Client {
 		arr = append(arr, "stop")
 		arr = append(arr, "exit")
 		arr = append(arr, "quit")
+		arr = append(arr, "fg")
+		arr = append(arr, "bg")
 
 		splitted := strings.SplitN(input, " ", 2)
 		if len(splitted) >= 2 {
@@ -91,7 +93,7 @@ func (app *Client) ListenSignals() {
 // ReadInput reads input until exit command or terminating signal
 func (app *Client) ReadInput() {
 	if app.conn != nil {
-		fmt.Fprintf(app.conn, "secret_command_for_suggestions"+"\n")
+		fmt.Fprintf(app.conn, "job_names"+"\n")
 		resp := make([]byte, 4096)
 		n, err := app.conn.Read(resp)
 		if err != nil {

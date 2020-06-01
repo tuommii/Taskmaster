@@ -134,7 +134,7 @@ func (s *server) handleConnection(conn net.Conn) {
 		arg = input[1]
 	}
 	switch {
-	case cmd == "secret_command_for_suggestions":
+	case cmd == "job_names":
 		conn.Write([]byte(s.getJobNames()))
 	case cmd == "help" || cmd == "h":
 		conn.Write([]byte("help cmd"))
@@ -145,7 +145,7 @@ func (s *server) handleConnection(conn net.Conn) {
 			if s.tasks[arg].Status == job.LOADED || s.tasks[arg].Status == job.STOPPED {
 				s.tasks[arg].Status = job.STOPPED
 				s.tasks[arg].Launch()
-				conn.Write([]byte("started"))
+				conn.Write([]byte(arg + " started"))
 			}
 		} else {
 			conn.Write([]byte("job not found"))
@@ -154,7 +154,7 @@ func (s *server) handleConnection(conn net.Conn) {
 	case cmd == "stop":
 		if s.jobFound(arg) {
 			s.tasks[arg].Kill()
-			conn.Write([]byte("placeholder"))
+			conn.Write([]byte(arg + " stopped"))
 		} else {
 			conn.Write([]byte("job not found"))
 		}
@@ -166,7 +166,7 @@ func (s *server) handleConnection(conn net.Conn) {
 	case cmd == "fg":
 		if s.jobFound(arg) {
 			s.tasks[arg].SetForeground(true)
-			conn.Write([]byte("fore"))
+			conn.Write([]byte("attached " + arg + " output to stdout"))
 		} else {
 			conn.Write([]byte("job not found"))
 		}
@@ -177,7 +177,7 @@ func (s *server) handleConnection(conn net.Conn) {
 				conn.Write([]byte("aint running"))
 			} else {
 				s.tasks[arg].SetForeground(false)
-				conn.Write([]byte("foreground"))
+				conn.Write([]byte("deattached " + arg + " output from stdout"))
 			}
 		} else {
 			conn.Write([]byte("job not found"))

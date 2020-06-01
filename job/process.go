@@ -105,6 +105,7 @@ func (p *Process) Kill() error {
 	if p.Status != RUNNING {
 		return nil
 	}
+	p.Status = STOPPED
 	return p.Cmd.Process.Kill()
 	// Maybe ?
 	// p.Cmd.Process.Release()
