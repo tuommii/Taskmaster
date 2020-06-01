@@ -8,8 +8,9 @@
 
 ### Client
 - [x] UI with raw mode
-- [x] Autocompletion
 - [x] History
+- [x] *Autocompletion* for **commands**
+- [x] *Autocompletion* for **task names** (server sends names to client via TCP)
 - [x] Aliases
 - [x] Sends user input to server via TCP
 
@@ -80,3 +81,4 @@ Config example, also in `assets` folder
 - [ ] Validate restarting processes
 - [ ] Remove x-packages
 - [ ] Mutex ?
+- [ ] Multiline support

@@ -16,5 +16,14 @@
 		"autostart": true,
 		"autorestart": true,
 		"stdout": "/tmp/failing.log"
+	},
+	"short": {
+		"command": "notfound",
+		"startTime": 2,
+		"stopTime": 7,
+		"numprocs": 1,
+		"autostart": true,
+		"autorestart": true,
+		"stdout": "/tmp/failing.log"
 	}
 }

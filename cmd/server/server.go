@@ -56,6 +56,14 @@ func (s *server) reloadConfig() {
 	fmt.Println("Loaded", len(s.tasks), "tasks")
 }
 
+func (s *server) getJobNames() string {
+	var names string
+	for name := range s.tasks {
+		names += name + "|"
+	}
+	return names[:len(names)-1]
+}
+
 func (s *server) listenSignals() {
 	// We must use a buffered channel or risk missing the signal
 	// if we're not ready to receive when the signal is sent
@@ -126,6 +134,8 @@ func (s *server) handleConnection(conn net.Conn) {
 		arg = input[1]
 	}
 	switch {
+	case cmd == "secret_command_for_suggestions":
+		conn.Write([]byte(s.getJobNames()))
 	case cmd == "help" || cmd == "h":
 		conn.Write([]byte("help cmd"))
 	case cmd == "status" || cmd == "st":

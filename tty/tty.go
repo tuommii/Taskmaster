@@ -177,7 +177,7 @@ func (s *State) handleTab() {
 		return
 	}
 	if s.proposerPos == 0 {
-		s.suggestions = s.proposer(string(s.buf))
+		s.suggestions = s.proposer(string(s.buf), s.jobNames)
 	}
 	if len(s.suggestions) == 0 {
 		return
@@ -199,10 +199,11 @@ func (s *State) handleTab() {
 		} else {
 			s.buf = []byte(s.suggestions[s.proposerPos])
 		}
+		width := len(s.buf)
+		s.inputLen = width
+		s.pos = width
 		s.printPrompt()
 		s.printBuffer()
-		s.inputLen = len(s.buf)
-		s.pos = len(s.buf)
 		s.proposerPos++
 	}
 }
