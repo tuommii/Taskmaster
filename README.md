@@ -10,7 +10,7 @@
 - [x] UI with raw mode
 - [x] History
 - [x] *Autocompletion* for **commands**
-- [x] *Autocompletion* for **task names** (server sends names to client via TCP)
+- [x] *Autocompletion* for **task names** (server sends names to client when config is (re)loaded)
 - [x] Aliases
 - [x] Sends user input to server via TCP
 
@@ -77,7 +77,7 @@ Config example, also in `assets` folder
 - [ ] Logger
 - [ ] Implement commands via cli
 - [ ] Get config file via arg
-- [ ] Config validation
+- [ ] Config validation (check max lengths also)
 - [ ] Validate restarting processes
 - [ ] Remove x-packages
 - [ ] Mutex ?
