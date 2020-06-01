@@ -3,6 +3,7 @@ package tty
 import (
 	"fmt"
 	"os"
+	"strings"
 )
 
 // State represents terminal state
@@ -186,8 +187,18 @@ func (s *State) handleTab() {
 	}
 	if len(s.suggestions[s.proposerPos]) > 0 {
 		s.clearLine()
+		var name bool
+		if strings.Contains(string(s.buf), " ") {
+			name = true
+		}
+		cpy := s.buf
+		splitted := strings.Split(string(cpy), " ")
 		s.clearBuffer()
-		s.buf = []byte(s.suggestions[s.proposerPos])
+		if name {
+			s.buf = []byte(splitted[0] + " " + s.suggestions[s.proposerPos])
+		} else {
+			s.buf = []byte(s.suggestions[s.proposerPos])
+		}
 		s.printPrompt()
 		s.printBuffer()
 		s.inputLen = len(s.buf)
@@ -213,7 +224,7 @@ func (s *State) clearLine() {
 
 // printPrompt prints prompt
 func (s *State) printPrompt() {
-	fmt.Print(s.prompt)
+	fmt.Printf("\033[1;34m%s\033[0m", s.prompt)
 }
 
 // printBuffer prints buffer

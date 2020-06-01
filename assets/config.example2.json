@@ -1,5 +1,5 @@
 {
-	"REALTIME": {
+	"realtime": {
 		"command": "bash /home/miikka/projects/hive/taskmaster/assets/test.sh",
 		"workingDir": "./assets",
 		"startTime": 5,
@@ -8,7 +8,7 @@
 		"autorestart": true,
 		"stdout": "/tmp/realtime.log"
 	},
-	"FAILING": {
+	"failing": {
 		"command": "notfound",
 		"startTime": 2,
 		"stopTime": 7,

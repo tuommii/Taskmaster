@@ -50,6 +50,21 @@ func Create() *Client {
 		arr = append(arr, "stop")
 		arr = append(arr, "exit")
 		arr = append(arr, "quit")
+
+		splitted := strings.Split(input, " ")
+		if len(splitted) >= 2 {
+			var names []string
+			names = append(names, "realtime")
+			names = append(names, "failing")
+			names = append(names, "test")
+			for _, name := range names {
+				if strings.HasPrefix(name, splitted[1]) {
+					result = append(result, name)
+				}
+			}
+			return result
+		}
+
 		for _, item := range arr {
 			if strings.HasPrefix(item, input) {
 				result = append(result, item)
