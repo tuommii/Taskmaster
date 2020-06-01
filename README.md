@@ -1,8 +1,12 @@
 <h1 align="center">
-	Taskmaster
+	(WIP) Taskmaster
 	<br><br>
 	<img width=100% src="assets/taskmaster.png">
 </h1>
+
+## How it works
+
+Screencast with [example config](#Example-config) below
 
 <p align="center">
 	<img width=100% src="assets/taskmaster_1.gif">
@@ -14,7 +18,7 @@
 - [x] UI with raw mode
 - [x] History
 - [x] *Autocompletion* for **commands**
-- [x] *Autocompletion* for **task names** (server sends names to client when config is (re)loaded)
+- [x] *Autocompletion* for **task names**, server sends names to client when config is (re)loaded
 - [x] Aliases
 - [x] Sends user input to server via TCP
 
@@ -42,7 +46,7 @@
 | <kbd>**restart**</kbd> | restart a job |
 | <kbd>**reload**</kbd> | reload config file |
 
-Config example, also in `assets` folder
+### Example config
 ```json
 {
 	"realtime": {
@@ -67,9 +71,10 @@ Config example, also in `assets` folder
 ```
 
 ## TODO
-- [ ] Job names to client (suggestions)
+- [x] Job names to client (suggestions)
+- [ ] Refactor bad parts
 - [ ] Logger
-- [ ] Implement commands via cli
+- [ ] Implement commands nicely
 - [ ] Get config file via arg
 - [ ] Config validation (check max lengths also)
 - [ ] Validate restarting processes
