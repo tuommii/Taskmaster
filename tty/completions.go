@@ -3,7 +3,7 @@ package tty
 const historyLimit = 3
 
 // Proposer (autocompleter) takes current input and returns all possible completions
-type Proposer func(input string, jobNames []string) []string
+type Proposer func(input string, commands []string, jobNames []string) []string
 
 type autocomplete struct {
 	// autocomplete func

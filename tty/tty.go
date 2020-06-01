@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/tuommii/taskmaster/cli"
 )
 
 // State represents terminal state
@@ -177,7 +179,7 @@ func (s *State) handleTab() {
 		return
 	}
 	if s.proposerPos == 0 {
-		s.suggestions = s.proposer(string(s.buf), s.jobNames)
+		s.suggestions = s.proposer(string(s.buf), cli.CommandNames(), s.jobNames)
 	}
 	if len(s.suggestions) == 0 {
 		return
