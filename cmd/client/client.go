@@ -90,6 +90,7 @@ func (app *Client) ListenSignals() {
 
 // ReadInput reads input until exit command or terminating signal
 func (app *Client) ReadInput() {
+<<<<<<< HEAD
 	if app.conn != nil {
 		fmt.Fprintf(app.conn, "secret_command_for_suggestions"+"\n")
 		resp := make([]byte, 4096)
@@ -100,6 +101,16 @@ func (app *Client) ReadInput() {
 		names := strings.Split(string(resp[:n]), "|")
 		app.term.SetJobNames(names)
 	}
+=======
+	fmt.Fprintf(app.conn, "secret_command_for_suggestions"+"\n")
+	resp := make([]byte, 4096)
+	n, err := app.conn.Read(resp)
+	if err != nil {
+		log.Println(err)
+	}
+	names := strings.Split(string(resp[:n]), "|")
+	app.term.SetJobNames(names)
+>>>>>>> 56e42cf4d513c9c7383f5c412e3acd5927249d10
 	for {
 		reply := make([]byte, 1024)
 		input := app.term.ReadKey(app.signals)
