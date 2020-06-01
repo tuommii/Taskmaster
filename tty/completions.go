@@ -3,7 +3,7 @@ package tty
 const historyLimit = 3
 
 // Proposer (autocompleter) takes current input and returns all possible completions
-type Proposer func(input string) []string
+type Proposer func(input string, jobNames []string) []string
 
 type autocomplete struct {
 	// autocomplete func
@@ -12,12 +12,20 @@ type autocomplete struct {
 	proposerPos int
 	// Currently available suggestions
 	suggestions []string
+	// All job names, getting these from server
+	jobNames []string
 }
 
 type hist struct {
 	history      []string
 	historyCount int
 	historyPos   int
+}
+
+// SetJobNames ...
+func (s *State) SetJobNames(names []string) {
+	s.jobNames = names
+	// fmt.Println(s.jobNames)
 }
 
 // SetProposer sets autocomplete function

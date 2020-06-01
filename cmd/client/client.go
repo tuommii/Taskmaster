@@ -37,7 +37,7 @@ func Create() *Client {
 	client.term = tty.New(4096)
 
 	// autocompletion
-	client.term.SetProposer(func(input string) []string {
+	client.term.SetProposer(func(input string, jobNames []string) []string {
 		var arr []string
 		var result []string
 		arr = append(arr, "help")
@@ -53,11 +53,11 @@ func Create() *Client {
 
 		splitted := strings.SplitN(input, " ", 2)
 		if len(splitted) >= 2 {
-			var names []string
-			names = append(names, "realtime")
-			names = append(names, "failing")
-			names = append(names, "test")
-			for _, name := range names {
+			// var names []string
+			// names = append(names, "realtime")
+			// names = append(names, "failing")
+			// names = append(names, "test")
+			for _, name := range jobNames {
 				if strings.HasPrefix(name, splitted[1]) {
 					result = append(result, name)
 				}
@@ -90,6 +90,14 @@ func (app *Client) ListenSignals() {
 
 // ReadInput reads input until exit command or terminating signal
 func (app *Client) ReadInput() {
+	fmt.Fprintf(app.conn, "secret_command_for_suggestions"+"\n")
+	resp := make([]byte, 4096)
+	n, err := app.conn.Read(resp)
+	if err != nil {
+		log.Println(err)
+	}
+	names := strings.Split(string(resp[:n]), "|")
+	app.term.SetJobNames(names)
 	for {
 		reply := make([]byte, 1024)
 		input := app.term.ReadKey(app.signals)
