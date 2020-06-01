@@ -94,21 +94,7 @@ func (app *Client) ReadInput() {
 }
 
 func autocompleter(input string, commands []string, jobNames []string) []string {
-	// var arr []string
 	var result []string
-	// Hack before commands are implemented
-	// arr = append(arr, "help")
-	// arr = append(arr, "h")
-	// arr = append(arr, "status")
-	// arr = append(arr, "st")
-	// arr = append(arr, "reload")
-	// arr = append(arr, "start")
-	// arr = append(arr, "run")
-	// arr = append(arr, "stop")
-	// arr = append(arr, "exit")
-	// arr = append(arr, "quit")
-	// arr = append(arr, "fg")
-	// arr = append(arr, "bg")
 
 	splitted := strings.SplitN(input, " ", 2)
 	if len(splitted) >= 2 {

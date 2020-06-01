@@ -6,7 +6,7 @@
 
 ## How it works
 
-Screencast with [example config](#Example-config) below
+Screencast with [example config](#Example-config)
 
 <p align="center">
 	<img width=100% src="assets/taskmaster_1.gif">
