@@ -13,8 +13,7 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-// Client is wrapper for client data
-type Client struct {
+type client struct {
 	signals  chan os.Signal
 	done     chan bool
 	oldState *terminal.State
@@ -22,10 +21,9 @@ type Client struct {
 	conn     net.Conn
 }
 
-// Create new app (taskmaster)
-func Create() *Client {
+func create() *client {
 	var err error
-	client := &Client{
+	client := &client{
 		signals: make(chan os.Signal, 1),
 		done:    make(chan bool, 1),
 	}
@@ -40,48 +38,45 @@ func Create() *Client {
 	return client
 }
 
-// ListenSignals and inform we are done
-func (app *Client) ListenSignals() {
-	sig := <-app.signals
+func (client *client) listenSignals() {
+	sig := <-client.signals
 	log.Println("signal received:", sig)
-	app.done <- true
+	client.done <- true
 }
 
-// send command that return job names to server
-func (app *Client) getJobNames() {
-	if app.conn == nil {
-		return
+func (client *client) getJobNames() []string {
+	if client.conn == nil {
+		return nil
 	}
-	fmt.Fprintf(app.conn, "job_names"+"\n")
+	fmt.Fprintf(client.conn, "job_names"+"\n")
 	resp := make([]byte, 4096)
-	n, err := app.conn.Read(resp)
+	n, err := client.conn.Read(resp)
 	if err != nil {
 		log.Println(err)
-		return
+		return nil
 	}
 	// :n, otherwise last item len in array is width + rest of buffer
-	app.term.SetJobNames(strings.Split(string(resp[:n]), "|"))
+	return strings.Split(string(resp[:n]), "|")
 }
 
-// ReadInput reads input until exit command or terminating signal
-func (app *Client) ReadInput() {
-	app.getJobNames()
+func (client *client) readInput() {
+	client.term.SetJobNames(client.getJobNames())
 	for {
 		reply := make([]byte, 1024)
-		input := app.term.ReadKey(app.signals)
-		terminal.Restore(0, app.oldState)
+		input := client.term.ReadKey(client.signals)
+		terminal.Restore(0, client.oldState)
 		switch {
 		case input == "exit":
-			app.done <- true
+			client.done <- true
 		case input != "":
-			if app.conn == nil {
+			if client.conn == nil {
 				fmt.Println("No connection to server...")
 				terminal.MakeRaw(0)
 				continue
 			}
-			fmt.Fprintf(app.conn, input+"\n")
-			terminal.Restore(0, app.oldState)
-			_, err := app.conn.Read(reply)
+			fmt.Fprintf(client.conn, input+"\n")
+			terminal.Restore(0, client.oldState)
+			_, err := client.conn.Read(reply)
 			if err != nil {
 				log.Println("Error reading reply", err)
 				terminal.MakeRaw(0)
@@ -114,10 +109,9 @@ func autocompleter(input string, commands []string, jobNames []string) []string 
 	return result
 }
 
-// Quit restores terminal mode before exit
-func (app *Client) Quit() {
-	<-app.done
-	terminal.Restore(0, app.oldState)
+func (client *client) quit() {
+	<-client.done
+	terminal.Restore(0, client.oldState)
 	log.Println("quit")
 	os.Exit(1)
 }

@@ -7,10 +7,10 @@ import (
 )
 
 func main() {
-	client := Create()
+	client := create()
 	_ = logger.Get()
 	log.Println("CLIENT TEST")
-	go client.ListenSignals()
-	go client.ReadInput()
-	client.Quit()
+	go client.listenSignals()
+	go client.readInput()
+	client.quit()
 }
