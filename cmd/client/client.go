@@ -51,7 +51,7 @@ func Create() *Client {
 		arr = append(arr, "exit")
 		arr = append(arr, "quit")
 
-		splitted := strings.Split(input, " ")
+		splitted := strings.SplitN(input, " ", 2)
 		if len(splitted) >= 2 {
 			var names []string
 			names = append(names, "realtime")

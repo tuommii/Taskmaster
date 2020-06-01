@@ -192,7 +192,7 @@ func (s *State) handleTab() {
 			name = true
 		}
 		cpy := s.buf
-		splitted := strings.Split(string(cpy), " ")
+		splitted := strings.SplitN(string(cpy), " ", 2)
 		s.clearBuffer()
 		if name {
 			s.buf = []byte(splitted[0] + " " + s.suggestions[s.proposerPos])
