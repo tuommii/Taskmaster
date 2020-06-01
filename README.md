@@ -4,6 +4,10 @@
 	<img width=100% src="assets/taskmaster.png">
 </h1>
 
+<p align="center">
+	<img width=100% src="assets/taskmaster_1.gif">
+</p>
+
 ## Features
 
 ### Client
@@ -41,33 +45,23 @@
 Config example, also in `assets` folder
 ```json
 {
-	"REALTIME": {
-		"command": "bash test.sh",
-		"workingDir": "/home/miikka/projects/hive/taskmaster/assets",
-		"startTime": 3,
+	"realtime": {
+		"command": "bash /home/miikka/projects/hive/taskmaster/assets/test.sh",
+		"workingDir": "./assets",
+		"startTime": 5,
+		"numprocs": 1,
+		"autostart": false,
+		"autorestart": true,
+		"stdout": "/tmp/realtime.log"
+	},
+	"failing": {
+		"command": "notfound",
+		"startTime": 2,
+		"stopTime": 7,
 		"numprocs": 1,
 		"autostart": true,
 		"autorestart": true,
-		"stdout": "/tmp/realtime"
-	},
-	"FAILING": {
-		"command": "notexist",
-		"workingDir": "/home/miikka/projects/hive/taskmaster/assets",
-		"startTime": 2,
-		"stopTime": 7,
-		"retries": 3,
-		"autostart": true,
-		"autorestart": true,
-		"stdout": "sadas/fdfd"
-	},
-	"exit value": {
-		"command": "bash test3.sh",
-		"workingDir": "/home/miikka/projects/hive/taskmaster/assets",
-		"retries": 3,
-		"autostart": true,
-		"exitCodes": [0, 1, 2],
-		"autorestart": true,
-		"stdout": "sadas/fdfd"
+		"stdout": "/tmp/failing.log"
 	}
 }
 ```
