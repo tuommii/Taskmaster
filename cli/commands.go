@@ -14,6 +14,7 @@ var Commands = map[string]runnable{
 	"h":         help,
 	"status":    status,
 	"st":        status,
+	"restart":   restart,
 	"reload":    nil,
 	"start":     start,
 	"run":       start,
@@ -81,6 +82,17 @@ func bg(tasks map[string]*job.Process, arg string) string {
 	if task, found := tasks[arg]; found {
 		task.SetForeground(false)
 		return "deattached " + arg + " output from stdout"
+	}
+	return arg + " NOT FOUND"
+}
+
+func restart(tasks map[string]*job.Process, arg string) string {
+	if task, found := tasks[arg]; found {
+		if task.IsRunning() {
+			task.Kill()
+		}
+		task.Launch(false)
+		return arg + " RESTARTED"
 	}
 	return arg + " NOT FOUND"
 }

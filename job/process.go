@@ -84,7 +84,7 @@ func (p *Process) Launch(autostartOnly bool) error {
 	if autostartOnly == true && p.Status == LOADED && p.AutoStart == false {
 		return errors.New(p.Name + " loaded, but not started")
 	}
-	if p.Status != STOPPED && p.Status != LOADED {
+	if p.Status == RUNNING {
 		return errors.New("Can't launch a already started process")
 	}
 	p.Status = STARTING
@@ -252,4 +252,14 @@ func (p *Process) SetForeground(val bool) {
 	// 	fmt.Fprintln(os.Stdout, s.Text())
 	// }
 	// p.redirect()
+}
+
+// IsRunning ...
+func (p *Process) IsRunning() bool {
+	return p.Status == RUNNING
+}
+
+// IsStarting ...
+func (p *Process) IsStarting() bool {
+	return p.Status == STARTING
 }
