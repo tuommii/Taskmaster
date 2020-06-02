@@ -74,7 +74,7 @@ Screencast with [example config](#Example-config)
 - [x] Job names to client (suggestions)
 - [ ] Refactor bad parts
 - [ ] Logger
-- [x] Implement commands nicely [(result)](https://github.com/tuommii/Taskmaster/commit/41c430f1a634154d0f7831dc5001c05646a74bc4)
+- [x] Implement commands nicely [(result)](https://github.com/tuommii/Taskmaster/commit/41c430f1a634154d0f7831dc5001c05646a74bc4#diff-4c51d95b26718af4a2ac3bec33e54e49L128)
 - [ ] Get config file via arg
 - [ ] Config validation (check max lengths also)
 - [ ] Validate restarting processes
