@@ -15,18 +15,18 @@ Screencast with [example config](#Example-config)
 ## Features
 
 ### Client
-- [x] UI with raw mode
-- [x] History
-- [x] *Autocompletion* for **commands**
-- [x] *Autocompletion* for **task names**, server sends names to client when config is (re)loaded
-- [x] Aliases
-- [x] Sends user input to server via TCP
+- :heavy_check_mark: UI with raw mode
+- :heavy_check_mark: History
+- :heavy_check_mark: *Autocompletion* for **commands**
+- :heavy_check_mark: *Autocompletion* for **task names**, server sends names to client when config is (re)loaded
+- :heavy_check_mark: Aliases
+- :heavy_check_mark: Sends user input to server via TCP
 
 ### Server (daemon)
-- [x] Option to daemonize with `-d` flag
-- [x] Hot-reload config file by sending `SIGHUP` signal
-- [x] Only one client at time is allowed
-- [x] Server remains listening for a new client if client exits
+- :heavy_check_mark: Option to daemonize with `-d` flag
+- :heavy_check_mark: Hot-reload config file by sending `SIGHUP` signal
+- :heavy_check_mark: Only one client at time is allowed
+- :heavy_check_mark: Server remains listening for a new client if client exits
 
 ## How To Use
 
