@@ -3,6 +3,7 @@
 		"command": "bash /home/miikka/projects/hive/taskmaster/assets/test.sh",
 		"workingDir": "./assets",
 		"startTime": 5,
+		"stopTime": 15,
 		"numprocs": 1,
 		"autostart": false,
 		"autorestart": true,
@@ -15,6 +16,6 @@
 		"numprocs": 1,
 		"autostart": true,
 		"autorestart": true,
-		"stdout": "/tmp/failing.log"
+		"stdout": "aaa/tmp/failing.log"
 	}
 }

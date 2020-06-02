@@ -92,6 +92,7 @@ func (p *Process) Launch(autostartOnly bool) error {
 	oldMask := syscall.Umask(p.Umask)
 	if err := p.launch(); err != nil {
 		fmt.Println(p.Name, p.Status, err)
+		return err
 	}
 	p.killAfter()
 	syscall.Umask(oldMask)
@@ -103,7 +104,7 @@ func (p *Process) Launch(autostartOnly bool) error {
 func (p *Process) Kill() error {
 	// TODO: Fix
 	if p.Status != RUNNING {
-		return nil
+		return errors.New(p.Name + " wasn't running")
 	}
 	p.Status = STOPPED
 	return p.Cmd.Process.Kill()
@@ -132,11 +133,12 @@ func (p *Process) launch() error {
 	go func() {
 		<-timeoutCh
 		// Do not set running if execution has failed
-		if p.Status == STARTING {
-			p.Status = RUNNING
-			p.Started = time.Now()
-			fmt.Println(p.Name, "is consired started", p.Status)
+		if p.Status != STARTING {
+			return
 		}
+		p.Status = RUNNING
+		p.Started = time.Now()
+		fmt.Println(p.Name, "is consired started", p.Status)
 	}()
 	return nil
 }
@@ -149,11 +151,10 @@ func (p *Process) killAfter() {
 	timeoutCh := time.After(time.Duration(p.StopTime)*time.Second + time.Duration(p.StartTime)*time.Second)
 	go func() {
 		<-timeoutCh
-		if p.Status == RUNNING {
-			p.Status = STOPPED
-			fmt.Println(p.Name, "stopped")
+		if err := p.Kill(); err != nil {
+			return
 		}
-		p.Kill()
+		fmt.Println(p.Name, "stopped")
 	}()
 }
 
@@ -173,15 +174,17 @@ func (p *Process) clean() {
 		return
 	}
 	go func() {
-		if err := p.Cmd.Wait(); err != nil {
-			p.Status = STOPPED
-			code := p.Cmd.ProcessState.ExitCode()
-			if p.properExit(code) {
-				fmt.Println("EXITED WITH PROPER CODE:", code)
-				return
-			}
-			fmt.Println("EXIT WITH WRONG CODE:", code)
+		err := p.Cmd.Wait()
+		if err == nil {
+			return
 		}
+		p.Status = STOPPED
+		code := p.Cmd.ProcessState.ExitCode()
+		if p.properExit(code) {
+			fmt.Println("EXITED WITH PROPER CODE:", code)
+			return
+		}
+		fmt.Println("EXIT WITH WRONG CODE:", code)
 	}()
 	// No need to call Close() when using pipes ?
 	// p.stdout.Close()
@@ -228,11 +231,11 @@ func (p *Process) redirect(stream io.ReadCloser, path string, alternative *os.Fi
 	file, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		file = alternative
-		if p.Status == STOPPED || p.Status != FAILED {
-			if path != "" {
-				fmt.Println("Error while opening log file:", err, path, p.Name)
-			}
-		}
+		// if p.Status == STOPPED || p.Status != FAILED {
+		// 	if path != "" {
+		// 		fmt.Println("Error while opening log file:", err, path, p.Name)
+		// 	}
+		// }
 	}
 	for s.Scan() {
 		if p.IsForeground {
@@ -241,11 +244,11 @@ func (p *Process) redirect(stream io.ReadCloser, path string, alternative *os.Fi
 		fmt.Fprintln(file, s.Text())
 	}
 	// When stream is closed this will executed
-	which := "STDOUT"
+	which := "stdout"
 	if stream == p.stderr {
-		which = "STDERR"
+		which = "stderr"
 	}
-	fmt.Println(p.Name, which, "stopped")
+	fmt.Println(p.Name, "writing", which, "stopped")
 }
 
 // SetForeground ...

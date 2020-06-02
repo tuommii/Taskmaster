@@ -55,7 +55,10 @@ func help(tasks map[string]*job.Process, arg string) string {
 
 func start(tasks map[string]*job.Process, arg string) string {
 	if task, found := tasks[arg]; found {
-		task.Launch(false)
+		err := task.Launch(false)
+		if err != nil {
+			return err.Error()
+		}
 		return arg + " STARTED"
 	}
 	return arg + notFound
