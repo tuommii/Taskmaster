@@ -7,27 +7,26 @@ import (
 
 	"github.com/sevlyar/go-daemon"
 	"github.com/tuommii/taskmaster/job"
-	"github.com/tuommii/taskmaster/logger"
 )
 
 func main() {
 	configPath := flag.String("config", "./assets/config.example2.json", "path to config file")
 	daemonFlag := flag.Bool("d", false, "run as a daemon")
-	syslogFlag := flag.Bool("syslog", false, "log to syslog")
+	// syslogFlag := flag.Bool("syslog", false, "log to syslog")
 
 	flag.Parse()
-	_ = logger.Get(*syslogFlag)
+	// _ = logger.Get(*syslogFlag)
 
 	if *daemonFlag {
 		fmt.Println("DAEMON")
 		cntxt := &daemon.Context{
-			PidFileName: "assets/taskmaster.pid",
+			PidFileName: "sample.pid",
 			PidFilePerm: 0644,
-			LogFileName: "assets/taskmaster.log",
+			LogFileName: "sample.log",
 			LogFilePerm: 0640,
-			WorkDir:     "./assets",
+			WorkDir:     "./",
 			Umask:       027,
-			Args:        []string{"[taskmaster-daemon]"},
+			Args:        []string{"[go-sample-daemon]"},
 		}
 
 		d, err := cntxt.Reborn()
@@ -38,6 +37,7 @@ func main() {
 			return
 		}
 		defer cntxt.Release()
+		fmt.Println("EXECUTED?")
 	}
 
 	s := newServer(*configPath, job.LoadAll(*configPath))
