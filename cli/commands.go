@@ -54,22 +54,24 @@ func help(tasks map[string]*job.Process, arg string) string {
 }
 
 func start(tasks map[string]*job.Process, arg string) string {
-	if task, found := tasks[arg]; found {
-		err := task.Launch(false)
-		if err != nil {
-			return err.Error()
-		}
-		return arg + " STARTED"
+	task, found := tasks[arg]
+	if !found {
+		return arg + notFound
 	}
-	return arg + notFound
+	err := task.Launch(false)
+	if err != nil {
+		return err.Error()
+	}
+	return arg + " STARTED"
 }
 
 func stop(tasks map[string]*job.Process, arg string) string {
-	if task, found := tasks[arg]; found {
-		task.Kill()
-		return arg + " STOPPED"
+	task, found := tasks[arg]
+	if !found {
+		return arg + notFound
 	}
-	return arg + notFound
+	task.Kill()
+	return arg + " STOPPED"
 }
 
 func status(tasks map[string]*job.Process, arg string) string {
@@ -81,28 +83,32 @@ func status(tasks map[string]*job.Process, arg string) string {
 }
 
 func fg(tasks map[string]*job.Process, arg string) string {
-	if task, found := tasks[arg]; found {
-		task.SetForeground(true)
-		return "attached " + arg + " output to stdout"
+	task, found := tasks[arg]
+	if !found {
+		return arg + notFound
 	}
-	return arg + notFound
+
+	task.SetForeground(true)
+	return "attached " + arg + " output to stdout"
 }
 
 func bg(tasks map[string]*job.Process, arg string) string {
-	if task, found := tasks[arg]; found {
-		task.SetForeground(false)
-		return "deattached " + arg + " output from stdout"
+	task, found := tasks[arg]
+	if !found {
+		return arg + notFound
 	}
-	return arg + notFound
+	task.SetForeground(false)
+	return "deattached " + arg + " output from stdout"
 }
 
 func restart(tasks map[string]*job.Process, arg string) string {
-	if task, found := tasks[arg]; found {
-		task.Kill()
-		task.Launch(false)
-		return arg + " RESTARTED"
+	task, found := tasks[arg]
+	if !found {
+		return arg + notFound
 	}
-	return arg + notFound
+	task.Kill()
+	task.Launch(false)
+	return arg + " RESTARTED"
 }
 
 func uptime(tasks map[string]*job.Process, arg string) string {

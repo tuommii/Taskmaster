@@ -112,9 +112,9 @@ func parseUserInput(data []byte) (string, string) {
 func (s *server) runCommand(cmd string, arg string, conn net.Conn) {
 	if runFunc, found := cli.Commands[cmd]; found && runFunc != nil {
 		conn.Write([]byte(runFunc(s.tasks, arg)))
-	} else {
-		conn.Write([]byte("unknown command"))
+		return
 	}
+	conn.Write([]byte("unknown command"))
 }
 
 func (s *server) handleConnection(conn net.Conn) {
