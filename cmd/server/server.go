@@ -96,13 +96,6 @@ func (s *server) listenConnections() {
 	}
 }
 
-func (s *server) jobFound(name string) bool {
-	if _, found := s.tasks[name]; found {
-		return true
-	}
-	return false
-}
-
 func parseUserInput(data []byte) (string, string) {
 	msg := strings.Trim(string(data), "\n")
 	// TODO: remove
