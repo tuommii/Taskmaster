@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"sort"
 	"time"
 
 	"github.com/tuommii/taskmaster/job"
@@ -28,12 +29,15 @@ var Commands = map[string]runnable{
 	"bg":        bg,
 }
 
+var notFound = " not found"
+
 // CommandNames ...
 func CommandNames() []string {
 	var names []string
 	for key := range Commands {
 		names = append(names, key)
 	}
+	sort.Strings(names)
 	return names
 }
 
@@ -54,7 +58,7 @@ func start(tasks map[string]*job.Process, arg string) string {
 		task.Launch(false)
 		return arg + " STARTED"
 	}
-	return arg + " NOT FOUND"
+	return arg + notFound
 }
 
 func stop(tasks map[string]*job.Process, arg string) string {
@@ -62,7 +66,7 @@ func stop(tasks map[string]*job.Process, arg string) string {
 		task.Kill()
 		return arg + " STOPPED"
 	}
-	return arg + " NOT FOUND"
+	return arg + notFound
 }
 
 func status(tasks map[string]*job.Process, arg string) string {
@@ -78,7 +82,7 @@ func fg(tasks map[string]*job.Process, arg string) string {
 		task.SetForeground(true)
 		return "attached " + arg + " output to stdout"
 	}
-	return arg + " NOT FOUND"
+	return arg + notFound
 }
 
 func bg(tasks map[string]*job.Process, arg string) string {
@@ -86,7 +90,7 @@ func bg(tasks map[string]*job.Process, arg string) string {
 		task.SetForeground(false)
 		return "deattached " + arg + " output from stdout"
 	}
-	return arg + " NOT FOUND"
+	return arg + notFound
 }
 
 func restart(tasks map[string]*job.Process, arg string) string {
@@ -95,12 +99,12 @@ func restart(tasks map[string]*job.Process, arg string) string {
 		task.Launch(false)
 		return arg + " RESTARTED"
 	}
-	return arg + " NOT FOUND"
+	return arg + notFound
 }
 
 func uptime(tasks map[string]*job.Process, arg string) string {
 	if task, found := tasks[arg]; found && !task.Started.IsZero() {
 		return arg + " " + time.Since(task.Started).String()
 	}
-	return arg + " NOT FOUND"
+	return arg + notFound
 }

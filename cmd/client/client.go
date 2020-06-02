@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"sort"
 	"strings"
 	"syscall"
 
@@ -56,7 +57,9 @@ func (client *client) getJobNames() []string {
 		return nil
 	}
 	// :n, otherwise last item len in array is width + rest of buffer
-	return strings.Split(string(resp[:n]), "|")
+	names := strings.Split(string(resp[:n]), "|")
+	sort.Strings(names)
+	return names
 }
 
 func (client *client) readInput() {
