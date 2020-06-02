@@ -45,6 +45,7 @@ Screencast with [example config](#Example-config)
 | <kbd>**stop** (pause)</kbd> | stop a job |
 | <kbd>**restart**</kbd> | restart a job |
 | <kbd>**reload**</kbd> | reload config file |
+| <kbd>**uptime**</kbd> | show uptime of process |
 
 ### Example config
 ```json

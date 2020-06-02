@@ -124,7 +124,6 @@ func (p *Process) launch() error {
 		}
 		return err
 	}
-	p.Started = time.Now()
 	if p.StartTime <= 0 {
 		p.Status = RUNNING
 		return nil
@@ -135,6 +134,7 @@ func (p *Process) launch() error {
 		// Do not set running if execution has failed
 		if p.Status == STARTING {
 			p.Status = RUNNING
+			p.Started = time.Now()
 			fmt.Println(p.Name, "is consired started", p.Status)
 		}
 	}()
@@ -157,6 +157,15 @@ func (p *Process) killAfter() {
 	}()
 }
 
+func (p *Process) properExit(code int) bool {
+	for _, val := range p.ExitCodes {
+		if val == code {
+			return true
+		}
+	}
+	return false
+}
+
 // clean process when ready
 func (p *Process) clean() {
 	// Wait until process is done
@@ -166,18 +175,14 @@ func (p *Process) clean() {
 	go func() {
 		if err := p.Cmd.Wait(); err != nil {
 			p.Status = STOPPED
-			// fmt.Println("Error while executing program:", p.Name, err)
 			code := p.Cmd.ProcessState.ExitCode()
-			for _, val := range p.ExitCodes {
-				if code == val {
-					fmt.Println("EXITED WITH PROPER CODE:", code)
-					return
-				}
+			if p.properExit(code) {
+				fmt.Println("EXITED WITH PROPER CODE:", code)
+				return
 			}
-			fmt.Println("EXIT CODE:", code)
+			fmt.Println("EXIT WITH WRONG CODE:", code)
 		}
 	}()
-	// Maybe some use for p.Cmd.ProcessState later ?
 	// No need to call Close() when using pipes ?
 	// p.stdout.Close()
 	// p.stderr.Close()
@@ -246,20 +251,14 @@ func (p *Process) redirect(stream io.ReadCloser, path string, alternative *os.Fi
 // SetForeground ...
 func (p *Process) SetForeground(val bool) {
 	p.IsForeground = val
-	// p.stdout = os.Stdout
-	// s := bufio.NewScanner(p.stdout)
-	// for s.Scan() {
-	// 	fmt.Fprintln(os.Stdout, s.Text())
-	// }
-	// p.redirect()
 }
 
 // IsRunning ...
-func (p *Process) IsRunning() bool {
-	return p.Status == RUNNING
-}
+// func (p *Process) IsRunning() bool {
+// 	return p.Status == RUNNING
+// }
 
 // IsStarting ...
-func (p *Process) IsStarting() bool {
-	return p.Status == STARTING
-}
+// func (p *Process) IsStarting() bool {
+// 	return p.Status == STARTING
+// }

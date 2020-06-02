@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"time"
+
 	"github.com/tuommii/taskmaster/job"
 )
 
@@ -19,6 +21,7 @@ var Commands = map[string]runnable{
 	"start":     start,
 	"run":       start,
 	"stop":      stop,
+	"uptime":    uptime,
 	"exit":      nil,
 	"quit":      nil,
 	"fg":        fg,
@@ -88,11 +91,16 @@ func bg(tasks map[string]*job.Process, arg string) string {
 
 func restart(tasks map[string]*job.Process, arg string) string {
 	if task, found := tasks[arg]; found {
-		if task.IsRunning() {
-			task.Kill()
-		}
+		task.Kill()
 		task.Launch(false)
 		return arg + " RESTARTED"
+	}
+	return arg + " NOT FOUND"
+}
+
+func uptime(tasks map[string]*job.Process, arg string) string {
+	if task, found := tasks[arg]; found && !task.Started.IsZero() {
+		return arg + " " + time.Since(task.Started).String()
 	}
 	return arg + " NOT FOUND"
 }
