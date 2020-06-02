@@ -10,6 +10,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/tuommii/taskmaster/cli"
 	"github.com/tuommii/taskmaster/job"
 	"golang.org/x/net/netutil"
 )
@@ -56,20 +57,10 @@ func (s *server) reloadConfig() {
 	fmt.Println("Loaded", len(s.tasks), "tasks")
 }
 
-func (s *server) getJobNames() string {
-	var names string
-	for name := range s.tasks {
-		names += name + "|"
-	}
-	return names[:len(names)-1]
-}
-
 func (s *server) listenSignals() {
 	// We must use a buffered channel or risk missing the signal
 	// if we're not ready to receive when the signal is sent
 	signalsCh := make(chan os.Signal, 1)
-	// Passing no signals to Notify means that all
-	// signals will be sent to the channel.
 	signal.Notify(signalsCh)
 
 	go func(tasks map[string]*job.Process) {
@@ -125,52 +116,12 @@ func parseUserInput(data []byte) (string, string) {
 	return cmd, arg
 }
 
-// TODO: make this DRY
-func (s *server) switchCommand(cmd string, arg string, conn net.Conn) {
-	switch {
-	case cmd == "job_names":
-		conn.Write([]byte(s.getJobNames()))
-	case cmd == "help" || cmd == "h":
-		conn.Write([]byte("help cmd"))
-	case cmd == "status" || cmd == "st":
-		conn.Write([]byte("status todo"))
-	case cmd == "start" || cmd == "run":
-		if !s.jobFound(arg) {
-			conn.Write([]byte("job not found"))
-			break
-		}
-		s.tasks[arg].Launch(false)
-		conn.Write([]byte(arg + " started"))
-	case cmd == "stop":
-		if !s.jobFound(arg) {
-			conn.Write([]byte("job not found"))
-			break
-		}
-		s.tasks[arg].Kill()
-		conn.Write([]byte(arg + " stopped"))
-	case cmd == "restart":
-		conn.Write([]byte("restart"))
-	case cmd == "exit" || cmd == "quit":
-		conn.Write([]byte("exit or quit"))
-	case cmd == "fg":
-		if !s.jobFound(arg) {
-			conn.Write([]byte("job not found"))
-			break
-		}
-		s.tasks[arg].SetForeground(true)
-		conn.Write([]byte("attached " + arg + " output to stdout"))
-	case cmd == "bg":
-		if !s.jobFound(arg) {
-			conn.Write([]byte("job not found"))
-			break
-		}
-		// TODO: maybe validations
-		s.tasks[arg].SetForeground(false)
-		conn.Write([]byte("deattached " + arg + " output from stdout"))
-	default:
-		conn.Write([]byte("server received: " + cmd))
+func (s *server) runCommand(cmd string, arg string, conn net.Conn) {
+	if runFunc, found := cli.Commands[cmd]; found && runFunc != nil {
+		conn.Write([]byte(runFunc(s.tasks, arg)))
+	} else {
+		conn.Write([]byte("unknown command"))
 	}
-
 }
 
 func (s *server) handleConnection(conn net.Conn) {
@@ -182,7 +133,7 @@ func (s *server) handleConnection(conn net.Conn) {
 		return
 	}
 	cmd, arg := parseUserInput(data)
-	s.switchCommand(cmd, arg, conn)
+	s.runCommand(cmd, arg, conn)
 	// recursive func to handle io.EOF for random disconnects
 	s.handleConnection(conn)
 }
