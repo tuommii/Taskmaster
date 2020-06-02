@@ -13,9 +13,10 @@ import (
 func main() {
 	configPath := flag.String("config", "./assets/config.example2.json", "path to config file")
 	daemonFlag := flag.Bool("d", false, "run as a daemon")
-	_ = logger.Get()
-	log.Print("Systemlog test")
+	syslogFlag := flag.Bool("syslog", false, "log to syslog")
+
 	flag.Parse()
+	_ = logger.Get(*syslogFlag)
 
 	if *daemonFlag {
 		fmt.Println("DAEMON")

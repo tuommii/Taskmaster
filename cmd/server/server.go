@@ -16,7 +16,7 @@ import (
 
 type server struct {
 	configPath string
-	tasks      job.Tasks
+	tasks      map[string]*job.Process
 }
 
 func newServer(configPath string, tasks map[string]*job.Process) *server {
@@ -30,7 +30,7 @@ func newServer(configPath string, tasks map[string]*job.Process) *server {
 func (s *server) launchTasks() {
 	for _, task := range s.tasks {
 		// TODO: handle err
-		if err := task.Launch(); err != nil {
+		if err := task.Launch(true); err != nil {
 			fmt.Println(err)
 		}
 	}
@@ -49,7 +49,7 @@ func (s *server) removeTasks() {
 
 // Hot-reload config
 func (s *server) reloadConfig() {
-	fmt.Println("reload config...")
+	fmt.Println("reloading config...")
 	s.removeTasks()
 	s.tasks = job.LoadAll(s.configPath)
 	s.launchTasks()
@@ -112,6 +112,67 @@ func (s *server) jobFound(name string) bool {
 	return false
 }
 
+func parseUserInput(data []byte) (string, string) {
+	msg := strings.Trim(string(data), "\n")
+	// TODO: remove
+	fmt.Println(msg)
+	input := strings.Split(msg, " ")
+	cmd := input[0]
+	var arg string
+	if len(input) >= 2 {
+		arg = input[1]
+	}
+	return cmd, arg
+}
+
+// TODO: make this DRY
+func (s *server) switchCommand(cmd string, arg string, conn net.Conn) {
+	switch {
+	case cmd == "job_names":
+		conn.Write([]byte(s.getJobNames()))
+	case cmd == "help" || cmd == "h":
+		conn.Write([]byte("help cmd"))
+	case cmd == "status" || cmd == "st":
+		conn.Write([]byte("status todo"))
+	case cmd == "start" || cmd == "run":
+		if !s.jobFound(arg) {
+			conn.Write([]byte("job not found"))
+			break
+		}
+		s.tasks[arg].Launch(false)
+		conn.Write([]byte(arg + " started"))
+	case cmd == "stop":
+		if !s.jobFound(arg) {
+			conn.Write([]byte("job not found"))
+			break
+		}
+		s.tasks[arg].Kill()
+		conn.Write([]byte(arg + " stopped"))
+	case cmd == "restart":
+		conn.Write([]byte("restart"))
+	case cmd == "exit" || cmd == "quit":
+		conn.Write([]byte("exit or quit"))
+	case cmd == "fg":
+		if !s.jobFound(arg) {
+			conn.Write([]byte("job not found"))
+			break
+		}
+		s.tasks[arg].SetForeground(true)
+		conn.Write([]byte("attached " + arg + " output to stdout"))
+	case cmd == "bg":
+		if !s.jobFound(arg) {
+			conn.Write([]byte("job not found"))
+			break
+		}
+		// TODO: maybe validations
+		s.tasks[arg].SetForeground(false)
+		conn.Write([]byte("deattached " + arg + " output from stdout"))
+	default:
+		conn.Write([]byte("server received: " + cmd))
+	}
+
+}
+
 func (s *server) handleConnection(conn net.Conn) {
 	data, err := bufio.NewReader(conn).ReadBytes('\n')
 	if err != nil {
@@ -120,73 +181,8 @@ func (s *server) handleConnection(conn net.Conn) {
 		// escape recursion
 		return
 	}
-	msg := strings.Trim(string(data), "\n")
-	input := strings.Split(msg, " ")
-	fmt.Println(msg)
-
-	// cli.RunCommand(cli.ParseInput(msg), s.tasks)
-	// get the remote address of the client
-	// clientAddr := conn.RemoteAddr().String()
-	// fmt.Println(msg, "from", clientAddr+"\n")
-	cmd := input[0]
-	var arg string
-	if len(input) >= 2 {
-		arg = input[1]
-	}
-	switch {
-	case cmd == "job_names":
-		conn.Write([]byte(s.getJobNames()))
-	case cmd == "help" || cmd == "h":
-		conn.Write([]byte("help cmd"))
-	case cmd == "status" || cmd == "st":
-		conn.Write([]byte(s.tasks.Status()))
-	case cmd == "start" || cmd == "run":
-		if s.jobFound(arg) {
-			if s.tasks[arg].Status == job.LOADED || s.tasks[arg].Status == job.STOPPED {
-				s.tasks[arg].Status = job.STOPPED
-				s.tasks[arg].Launch()
-				conn.Write([]byte(arg + " started"))
-			}
-		} else {
-			conn.Write([]byte("job not found"))
-		}
-		break
-	case cmd == "stop":
-		if s.jobFound(arg) {
-			s.tasks[arg].Kill()
-			conn.Write([]byte(arg + " stopped"))
-		} else {
-			conn.Write([]byte("job not found"))
-		}
-		break
-	case cmd == "restart":
-		conn.Write([]byte("restart"))
-	case cmd == "exit" || cmd == "quit":
-		conn.Write([]byte("exit or quit"))
-	case cmd == "fg":
-		if s.jobFound(arg) {
-			s.tasks[arg].SetForeground(true)
-			conn.Write([]byte("attached " + arg + " output to stdout"))
-		} else {
-			conn.Write([]byte("job not found"))
-		}
-		break
-	case cmd == "bg":
-		if s.jobFound(arg) {
-			if s.tasks[arg].Status != job.RUNNING {
-				conn.Write([]byte("aint running"))
-			} else {
-				s.tasks[arg].SetForeground(false)
-				conn.Write([]byte("deattached " + arg + " output from stdout"))
-			}
-		} else {
-			conn.Write([]byte("job not found"))
-		}
-		break
-	default:
-		conn.Write([]byte("server received: " + cmd))
-	}
-
+	cmd, arg := parseUserInput(data)
+	s.switchCommand(cmd, arg, conn)
 	// recursive func to handle io.EOF for random disconnects
 	s.handleConnection(conn)
 }

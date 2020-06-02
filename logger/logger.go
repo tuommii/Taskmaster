@@ -12,7 +12,7 @@ var (
 )
 
 // Get returns logger instance, singleton
-func Get() *syslog.Writer {
+func Get(useSyslog bool) *syslog.Writer {
 	var err error
 	once.Do(func() {
 		logger, err = syslog.New(syslog.LOG_NOTICE, "taskmaster")

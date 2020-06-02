@@ -65,7 +65,7 @@ type Process struct {
 }
 
 // LoadAll loads all jobs from config file
-func LoadAll(path string) Tasks {
+func LoadAll(path string) map[string]*Process {
 	tasks := make(map[string]*Process)
 	file, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -80,8 +80,8 @@ func LoadAll(path string) Tasks {
 }
 
 // Launch executes a task
-func (p *Process) Launch() error {
-	if p.Status == LOADED && p.AutoStart == false {
+func (p *Process) Launch(autostartOnly bool) error {
+	if autostartOnly == true && p.Status == LOADED && p.AutoStart == false {
 		return errors.New(p.Name + " loaded, but not started")
 	}
 	if p.Status != STOPPED && p.Status != LOADED {
