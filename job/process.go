@@ -102,14 +102,11 @@ func (p *Process) Launch(autostartOnly bool) error {
 
 // Kill process
 func (p *Process) Kill() error {
-	// TODO: Fix
 	if p.Status != RUNNING {
 		return errors.New(p.Name + " wasn't running")
 	}
 	p.Status = STOPPED
 	return p.Cmd.Process.Kill()
-	// Maybe ?
-	// p.Cmd.Process.Release()
 }
 
 // TODO: Subject maybe means set running/started after x seconds
@@ -117,7 +114,6 @@ func (p *Process) launch() error {
 	err := p.Cmd.Start()
 	if err != nil {
 		p.Status = FAILED
-		// fmt.Println("exec error", p.Name, err)
 		// Move down if retries + 1 is wanted
 		p.Retries--
 		if p.Retries > 0 && p.Retries < maxRetries {
@@ -169,7 +165,6 @@ func (p *Process) properExit(code int) bool {
 
 // clean process when ready
 func (p *Process) clean() {
-	// Wait until process is done
 	if p.Status != RUNNING {
 		return
 	}
@@ -231,11 +226,6 @@ func (p *Process) redirect(stream io.ReadCloser, path string, alternative *os.Fi
 	file, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		file = alternative
-		// if p.Status == STOPPED || p.Status != FAILED {
-		// 	if path != "" {
-		// 		fmt.Println("Error while opening log file:", err, path, p.Name)
-		// 	}
-		// }
 	}
 	for s.Scan() {
 		if p.IsForeground {
@@ -255,13 +245,3 @@ func (p *Process) redirect(stream io.ReadCloser, path string, alternative *os.Fi
 func (p *Process) SetForeground(val bool) {
 	p.IsForeground = val
 }
-
-// IsRunning ...
-// func (p *Process) IsRunning() bool {
-// 	return p.Status == RUNNING
-// }
-
-// IsStarting ...
-// func (p *Process) IsStarting() bool {
-// 	return p.Status == STARTING
-// }
