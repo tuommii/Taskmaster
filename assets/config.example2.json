@@ -3,15 +3,22 @@
 		"command": "bash /home/miikka/projects/hive/taskmaster/assets/test.sh",
 		"workingDir": "./assets",
 		"startTime": 5,
-		"stopTime": 15,
 		"numprocs": 1,
 		"autostart": false,
 		"autorestart": true,
 		"stdout": "/tmp/realtime.log"
 	},
+	"watch_log": {
+		"command": "tail -f /var/log/kern.log",
+		"autostart": true,
+		"autorestart": true,
+		"stderr": "/tmp/taskmaster_err2",
+		"stdout": "/tmp/taskmaster_out2"
+	},
 	"failing": {
 		"command": "notfound",
 		"startTime": 2,
+		"retries": 3,
 		"stopTime": 7,
 		"numprocs": 1,
 		"autostart": true,

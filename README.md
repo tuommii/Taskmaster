@@ -17,8 +17,7 @@ Screencast with [example config](#Example-config)
 ### Client
 - :heavy_check_mark: UI with raw mode
 - :heavy_check_mark: History
-- :heavy_check_mark: *Autocompletion* for **commands**
-- :heavy_check_mark: *Autocompletion* for **task names**, server sends names to client when config is (re)loaded
+- :heavy_check_mark: *Autocompletion* for commands and **task names**
 - :heavy_check_mark: Aliases
 - :heavy_check_mark: Sends user input to server via TCP
 
@@ -27,6 +26,7 @@ Screencast with [example config](#Example-config)
 - :heavy_check_mark: Hot-reload config file by sending `SIGHUP` signal
 - :heavy_check_mark: Only one client at time is allowed
 - :heavy_check_mark: Server remains listening for a new client if client exits
+- :heavy_check_mark: Sends new job names to client when needed for suggestions
 
 ## How To Use
 

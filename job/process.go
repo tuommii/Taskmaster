@@ -43,7 +43,6 @@ type options struct {
 	// Time when process is consired started
 	StartTime int `json:"startTime"`
 	// Max tries to start a task
-	StartRetries int `json:"startRetries"`
 	// After StopTime task quits. Counted from StartTime
 	StopTime   int    `json:"stopTime"`
 	StopSignal string `json:"stopSignal"`
@@ -117,12 +116,14 @@ func (p *Process) launch() error {
 		// Move down if retries + 1 is wanted
 		p.Retries--
 		if p.Retries > 0 && p.Retries < maxRetries {
+			fmt.Println("Trying launch", p.Name, "again...")
 			p.launch()
 		}
 		return err
 	}
 	if p.StartTime <= 0 {
 		p.Status = RUNNING
+		fmt.Println(p.Name, p.Status)
 		return nil
 	}
 	timeoutCh := time.After(time.Duration(p.StartTime) * time.Second)
@@ -186,7 +187,6 @@ func (p *Process) clean() {
 	// p.stderr.Close()
 }
 
-// prepare command for executiom
 func (p *Process) prepare() {
 	tokens := strings.Fields(p.Command)
 	p.Cmd = exec.Command(tokens[0], tokens[1:]...)
@@ -206,7 +206,7 @@ func (p *Process) prepare() {
 	go p.redirect(p.stderr, p.ErrorLog, os.Stderr)
 }
 
-// Change current working directory if path exists and is directory
+// Change current working directory if path exists and is a directory
 func (p *Process) cwd(dir string) {
 	var stat os.FileInfo
 	var err error
@@ -244,4 +244,10 @@ func (p *Process) redirect(stream io.ReadCloser, path string, alternative *os.Fi
 // SetForeground ...
 func (p *Process) SetForeground(val bool) {
 	p.IsForeground = val
+}
+
+//
+func (p *Process) launchPool() {
+	cpy := p
+	cpy.Procs = 0
 }
