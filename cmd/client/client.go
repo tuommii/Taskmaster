@@ -15,11 +15,16 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
+const (
+	maxInputLen    = 256
+	maxResponseLen = 1024 * 8
+)
+
 type client struct {
 	signals  chan os.Signal
 	done     chan bool
 	oldState *terminal.State
-	term     *tty.State
+	ui       *tty.State
 	conn     net.Conn
 }
 
@@ -34,8 +39,8 @@ func create() *client {
 	if err != nil {
 		log.Fatal(err)
 	}
-	client.term = tty.New(4096)
-	client.term.SetProposer(autocompleter)
+	client.ui = tty.New(maxInputLen)
+	client.ui.SetProposer(autocompleter)
 	client.conn, _ = net.Dial("tcp", "127.0.0.1:4200")
 	return client
 }
@@ -51,7 +56,7 @@ func (client *client) getJobNames() []string {
 		return nil
 	}
 	fmt.Fprintf(client.conn, cli.GetJobsCommand+"\n")
-	resp := make([]byte, 4096)
+	resp := make([]byte, maxResponseLen)
 	n, err := client.conn.Read(resp)
 	if err != nil {
 		log.Println(err)
@@ -64,10 +69,10 @@ func (client *client) getJobNames() []string {
 }
 
 func (client *client) readInput() {
-	client.term.SetJobNames(client.getJobNames())
+	client.ui.SetJobNames(client.getJobNames())
 	for {
-		reply := make([]byte, 1024)
-		input := client.term.ReadKey(client.signals)
+		reply := make([]byte, maxResponseLen)
+		input := client.ui.ReadKey(client.signals)
 		terminal.Restore(0, client.oldState)
 		switch {
 		case input == "exit":
