@@ -17,8 +17,9 @@ func main() {
 	flag.Parse()
 	// _ = logger.Get(*syslogFlag)
 
+	// This must be runned in main
 	if *daemonFlag {
-		fmt.Println("DAEMON")
+		fmt.Println("Started as a daemon")
 		cntxt := &daemon.Context{
 			PidFileName: "sample.pid",
 			PidFilePerm: 0644,
@@ -37,7 +38,6 @@ func main() {
 			return
 		}
 		defer cntxt.Release()
-		fmt.Println("EXECUTED?")
 	}
 
 	s := newServer(*configPath, job.LoadAll(*configPath))

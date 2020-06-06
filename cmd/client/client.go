@@ -56,7 +56,7 @@ func (client *client) getJobNames() []string {
 		log.Println(err)
 		return nil
 	}
-	// :n, otherwise last item len in array is width + rest of buffer
+	// :n, otherwise last item len is width + rest of buffer
 	names := strings.Split(string(resp[:n]), "|")
 	sort.Strings(names)
 	return names

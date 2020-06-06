@@ -17,23 +17,71 @@ type Command struct {
 }
 
 // Commands hold all commands
-var Commands = map[string]runnable{
+// var Commands = map[string]runnable{
+// 	// Used for autocomplete
+// 	"job_names": suggestions,
+// 	"help":      help,
+// 	"h":         help,
+// 	"status":    status,
+// 	"st":        status,
+// 	"restart":   restart,
+// 	"reload":    nil,
+// 	"start":     start,
+// 	"run":       start,
+// 	"stop":      stop,
+// 	"uptime":    uptime,
+// 	"exit":      nil,
+// 	"quit":      nil,
+// 	"fg":        fg,
+// 	"bg":        bg,
+// }
+var Commands = map[string]*Command{
 	// Used for autocomplete
-	"job_names": suggestions,
-	"help":      help,
-	"h":         help,
-	"status":    status,
-	"st":        status,
-	"restart":   restart,
-	"reload":    nil,
-	"start":     start,
-	"run":       start,
-	"stop":      stop,
-	"uptime":    uptime,
-	"exit":      nil,
-	"quit":      nil,
-	"fg":        fg,
-	"bg":        bg,
+	"job_names": {
+		Runnable: suggestions,
+		Help:     "For internal use",
+	},
+	"help": {
+		Runnable: help,
+		Help:     "HELP",
+	},
+	"status": {
+		Runnable: status,
+		Help:     "STATUS",
+	},
+	"restart": {
+		Runnable: restart,
+		Help:     "RESTART",
+	},
+	"reload": nil,
+	"start": {
+		Runnable: start,
+		Help:     "START",
+	},
+	"stop": {
+		Runnable: stop,
+		Help:     "STOP",
+	},
+	"uptime": {
+		Runnable: uptime,
+		Help:     "UPTIME",
+	},
+	"exit": nil,
+	"quit": nil,
+	"fg": {
+		Runnable: fg,
+		Help:     "FG",
+	},
+	"bg": {
+		Runnable: bg,
+		Help:     "BG",
+	},
+}
+
+func init() {
+	Commands["run"] = Commands["start"]
+	Commands["st"] = Commands["status"]
+	Commands["h"] = Commands["help"]
 }
 
 var notFound = " not found"

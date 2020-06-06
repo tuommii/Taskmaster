@@ -30,7 +30,6 @@ func newServer(configPath string, tasks map[string]*job.Process) *server {
 
 func (s *server) launchTasks() {
 	for _, task := range s.tasks {
-		// TODO: handle err
 		if err := task.Launch(true); err != nil {
 			fmt.Println(err)
 		}
@@ -98,7 +97,6 @@ func (s *server) listenConnections() {
 
 func parseUserInput(data []byte) (string, string) {
 	msg := strings.Trim(string(data), "\n")
-	// TODO: remove
 	fmt.Println(msg)
 	input := strings.Split(msg, " ")
 	cmd := input[0]
@@ -110,8 +108,8 @@ func parseUserInput(data []byte) (string, string) {
 }
 
 func (s *server) runCommand(cmd string, arg string, conn net.Conn) {
-	if runFunc, found := cli.Commands[cmd]; found && runFunc != nil {
-		conn.Write([]byte(runFunc(s.tasks, arg)))
+	if command, found := cli.Commands[cmd]; found && command.Runnable != nil {
+		conn.Write([]byte(command.Runnable(s.tasks, arg)))
 		return
 	}
 	conn.Write([]byte("unknown command"))
