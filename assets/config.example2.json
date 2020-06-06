@@ -4,7 +4,7 @@
 		"workingDir": "./assets",
 		"startTime": 5,
 		"numprocs": 1,
-		"autostart": false,
+		"autostart": true,
 		"autorestart": true,
 		"stdout": "/tmp/realtime.log"
 	},
@@ -17,8 +17,8 @@
 	},
 	"failing": {
 		"command": "notfound",
-		"startTime": 2,
-		"retries": 3,
+		"startTime": 0,
+		"retries": 5,
 		"stopTime": 7,
 		"numprocs": 1,
 		"autostart": true,

@@ -78,18 +78,24 @@ func LoadAll(path string) map[string]*Process {
 	return tasks
 }
 
-// Launch executes a task
-func (p *Process) Launch(autostartOnly bool) error {
-	if autostartOnly == true && p.Status == LOADED && p.AutoStart == false {
+func (p *Process) validateLauch(launchAutostartOnly bool) error {
+	if launchAutostartOnly == true && p.Status == LOADED && p.AutoStart == false {
 		return errors.New(p.Name + " loaded, but not started")
 	}
 	if p.Status == RUNNING {
 		return errors.New("Can't launch a already started process")
 	}
-	p.Status = STARTING
+	return nil
+}
+
+// Launch executes a task
+func (p *Process) Launch(launchAutostartOnly bool) error {
+	if err := p.validateLauch(launchAutostartOnly); err != nil {
+		return err
+	}
 	p.prepare()
 	oldMask := syscall.Umask(p.Umask)
-	if err := p.launch(); err != nil {
+	if err := p.execute(); err != nil {
 		fmt.Println(p.Name, p.Status, err)
 		return err
 	}
@@ -108,24 +114,35 @@ func (p *Process) Kill() error {
 	return p.Cmd.Process.Kill()
 }
 
-// TODO: Subject maybe means set running/started after x seconds
-func (p *Process) launch() error {
-	err := p.Cmd.Start()
-	if err != nil {
-		p.Status = FAILED
-		// Move down if retries + 1 is wanted
-		p.Retries--
-		if p.Retries > 0 && p.Retries < maxRetries {
-			fmt.Println("Trying launch", p.Name, "again...")
-			p.launch()
+func (p *Process) execute() error {
+	if err := p.Cmd.Start(); err != nil {
+		if err := p.relaunch(err); err != nil {
+			return err
 		}
-		return err
 	}
+	p.setStarted()
+	return nil
+}
+
+// Try launch as long as retries left
+func (p *Process) relaunch(err error) error {
+	p.Status = FAILED
+	p.Retries--
+	if p.Retries > 0 && p.Retries < maxRetries {
+		fmt.Println("Trying launch", p.Name, "again...")
+		p.execute()
+	}
+	return err
+}
+
+func (p *Process) setStarted() {
+	// No delay
 	if p.StartTime <= 0 {
 		p.Status = RUNNING
 		fmt.Println(p.Name, p.Status)
-		return nil
+		return
 	}
+	// Delay
 	timeoutCh := time.After(time.Duration(p.StartTime) * time.Second)
 	go func() {
 		<-timeoutCh
@@ -137,7 +154,6 @@ func (p *Process) launch() error {
 		p.Started = time.Now()
 		fmt.Println(p.Name, "is consired started", p.Status)
 	}()
-	return nil
 }
 
 func (p *Process) killAfter() {
@@ -188,6 +204,7 @@ func (p *Process) clean() {
 }
 
 func (p *Process) prepare() {
+	p.Status = STARTING
 	tokens := strings.Fields(p.Command)
 	p.Cmd = exec.Command(tokens[0], tokens[1:]...)
 
