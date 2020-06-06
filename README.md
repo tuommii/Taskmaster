@@ -23,7 +23,7 @@ Screencast with [example config](#Example-config)
 
 ### Server (daemon)
 - :heavy_check_mark: Option to daemonize with `-d` flag
-- :heavy_check_mark: Hot-reloads config file when receiving `SIGHUP` signal
+- :heavy_check_mark: Hot-reloads config file when receives `SIGHUP` signal
 - :heavy_check_mark: Only one client at time is allowed
 - :heavy_check_mark: Server remains listening for a new client if client exits
 - :heavy_check_mark: Sends new job names to client when needed for suggestions
