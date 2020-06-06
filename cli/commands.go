@@ -10,31 +10,12 @@ import (
 type runnable func(tasks map[string]*job.Process, arg string) string
 
 // Command ...
-// TODO: Use this so printing help is elegant
 type Command struct {
 	Runnable runnable
 	Help     string
 }
 
-// Commands hold all commands
-// var Commands = map[string]runnable{
-// 	// Used for autocomplete
-// 	"job_names": suggestions,
-// 	"help":      help,
-// 	"h":         help,
-// 	"status":    status,
-// 	"st":        status,
-// 	"restart":   restart,
-// 	"reload":    nil,
-// 	"start":     start,
-// 	"run":       start,
-// 	"stop":      stop,
-// 	"uptime":    uptime,
-// 	"exit":      nil,
-// 	"quit":      nil,
-// 	"fg":        fg,
-// 	"bg":        bg,
-// }
+// Commands ...
 var Commands = map[string]*Command{
 	// Used for autocomplete
 	"job_names": {

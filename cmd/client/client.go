@@ -92,18 +92,29 @@ func (client *client) readInput() {
 }
 
 func autocompleter(input string, commands []string, jobNames []string) []string {
-	var result []string
+	if suggestions := possibleJobs(input, jobNames); suggestions != nil {
+		return suggestions
+	}
+	return possibleCommands(input, commands)
+}
 
+func possibleJobs(input string, jobNames []string) []string {
 	splitted := strings.SplitN(input, " ", 2)
-	if len(splitted) >= 2 {
-		for _, name := range jobNames {
-			if strings.HasPrefix(name, splitted[1]) {
-				result = append(result, name)
-			}
-		}
-		return result
+	if len(input) < 2 {
+		return nil
 	}
 
+	var result []string
+	for _, name := range jobNames {
+		if strings.HasPrefix(name, splitted[1]) {
+			result = append(result, name)
+		}
+	}
+	return result
+}
+
+func possibleCommands(input string, commands []string) []string {
+	var result []string
 	for _, item := range commands {
 		if strings.HasPrefix(item, input) {
 			result = append(result, item)
