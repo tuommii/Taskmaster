@@ -10,6 +10,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/tuommii/taskmaster/cli"
 	"github.com/tuommii/taskmaster/tty"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -49,7 +50,7 @@ func (client *client) getJobNames() []string {
 	if client.conn == nil {
 		return nil
 	}
-	fmt.Fprintf(client.conn, "job_names"+"\n")
+	fmt.Fprintf(client.conn, cli.GetJobsCommand+"\n")
 	resp := make([]byte, 4096)
 	n, err := client.conn.Read(resp)
 	if err != nil {

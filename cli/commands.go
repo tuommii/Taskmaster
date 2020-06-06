@@ -9,6 +9,9 @@ import (
 
 type runnable func(tasks map[string]*job.Process, arg string) string
 
+// GetJobsCommand returns currently available jobs
+const GetJobsCommand = "suggestions"
+
 // Command ...
 type Command struct {
 	Runnable runnable
@@ -18,7 +21,7 @@ type Command struct {
 // Commands ...
 var Commands = map[string]*Command{
 	// Used for autocomplete
-	"job_names": {
+	GetJobsCommand: {
 		Runnable: suggestions,
 		Help:     "For internal use",
 	},
@@ -71,6 +74,9 @@ var notFound = " not found"
 func CommandNames() []string {
 	var names []string
 	for key := range Commands {
+		if key == GetJobsCommand {
+			continue
+		}
 		names = append(names, key)
 	}
 	sort.Strings(names)
