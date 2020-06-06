@@ -9,6 +9,13 @@ import (
 
 type runnable func(tasks map[string]*job.Process, arg string) string
 
+// Command ...
+// TODO: Use this so printing help is elegant
+type Command struct {
+	Runnable runnable
+	Help     string
+}
+
 // Commands hold all commands
 var Commands = map[string]runnable{
 	// Used for autocomplete
