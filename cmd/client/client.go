@@ -106,7 +106,7 @@ func autocompleter(input string, commands []string, jobNames []string) []string 
 
 func possibleJobs(input string, jobNames []string) []string {
 	splitted := strings.SplitN(input, " ", 2)
-	if len(input) < 2 {
+	if len(splitted) != 2 {
 		return nil
 	}
 

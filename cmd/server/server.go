@@ -91,6 +91,7 @@ func (s *server) listenConnections() {
 		if err != nil {
 			log.Fatal("ACCEPT", err)
 		}
+		fmt.Println("client connected")
 		go s.handleConnection(conn)
 	}
 }
@@ -108,6 +109,12 @@ func parseUserInput(data []byte) (string, string) {
 }
 
 func (s *server) runCommand(cmd string, arg string, conn net.Conn) {
+	// Special case, needs to know config path
+	if cmd == "reload" {
+		s.reloadConfig()
+		conn.Write([]byte("config reloaded"))
+		return
+	}
 	if command, found := cli.Commands[cmd]; found && command.Runnable != nil {
 		conn.Write([]byte(command.Runnable(s.tasks, arg)))
 		return

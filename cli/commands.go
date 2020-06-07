@@ -37,7 +37,10 @@ var Commands = map[string]*Command{
 		Runnable: restart,
 		Help:     "RESTART",
 	},
-	"reload": nil,
+	"reload": {
+		Runnable: nil,
+		Help:     "RELOAD",
+	},
 	"start": {
 		Runnable: start,
 		Help:     "START",
