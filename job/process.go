@@ -28,26 +28,25 @@ const (
 const maxRetries = 10
 
 type options struct {
-	// Tasks name
 	Name string `json:"name"`
-	// Command with arguments
+	// Command to execute, with arguments
 	Command string `json:"command"`
 	// Log files
 	OutputLog string `json:"stdout"`
 	ErrorLog  string `json:"stderr"`
-	AutoStart bool   `json:"autostart"`
-	// Tasks working directory
+	// Run command when config is loaded
+	AutoStart  bool   `json:"autostart"`
 	WorkingDir string `json:"workingDir"`
 	// How many instances is launched
 	Procs int `json:"procs"`
 	// Time when process is consired started
 	StartTime int `json:"startTime"`
-	// Max tries to start a task
 	// After StopTime task quits. Counted from StartTime
 	StopTime   int    `json:"stopTime"`
 	StopSignal string `json:"stopSignal"`
 	Umask      int    `json:"umask"`
-	Retries    int    `json:"retries"`
+	// Max tries to start a task
+	Retries int `json:"retries"`
 	// If process exits in any other way than whit stop request
 	ExitCodes []int `json:"exitCodes"`
 }
@@ -263,8 +262,6 @@ func (p *Process) SetForeground(val bool) {
 	p.IsForeground = val
 }
 
-//
+// TODO:
 func (p *Process) launchPool() {
-	cpy := p
-	cpy.Procs = 0
 }
