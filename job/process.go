@@ -73,6 +73,18 @@ func LoadAll(path string) map[string]*Process {
 	for name, task := range tasks {
 		task.Name = name
 		task.Status = LOADED
+
+		for i := 0; i < len(validators); i++ {
+			if !validators[i](task) {
+				fmt.Println("INVALID TASK:", task.Name)
+				delete(tasks, name)
+				break
+			}
+		}
+	}
+	if len(tasks) == 0 {
+		fmt.Println("No tasks given. Exiting...")
+		os.Exit(1)
 	}
 	return tasks
 }

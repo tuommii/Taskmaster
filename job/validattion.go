@@ -1,0 +1,31 @@
+package job
+
+var validators = []func(*Process) bool{
+	func(p *Process) bool { return p.validateName() },
+	func(p *Process) bool { return p.validateStartTime() },
+	func(p *Process) bool { return p.validateStopTime() },
+	func(p *Process) bool { return p.validateProcs() },
+}
+
+func (p *Process) validateName() bool {
+	nameLen := len(p.Name)
+	if nameLen < 1 || nameLen > 32 {
+		return false
+	}
+	return true
+}
+
+func (p *Process) validateStartTime() bool {
+	return p.StartTime >= 0
+}
+
+func (p *Process) validateStopTime() bool {
+	return p.StopTime >= 0
+}
+
+func (p *Process) validateProcs() bool {
+	if p.Procs < 1 || p.Procs > 4 {
+		return false
+	}
+	return true
+}

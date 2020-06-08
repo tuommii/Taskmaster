@@ -1,0 +1,39 @@
+{
+	"": {
+		"command": "bash /home/miikka/projects/hive/taskmaster/assets/test.sh",
+		"workingDir": "./assets",
+		"startTime": 5,
+		"numprocs": 1,
+		"autostart": true,
+		"autorestart": true,
+		"stdout": "/tmp/realtime.log"
+	},
+	"watch_log": {
+		"startTime": -5,
+		"command": "tail -f /var/log/kern.log",
+		"autostart": true,
+		"autorestart": true,
+		"stderr": "/tmp/taskmaster_err2",
+		"stdout": "/tmp/taskmaster_out2"
+	},
+	"failingksjdl kjasdlkjsdklsjdklsajdklsajdlkasjdlkasjdlkasjdlsaj": {
+		"command": "notfound",
+		"startTime": 0,
+		"retries": 5,
+		"stopTime": 7,
+		"numprocs": 1,
+		"autostart": true,
+		"autorestart": true,
+		"stdout": "aaa/tmp/failing.log"
+	},
+	"failingksjdl": {
+		"command": "notfound",
+		"startTime": 0,
+		"retries": 5,
+		"stopTime": 7,
+		"numprocs": 1,
+		"autostart": true,
+		"autorestart": true,
+		"stdout": "aaa/tmp/failing.log"
+	}
+}
