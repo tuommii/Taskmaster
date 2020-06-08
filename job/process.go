@@ -75,7 +75,7 @@ func LoadAll(path string) map[string]*Process {
 		task.Status = LOADED
 
 		for i := 0; i < len(validators); i++ {
-			if !validators[i](task) {
+			if fine := validators[i](task); !fine {
 				fmt.Println("INVALID TASK:", task.Name)
 				delete(tasks, name)
 				break

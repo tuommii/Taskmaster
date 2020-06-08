@@ -9,16 +9,16 @@ import (
 
 type runnable func(tasks map[string]*job.Process, arg string) string
 
-// GetJobsCommand returns currently available jobs
+// GetJobsCommand returns currently available jobs, needed for autocompletion
 const GetJobsCommand = "suggestions"
 
-// Command ...
+// Command holds function and help message
 type Command struct {
 	Runnable runnable
 	Help     string
 }
 
-// Commands ...
+// Commands holds all commands
 var Commands = map[string]*Command{
 	// Used for autocomplete
 	GetJobsCommand: {
@@ -66,25 +66,13 @@ var Commands = map[string]*Command{
 }
 
 func init() {
+	// Aliases
 	Commands["run"] = Commands["start"]
 	Commands["st"] = Commands["status"]
 	Commands["h"] = Commands["help"]
 }
 
 var notFound = " not found"
-
-// CommandNames ...
-func CommandNames() []string {
-	var names []string
-	for key := range Commands {
-		if key == GetJobsCommand {
-			continue
-		}
-		names = append(names, key)
-	}
-	sort.Strings(names)
-	return names
-}
 
 func suggestions(tasks map[string]*job.Process, arg string) string {
 	var names string
@@ -161,4 +149,17 @@ func uptime(tasks map[string]*job.Process, arg string) string {
 		return arg + " " + time.Since(task.Started).String()
 	}
 	return arg + notFound
+}
+
+// CommandNames returns all command names except command(s) for internal
+func CommandNames() []string {
+	var names []string
+	for key := range Commands {
+		if key == GetJobsCommand {
+			continue
+		}
+		names = append(names, key)
+	}
+	sort.Strings(names)
+	return names
 }

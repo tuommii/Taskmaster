@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	configPath := flag.String("config", "./assets/config.example3.json", "path to config file")
+	configPath := flag.String("config", "./assets/config.example2.json", "path to config file")
 	daemonFlag := flag.Bool("d", false, "run as a daemon")
 	// syslogFlag := flag.Bool("syslog", false, "log to syslog")
 

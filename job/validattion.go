@@ -24,7 +24,7 @@ func (p *Process) validateStopTime() bool {
 }
 
 func (p *Process) validateProcs() bool {
-	if p.Procs < 1 || p.Procs > 4 {
+	if p.Procs > 4 {
 		return false
 	}
 	return true
