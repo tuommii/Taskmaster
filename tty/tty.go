@@ -96,13 +96,8 @@ func (s *State) handlePrintable() {
 		s.clearLine()
 		s.printPrompt()
 		s.printBuffer()
-
 		s.pos++
 		s.inputLen++
-
-		// Move cursor to right place
-		// fmt.Print("\r")
-		// fmt.Printf("\033[%dC", s.pos+s.promptLen)
 		s.restoreCursor()
 	}
 	// reset autocomplete suggestions
@@ -128,8 +123,6 @@ func (s *State) handleBackspace() {
 	s.clearLine()
 	s.printPrompt()
 	s.printBuffer()
-	// fmt.Print("\r")
-	// fmt.Printf("\033[%dC", s.pos+s.promptLen)
 	s.restoreCursor()
 	s.resetSuggestions()
 }
@@ -171,36 +164,21 @@ func (s *State) handleUp() {
 }
 
 func (s *State) handleDown() {
-	// TODO: Figure this out
+	// TODO: Implement if needed
 }
 
 func (s *State) handleTab() {
 	if s.proposer == nil {
 		return
 	}
-	if s.proposerPos == 0 {
-		s.suggestions = s.proposer(string(s.buf), cli.CommandNames(), s.jobNames)
-	}
-	if len(s.suggestions) == 0 {
+	if suggestionCount := s.refreshSuggestions(); suggestionCount == 0 {
 		return
 	}
 	if s.proposerPos >= len(s.suggestions) {
 		s.resetSuggestions()
 	}
 	if len(s.suggestions[s.proposerPos]) > 0 {
-		s.clearLine()
-		var name bool
-		if strings.Contains(string(s.buf), " ") {
-			name = true
-		}
-		cpy := s.buf
-		splitted := strings.SplitN(string(cpy), " ", 2)
-		s.clearBuffer()
-		if name {
-			s.buf = []byte(splitted[0] + " " + s.suggestions[s.proposerPos])
-		} else {
-			s.buf = []byte(s.suggestions[s.proposerPos])
-		}
+		s.writeSuggestion()
 		width := len(s.buf)
 		s.inputLen = width
 		s.pos = width
@@ -208,6 +186,25 @@ func (s *State) handleTab() {
 		s.printBuffer()
 		s.proposerPos++
 	}
+}
+
+func (s *State) refreshSuggestions() int {
+	// cursor is at beginning of line, all suggestions should be available again
+	if s.proposerPos == 0 {
+		s.suggestions = s.proposer(string(s.buf), cli.CommandNames(), s.jobNames)
+	}
+	return len(s.suggestions)
+}
+
+func (s *State) writeSuggestion() {
+	s.clearLine()
+	splitted := strings.SplitN(string(s.buf), " ", 2)
+	s.clearBuffer()
+	if len(splitted) > 1 {
+		s.buf = []byte(splitted[0] + " " + s.suggestions[s.proposerPos])
+		return
+	}
+	s.buf = []byte(s.suggestions[s.proposerPos])
 }
 
 func (s *State) clearBuffer() {

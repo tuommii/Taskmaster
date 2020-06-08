@@ -25,7 +25,6 @@ type hist struct {
 // SetJobNames ...
 func (s *State) SetJobNames(names []string) {
 	s.jobNames = names
-	// fmt.Println(s.jobNames)
 }
 
 // SetProposer sets autocomplete function
@@ -47,13 +46,3 @@ func (s *State) historyAdd(item string) {
 		s.historyPos = s.historyCount - 1
 	}
 }
-
-// func (s *State) historySearch(prefix string) []string {
-// 	var result []string
-// 	for _, item := range s.history {
-// 		if strings.HasPrefix(item, prefix) {
-// 			result = append(result, item)
-// 		}
-// 	}
-// 	return result
-// }
