@@ -46,8 +46,8 @@ Screencast with [example config](#Example-config)
 | <kbd>**restart**</kbd> | restart a job |
 | <kbd>**reload**</kbd> | reload config file |
 | <kbd>**uptime**</kbd> | show uptime of process |
-| <kbd>**fg**</kbd> | attach output to servers stdout |
-| <kbd>**bg**</kbd> | deattach output from servers stdout |
+| <kbd>**fg**</kbd> | attach output to server stdout |
+| <kbd>**bg**</kbd> | deattach output from server stdout |
 
 ### Example config
 ```json
