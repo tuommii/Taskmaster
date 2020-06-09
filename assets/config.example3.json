@@ -26,10 +26,10 @@
 		"autorestart": true,
 		"stdout": "aaa/tmp/failing.log"
 	},
-	"failingksjdl": {
+	"valid": {
 		"command": "notfound",
 		"startTime": 0,
-		"retries": 5,
+		"retries": 3,
 		"stopTime": 7,
 		"numprocs": 1,
 		"autostart": true,

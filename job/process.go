@@ -71,15 +71,13 @@ func LoadAll(path string) map[string]*Process {
 	}
 	err = json.Unmarshal([]byte(file), &tasks)
 	for name, task := range tasks {
+		// Names are keys in json-file so they must be set
 		task.Name = name
 		task.Status = LOADED
 
-		for i := 0; i < len(validators); i++ {
-			if fine := validators[i](task); !fine {
-				fmt.Println("INVALID TASK:", task.Name)
-				delete(tasks, name)
-				break
-			}
+		if err := validateConfig(task); err != nil {
+			fmt.Println(err)
+			delete(tasks, name)
 		}
 	}
 	if len(tasks) == 0 {
@@ -87,6 +85,15 @@ func LoadAll(path string) map[string]*Process {
 		os.Exit(1)
 	}
 	return tasks
+}
+
+func validateConfig(task *Process) error {
+	for i := 0; i < len(validators); i++ {
+		if fine := validators[i](task); !fine {
+			return errors.New("Invalid config for: " + task.Name)
+		}
+	}
+	return nil
 }
 
 func (p *Process) validateLauch(launchAutostartOnly bool) error {

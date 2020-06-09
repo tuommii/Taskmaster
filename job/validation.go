@@ -5,6 +5,7 @@ var validators = []func(*Process) bool{
 	func(p *Process) bool { return p.validateStartTime() },
 	func(p *Process) bool { return p.validateStopTime() },
 	func(p *Process) bool { return p.validateProcs() },
+	func(p *Process) bool { return p.validateRetries() },
 }
 
 func (p *Process) validateName() bool {
@@ -25,6 +26,13 @@ func (p *Process) validateStopTime() bool {
 
 func (p *Process) validateProcs() bool {
 	if p.Procs > 4 {
+		return false
+	}
+	return true
+}
+
+func (p *Process) validateRetries() bool {
+	if p.Retries > 4 {
 		return false
 	}
 	return true
