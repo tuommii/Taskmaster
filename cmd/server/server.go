@@ -47,7 +47,6 @@ func (s *server) removeTasks() {
 	}
 }
 
-// Hot-reload config
 func (s *server) reloadConfig() {
 	fmt.Println("reloading config...")
 	s.removeTasks()
@@ -85,7 +84,6 @@ func (s *server) listenConnections() {
 
 	// Only one client at time allowed
 	l = netutil.LimitListener(l, 1)
-
 	for {
 		conn, err := l.Accept()
 		if err != nil {

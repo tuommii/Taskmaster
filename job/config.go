@@ -84,12 +84,12 @@ func initTasks(tasks map[string]*Process) {
 	}
 }
 
-func createCopies(task *Process, copies map[string]*Process) {
-	for i := 0; i < task.Procs-1; i++ {
+func createCopies(src *Process, dest map[string]*Process) {
+	for i := 0; i < src.Procs-1; i++ {
 		var copy Process
-		copy = *task
+		copy = *src
 		copy.Name += strconv.Itoa(i + 2)
-		copies[copy.Name] = &copy
+		dest[copy.Name] = &copy
 	}
 }
 

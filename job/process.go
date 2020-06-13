@@ -33,16 +33,6 @@ type Process struct {
 	stderr       io.ReadCloser
 }
 
-func (p *Process) validateLauch(launchAutostartOnly bool) error {
-	if launchAutostartOnly == true && p.Status == LOADED && p.AutoStart == false {
-		return errors.New(p.Name + " loaded, but not started")
-	}
-	if p.Status == RUNNING {
-		return errors.New("Can't launch a already started process")
-	}
-	return nil
-}
-
 // Launch executes a task
 func (p *Process) Launch(launchAutostartOnly bool) error {
 	if err := p.validateLauch(launchAutostartOnly); err != nil {
@@ -57,6 +47,16 @@ func (p *Process) Launch(launchAutostartOnly bool) error {
 	p.killAfter()
 	syscall.Umask(oldMask)
 	p.clean()
+	return nil
+}
+
+func (p *Process) validateLauch(launchAutostartOnly bool) error {
+	if launchAutostartOnly == true && p.Status == LOADED && p.AutoStart == false {
+		return errors.New(p.Name + " loaded, but not started")
+	}
+	if p.Status == RUNNING {
+		return errors.New("Can't launch a already started process")
+	}
 	return nil
 }
 
@@ -79,7 +79,6 @@ func (p *Process) execute() error {
 	return nil
 }
 
-// Try launch as long as retries left
 func (p *Process) relaunch(err error) error {
 	p.Status = FAILED
 	p.Retries--
@@ -216,8 +215,4 @@ func (p *Process) redirect(stream io.ReadCloser, path string, alternative *os.Fi
 // SetForeground ...
 func (p *Process) SetForeground(val bool) {
 	p.IsForeground = val
-}
-
-// TODO:
-func (p *Process) launchPool() {
 }
