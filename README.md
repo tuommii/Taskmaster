@@ -15,18 +15,18 @@ Screencast with [example config](#Example-config)
 ## Features
 
 ### Client
-:heavy_check_mark: UI with raw mode
-:heavy_check_mark: History
-:heavy_check_mark: *Autocompletion* for commands and **task names**
-:heavy_check_mark: Aliases
-:heavy_check_mark: Sends user input to server via TCP
+- :heavy_check_mark: UI with raw mode
+- :heavy_check_mark: History
+- :heavy_check_mark: *Autocompletion* for commands and **task names**
+- :heavy_check_mark: Aliases
+- :heavy_check_mark: Sends user input to server via TCP
 
 ### Server (daemon)
-:heavy_check_mark: Option to daemonize with `-d` flag
-:heavy_check_mark: Hot-reloads config file when receives `SIGHUP` signal
-:heavy_check_mark: Only one client at time is allowed
-:heavy_check_mark: Server remains listening for a new client if client exits
-:heavy_check_mark: Sends new job names to client when needed for suggestions
+- :heavy_check_mark: Option to daemonize with `-d` flag
+- :heavy_check_mark: Hot-reloads config file when receives `SIGHUP` signal
+- :heavy_check_mark: Only one client at time is allowed
+- :heavy_check_mark: Server remains listening for a new client if client exits
+- :heavy_check_mark: Sends new job names to client when needed for suggestions
 
 ## How To Use
 
