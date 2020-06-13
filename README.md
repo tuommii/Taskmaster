@@ -56,7 +56,7 @@ Screencast with [example config](#Example-config)
 		"command": "bash /home/miikka/projects/hive/taskmaster/assets/test.sh",
 		"workingDir": "./assets",
 		"startTime": 5,
-		"numprocs": 1,
+		"instances": 1,
 		"autostart": false,
 		"autorestart": true,
 		"stdout": "/tmp/realtime.log"
@@ -65,7 +65,7 @@ Screencast with [example config](#Example-config)
 		"command": "notfound",
 		"startTime": 2,
 		"stopTime": 7,
-		"numprocs": 1,
+		"instances": 1,
 		"autostart": true,
 		"autorestart": true,
 		"stdout": "/tmp/failing.log"

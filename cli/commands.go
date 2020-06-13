@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"fmt"
 	"sort"
 	"time"
 
@@ -103,6 +104,7 @@ func stop(tasks map[string]*job.Process, arg string) string {
 	if !found {
 		return arg + notFound
 	}
+	fmt.Println("FOUND", task.Name)
 	task.Kill()
 	return arg + " STOPPED"
 }

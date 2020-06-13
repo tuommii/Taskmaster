@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -38,7 +39,7 @@ type options struct {
 	AutoStart  bool   `json:"autostart"`
 	WorkingDir string `json:"workingDir"`
 	// How many instances is launched
-	Procs int `json:"procs"`
+	Procs int `json:"instances"`
 	// Time when process is consired started
 	StartTime int `json:"startTime"`
 	// After StopTime task quits. Counted from StartTime
@@ -55,6 +56,7 @@ type options struct {
 type Process struct {
 	options
 	IsForeground bool
+	Instances    map[string]*Process
 	Cmd          *exec.Cmd
 	Started      time.Time
 	Status       string
@@ -65,6 +67,7 @@ type Process struct {
 // LoadAll loads all jobs from config file
 func LoadAll(path string) map[string]*Process {
 	tasks := make(map[string]*Process)
+	copies := make(map[string]*Process)
 	file, err := ioutil.ReadFile(path)
 	if err != nil {
 		log.Fatal("Error while opening config file: ", err)
@@ -78,12 +81,30 @@ func LoadAll(path string) map[string]*Process {
 		if err := validateConfig(task); err != nil {
 			fmt.Println(err)
 			delete(tasks, name)
+			continue
 		}
+
+		// COPY
+		// TODO: Validate name
+		for i := 0; i < task.Procs-1; i++ {
+			var copy Process
+			copy = *task
+			copy.Name += strconv.Itoa(i + 2)
+			fmt.Println("KOPIO", copy)
+			copies[copy.Name] = &copy
+		}
+
 	}
 	if len(tasks) == 0 {
 		fmt.Println("No tasks given. Exiting...")
 		os.Exit(1)
 	}
+
+	// merge
+	for k, v := range copies {
+		tasks[k] = v
+	}
+
 	return tasks
 }
 
