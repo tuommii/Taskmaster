@@ -2,15 +2,11 @@ package job
 
 import (
 	"bufio"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -25,33 +21,6 @@ const (
 	FAILED   = "FAILED"
 )
 
-// Even config file has more, this is max
-const maxRetries = 10
-
-type options struct {
-	Name string `json:"name"`
-	// Command to execute, with arguments
-	Command string `json:"command"`
-	// Log files
-	OutputLog string `json:"stdout"`
-	ErrorLog  string `json:"stderr"`
-	// Run command when config is loaded
-	AutoStart  bool   `json:"autostart"`
-	WorkingDir string `json:"workingDir"`
-	// How many instances is launched
-	Procs int `json:"instances"`
-	// Time when process is consired started
-	StartTime int `json:"startTime"`
-	// After StopTime task quits. Counted from StartTime
-	StopTime   int    `json:"stopTime"`
-	StopSignal string `json:"stopSignal"`
-	Umask      int    `json:"umask"`
-	// Max tries to start a task
-	Retries int `json:"retries"`
-	// If process exits in any other way than whit stop request
-	ExitCodes []int `json:"exitCodes"`
-}
-
 // Process represents runnable process
 type Process struct {
 	options
@@ -62,59 +31,6 @@ type Process struct {
 	Status       string
 	stdout       io.ReadCloser
 	stderr       io.ReadCloser
-}
-
-// LoadAll loads all jobs from config file
-func LoadAll(path string) map[string]*Process {
-	tasks := make(map[string]*Process)
-	copies := make(map[string]*Process)
-	file, err := ioutil.ReadFile(path)
-	if err != nil {
-		log.Fatal("Error while opening config file: ", err)
-	}
-	err = json.Unmarshal([]byte(file), &tasks)
-	for name, task := range tasks {
-		// Names are keys in json-file so they must be set
-		task.Name = name
-		task.Status = LOADED
-
-		if err := validateConfig(task); err != nil {
-			fmt.Println(err)
-			delete(tasks, name)
-			continue
-		}
-
-		// COPY
-		// TODO: Validate name
-		for i := 0; i < task.Procs-1; i++ {
-			var copy Process
-			copy = *task
-			copy.Name += strconv.Itoa(i + 2)
-			fmt.Println("KOPIO", copy)
-			copies[copy.Name] = &copy
-		}
-
-	}
-	if len(tasks) == 0 {
-		fmt.Println("No tasks given. Exiting...")
-		os.Exit(1)
-	}
-
-	// merge
-	for k, v := range copies {
-		tasks[k] = v
-	}
-
-	return tasks
-}
-
-func validateConfig(task *Process) error {
-	for i := 0; i < len(validators); i++ {
-		if fine := validators[i](task); !fine {
-			return errors.New("Invalid config for: " + task.Name)
-		}
-	}
-	return nil
 }
 
 func (p *Process) validateLauch(launchAutostartOnly bool) error {

@@ -15,18 +15,18 @@ Screencast with [example config](#Example-config)
 ## Features
 
 ### Client
-- :heavy_check_mark: UI with raw mode
-- :heavy_check_mark: History
-- :heavy_check_mark: *Autocompletion* for commands and **task names**
-- :heavy_check_mark: Aliases
-- :heavy_check_mark: Sends user input to server via TCP
+- UI with raw mode
+- History
+- *Autocompletion* for commands and **task names**
+- Aliases
+- Sends user input to server via TCP
 
 ### Server (daemon)
-- :heavy_check_mark: Option to daemonize with `-d` flag
-- :heavy_check_mark: Hot-reloads config file when receives `SIGHUP` signal
-- :heavy_check_mark: Only one client at time is allowed
-- :heavy_check_mark: Server remains listening for a new client if client exits
-- :heavy_check_mark: Sends new job names to client when needed for suggestions
+- Option to daemonize with `-d` flag
+- Hot-reloads config file when receives `SIGHUP` signal
+- Only one client at time is allowed
+- Server remains listening for a new client if client exits
+- Sends new job names to client when needed for suggestions
 
 ## How To Use
 
@@ -75,17 +75,16 @@ Screencast with [example config](#Example-config)
 
 ## TODO
 - [x] Job names to client (suggestions)
-- [ ] Do process pool when loading jobs
+- [x] Do process pool when loading jobs
 - [ ] Windows support if i get windows machine
-- [ ] Refactor bad parts
+- [x] Refactor bad parts
 - [ ] Logger
 - [ ] Stop signal
-- [ ] Process pool
 - [ ] Send fg to client
 - [x] Implement commands nicely [(result)](https://github.com/tuommii/Taskmaster/commit/41c430f1a634154d0f7831dc5001c05646a74bc4#diff-4c51d95b26718af4a2ac3bec33e54e49L128)
 - [ ] Get config file via arg
-- [ ] Config validation (check max lengths also)
-- [ ] Validate restarting processes
+- [x] Config validation (check max lengths also)
+- [x] Validate restarting processes
 - [ ] Remove x-packages
 - [ ] Mutex ?
 - [ ] Multiline support
