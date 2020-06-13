@@ -128,6 +128,7 @@ func (s *server) handleConnection(conn net.Conn) {
 		// escape recursion
 		return
 	}
+
 	cmd, arg := parseUserInput(data)
 	s.runCommand(cmd, arg, conn)
 	// recursive func to handle io.EOF for random disconnects

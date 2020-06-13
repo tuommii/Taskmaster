@@ -209,6 +209,7 @@ func (p *Process) redirect(stream io.ReadCloser, path string, alternative *os.Fi
 	if stream == p.stderr {
 		which = "stderr"
 	}
+	p.Status = STOPPED
 	fmt.Println(p.Name, "writing", which, "stopped")
 }
 

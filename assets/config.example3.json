@@ -8,8 +8,8 @@
 		"autorestart": true,
 		"stdout": "/tmp/realtime.log"
 	},
-	"watch_log": {
-		"startTime": -5,
+	"watchlog": {
+		"startTime": 1,
 		"command": "tail -f /var/log/kern.log",
 		"autostart": true,
 		"autorestart": true,
