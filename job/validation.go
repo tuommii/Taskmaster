@@ -8,9 +8,18 @@ var validators = []func(*Process) bool{
 	func(p *Process) bool { return p.validateRetries() },
 }
 
+func alphaOnly(str string) bool {
+	for _, c := range str {
+		if !((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
+			return false
+		}
+	}
+	return true
+}
+
 func (p *Process) validateName() bool {
 	nameLen := len(p.Name)
-	if nameLen < 1 || nameLen > 32 {
+	if nameLen < 1 || nameLen > 32 || !alphaOnly(p.Name) {
 		return false
 	}
 	return true
