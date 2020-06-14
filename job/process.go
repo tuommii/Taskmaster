@@ -66,7 +66,13 @@ func (p *Process) Kill() error {
 		return errors.New(p.Name + " wasn't running")
 	}
 	p.Status = STOPPED
-	return p.Cmd.Process.Kill()
+	sig := syscall.SIGTERM
+	if p.StopSignal == "SIGHUP" {
+		sig = syscall.SIGHUP
+	}
+	fmt.Println("Killing with", p.StopSignal, sig)
+	return p.Cmd.Process.Signal(sig)
+	// return p.Cmd.Process.Kill()
 }
 
 func (p *Process) execute() error {

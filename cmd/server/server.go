@@ -61,7 +61,7 @@ func (s *server) listenSignals() {
 	signalsCh := make(chan os.Signal, 1)
 	signal.Notify(signalsCh)
 
-	go func(tasks map[string]*job.Process) {
+	go func() {
 		for sig := range signalsCh {
 			switch {
 			case sig == syscall.SIGHUP:
@@ -72,7 +72,7 @@ func (s *server) listenSignals() {
 			default:
 			}
 		}
-	}(s.tasks)
+	}()
 }
 
 func (s *server) listenConnections() {

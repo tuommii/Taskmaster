@@ -42,6 +42,7 @@
 		"startTime": 3,
 		"instances": 2,
 		"autostart": true,
-		"autorestart": true
+		"autorestart": true,
+		"stopSignal": "SIGHUP"
 	}
 }
