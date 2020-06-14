@@ -152,12 +152,12 @@ func (p *Process) clean() {
 		}
 		p.Status = STOPPED
 		code := p.Cmd.ProcessState.ExitCode()
-		if p.properExit(code) {
+		if p.properExit(code) || code == -1 {
 			fmt.Println("EXITED WITH PROPER CODE:", code)
 			return
 		}
 		fmt.Println(p.Name, "EXIT WITH WRONG CODE:", code)
-		if p.AutoRestart == "unexpected" {
+		if p.AutoRestart == "unexpected" || p.AutoRestart == "true" {
 			fmt.Println(p.Name, "Restarting...")
 			p.Launch(false)
 		}

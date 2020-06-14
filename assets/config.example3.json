@@ -41,7 +41,7 @@
 		"autorestart": "unexpected",
 		"stopSignal": "HUP",
 		"env": ["USER=Miikka", "HOME=Hermanni"],
-		"exitcodes": [-1, 0, 1]
+		"exitcodes": [0, 1]
 	},
 	"excode": {
 		"command": "bash /home/miikka/projects/hive/taskmaster/assets/test3.sh",
