@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"syscall"
 )
 
 // Even config file has more, this is max
@@ -28,9 +29,10 @@ type options struct {
 	// Time when process is consired started
 	StartTime int `json:"startTime"`
 	// After StopTime task quits. Counted from StartTime
-	StopTime   int    `json:"stopTime"`
-	StopSignal string `json:"stopSignal"`
-	Umask      int    `json:"umask"`
+	StopTime   int      `json:"stopTime"`
+	StopSignal string   `json:"stopSignal"`
+	Umask      int      `json:"umask"`
+	Env        []string `json:"env"`
 	// Max tries to start a task
 	Retries int `json:"retries"`
 	// If process exits in any other way than whit stop request
@@ -43,6 +45,16 @@ var validators = []func(*Process) bool{
 	func(p *Process) bool { return p.validateStopTime() },
 	func(p *Process) bool { return p.validateProcs() },
 	func(p *Process) bool { return p.validateRetries() },
+}
+
+var killSignals = map[string]syscall.Signal{
+	"TERM": syscall.SIGTERM,
+	"HUP":  syscall.SIGHUP,
+	"INT":  syscall.SIGINT,
+	"QUIT": syscall.SIGQUIT,
+	"KILL": syscall.SIGKILL,
+	"USR1": syscall.SIGUSR1,
+	"USR2": syscall.SIGUSR2,
 }
 
 // LoadAll loads all jobs from config file

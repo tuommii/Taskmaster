@@ -66,13 +66,13 @@ func (p *Process) Kill() error {
 		return errors.New(p.Name + " wasn't running")
 	}
 	p.Status = STOPPED
-	sig := syscall.SIGTERM
-	if p.StopSignal == "SIGHUP" {
-		sig = syscall.SIGHUP
+
+	sig := killSignals[p.StopSignal]
+	if sig == 0 {
+		sig = syscall.SIGTERM
 	}
 	fmt.Println("Killing with", p.StopSignal, sig)
 	return p.Cmd.Process.Signal(sig)
-	// return p.Cmd.Process.Kill()
 }
 
 func (p *Process) execute() error {
@@ -178,6 +178,7 @@ func (p *Process) prepare() {
 	if err != nil {
 		fmt.Println("PIPE", err)
 	}
+	p.Cmd.Env = p.Env
 	p.cwd(p.WorkingDir)
 	go p.redirect(p.stdout, p.OutputLog, os.Stdout)
 	go p.redirect(p.stderr, p.ErrorLog, os.Stderr)

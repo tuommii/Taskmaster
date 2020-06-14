@@ -43,6 +43,7 @@
 		"instances": 2,
 		"autostart": true,
 		"autorestart": true,
-		"stopSignal": "SIGHUP"
+		"stopSignal": "HUP",
+		"env": ["USER=Miikka", "HOME=Hermanni"]
 	}
 }
