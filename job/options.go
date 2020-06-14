@@ -22,8 +22,9 @@ type options struct {
 	OutputLog string `json:"stdout"`
 	ErrorLog  string `json:"stderr"`
 	// Run command when config is loaded
-	AutoStart  bool   `json:"autostart"`
-	WorkingDir string `json:"workingDir"`
+	AutoStart   bool   `json:"autostart"`
+	AutoRestart string `json:"autorestart"`
+	WorkingDir  string `json:"workingDir"`
 	// How many instances is launched
 	Procs int `json:"instances"`
 	// Time when process is consired started

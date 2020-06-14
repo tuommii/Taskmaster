@@ -5,14 +5,12 @@
 		"startTime": 5,
 		"numprocs": 1,
 		"autostart": true,
-		"autorestart": true,
 		"stdout": "/tmp/realtime.log"
 	},
 	"watchlog": {
 		"startTime": 1,
 		"command": "tail -f /var/log/kern.log",
 		"autostart": true,
-		"autorestart": true,
 		"stderr": "/tmp/taskmaster_err2",
 		"stdout": "/tmp/taskmaster_out2"
 	},
@@ -23,7 +21,6 @@
 		"stopTime": 7,
 		"numprocs": 1,
 		"autostart": true,
-		"autorestart": true,
 		"stdout": "aaa/tmp/failing.log"
 	},
 	"valid": {
@@ -33,7 +30,6 @@
 		"stopTime": 7,
 		"numprocs": 1,
 		"autostart": true,
-		"autorestart": true,
 		"stdout": "aaa/tmp/failing.log"
 	},
 	"realtime": {
@@ -42,8 +38,19 @@
 		"startTime": 3,
 		"instances": 2,
 		"autostart": true,
-		"autorestart": true,
+		"autorestart": "unexpected",
 		"stopSignal": "HUP",
-		"env": ["USER=Miikka", "HOME=Hermanni"]
+		"env": ["USER=Miikka", "HOME=Hermanni"],
+		"exitcodes": [-1, 0, 1]
+	},
+	"excode": {
+		"command": "bash /home/miikka/projects/hive/taskmaster/assets/test3.sh",
+		"workingDir": "./assets",
+		"autostart": true,
+		"startTime": 2,
+		"autorestart": "unexpected",
+		"stopSignal": "HUP",
+		"env": ["USER=Miikka", "HOME=Hermanni"],
+		"exitcodes": [0, 1]
 	}
 }

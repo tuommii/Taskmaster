@@ -142,9 +142,9 @@ func (p *Process) properExit(code int) bool {
 
 // clean process when ready
 func (p *Process) clean() {
-	if p.Status != RUNNING {
-		return
-	}
+	// if p.Status != RUNNING {
+	// 	return
+	// }
 	go func() {
 		err := p.Cmd.Wait()
 		if err == nil {
@@ -156,7 +156,11 @@ func (p *Process) clean() {
 			fmt.Println("EXITED WITH PROPER CODE:", code)
 			return
 		}
-		fmt.Println("EXIT WITH WRONG CODE:", code)
+		fmt.Println(p.Name, "EXIT WITH WRONG CODE:", code)
+		if p.AutoRestart == "unexpected" {
+			fmt.Println(p.Name, "Restarting...")
+			p.Launch(false)
+		}
 	}()
 	// No need to call Close() when using pipes ?
 	// p.stdout.Close()
