@@ -16,7 +16,9 @@ func main() {
 	// syslogFlag := flag.Bool("syslog", false, "log to syslog")
 
 	flag.Parse()
-	// _ = logger.Get(*syslogFlag)
+
+	// TODO: make flag, use /dev/null
+	logger.ChangeOutput(os.Stdout)
 
 	// This must be runned in main
 	if *daemonFlag {

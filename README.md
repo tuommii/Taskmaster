@@ -75,6 +75,7 @@ Screencast with [example config](#Example-config)
 
 ## TODO
 - [x] Logger
+- [ ] Flags to README
 - [ ] Option for Ignore logging
 - [ ] Compare config files when reloaded
 - [x] Job names to client (suggestions)

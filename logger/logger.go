@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"io"
 	"log"
 	"log/syslog"
 	"os"
@@ -15,14 +16,21 @@ var (
 	errL   *log.Logger
 )
 
+// ChangeOutput ...
+func ChangeOutput(file io.Writer) {
+	infoL = log.New(file, "INFO: ", log.Ldate|log.Ltime)
+	warnL = log.New(file, "WARNING: ", log.Ldate|log.Ltime)
+	errL = log.New(file, "ERROR: ", log.Ldate|log.Ltime)
+}
+
 func init() {
 	file, err := os.OpenFile("/tmp/taskmaster.log", os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0666)
 	if err != nil {
 		log.Fatal(err)
 	}
-	infoL = log.New(file, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
-	warnL = log.New(file, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
-	errL = log.New(file, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
+	infoL = log.New(file, "INFO: ", log.Ldate|log.Ltime)
+	warnL = log.New(file, "WARNING: ", log.Ldate|log.Ltime)
+	errL = log.New(file, "ERROR: ", log.Ldate|log.Ltime)
 }
 
 // Info ..
