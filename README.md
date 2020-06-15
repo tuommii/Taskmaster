@@ -25,8 +25,7 @@ Screencast with [example config](#Example-config)
 - Option to daemonize with `-d` flag
 - Hot-reloads config file when receives `SIGHUP` signal
 - Only one client at time is allowed
-- Server remains listening for a new client if client exits
-- Sends new job names to client when needed for suggestions
+- Server remains listening for a new client if a client exits
 
 ## How To Use
 
@@ -59,7 +58,8 @@ Screencast with [example config](#Example-config)
 		"instances": 1,
 		"autostart": false,
 		"autorestart": true,
-		"stdout": "/tmp/realtime.log"
+		"stdout": "/tmp/realtime.log",
+		"env": ["USER=Miikka"]
 	},
 	"failing": {
 		"command": "notfound",

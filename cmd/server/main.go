@@ -13,13 +13,13 @@ import (
 func main() {
 	configPath := flag.String("c", "./assets/config.example3.json", "path to config file")
 	daemonFlag := flag.Bool("d", false, "run as a daemon")
-	silenceFlag := flag.Bool("s", true, "no output")
+	silenceFlag := flag.Bool("s", false, "no logging")
 	// syslogFlag := flag.Bool("syslog", false, "log to syslog")
 
 	flag.Parse()
 
 	// TODO: make flag, use /dev/null
-	logger.ChangeOutput(os.Stdout)
+	// logger.ChangeOutput(os.Stdout)
 	if *silenceFlag {
 		file, _ := os.OpenFile(os.DevNull, 0, 0)
 		logger.ChangeOutput(file)
@@ -49,8 +49,10 @@ func main() {
 	}
 
 	config := *configPath
-	if len(os.Args) == 2 && os.Args[1] != "" {
-		config = os.Args[1]
+	for _, arg := range os.Args[1:] {
+		if arg[0] != '-' {
+			config = arg
+		}
 	}
 
 	s := newServer(config, job.LoadAll(config))
