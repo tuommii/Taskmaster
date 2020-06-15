@@ -74,18 +74,19 @@ Screencast with [example config](#Example-config)
 ```
 
 ## TODO
+- [ ] Logger
+- [ ] Option for Ignore logging
 - [x] Job names to client (suggestions)
 - [x] Do process pool when loading jobs
-- [ ] Restart always/never/unexpected exit code
-- [ ] Windows support if i get windows machine
+- [x] Restart always/never/unexpected exit code
 - [x] Refactor bad parts
-- [ ] Logger
 - [x] Stop signal
-- [ ] Send fg to client
 - [x] Implement commands nicely [(result)](https://github.com/tuommii/Taskmaster/commit/41c430f1a634154d0f7831dc5001c05646a74bc4#diff-4c51d95b26718af4a2ac3bec33e54e49L128)
-- [ ] Get config file via arg
+- [x] Get config file via arg
 - [x] Config validation (check max lengths also)
 - [x] Validate restarting processes
+- [ ] Send fg to client
 - [ ] Remove x-packages
 - [ ] Mutex ?
+- [ ] Windows support if i get windows machine
 - [ ] Multiline support

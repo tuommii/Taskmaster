@@ -5,13 +5,11 @@
 		"startTime": 5,
 		"numprocs": 1,
 		"autostart": true,
-		"autorestart": true,
 		"stdout": "/tmp/realtime.log"
 	},
 	"watch_log": {
 		"command": "tail -f /var/log/kern.log",
 		"autostart": true,
-		"autorestart": true,
 		"stderr": "/tmp/taskmaster_err2",
 		"stdout": "/tmp/taskmaster_out2"
 	},
@@ -22,7 +20,6 @@
 		"stopTime": 7,
 		"numprocs": 1,
 		"autostart": true,
-		"autorestart": true,
 		"stdout": "aaa/tmp/failing.log"
 	}
 }

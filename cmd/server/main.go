@@ -4,13 +4,14 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/sevlyar/go-daemon"
 	"github.com/tuommii/taskmaster/job"
 )
 
 func main() {
-	configPath := flag.String("config", "./assets/config.example3.json", "path to config file")
+	configPath := flag.String("c", "./assets/config.example3.json", "path to config file")
 	daemonFlag := flag.Bool("d", false, "run as a daemon")
 	// syslogFlag := flag.Bool("syslog", false, "log to syslog")
 
@@ -40,7 +41,12 @@ func main() {
 		defer cntxt.Release()
 	}
 
-	s := newServer(*configPath, job.LoadAll(*configPath))
+	config := *configPath
+	if len(os.Args) == 2 && os.Args[1] != "" {
+		config = os.Args[1]
+	}
+
+	s := newServer(config, job.LoadAll(config))
 	s.listenSignals()
 	s.launchTasks()
 	s.listenConnections()

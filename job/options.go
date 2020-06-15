@@ -60,6 +60,7 @@ var killSignals = map[string]syscall.Signal{
 
 // LoadAll loads all jobs from config file
 func LoadAll(path string) map[string]*Process {
+	fmt.Println("Loading config from", path)
 	file, err := ioutil.ReadFile(path)
 	if err != nil {
 		log.Fatal("Error while opening config file: ", err)

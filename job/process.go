@@ -154,6 +154,10 @@ func (p *Process) clean() {
 		code := p.Cmd.ProcessState.ExitCode()
 		if p.properExit(code) || code == -1 {
 			fmt.Println("EXITED WITH PROPER CODE:", code)
+			if p.AutoRestart == "true" {
+				fmt.Println(p.Name, "Restarting...")
+				p.Launch(false)
+			}
 			return
 		}
 		fmt.Println(p.Name, "EXIT WITH WRONG CODE:", code)
