@@ -13,12 +13,17 @@ import (
 func main() {
 	configPath := flag.String("c", "./assets/config.example3.json", "path to config file")
 	daemonFlag := flag.Bool("d", false, "run as a daemon")
+	silenceFlag := flag.Bool("s", true, "no output")
 	// syslogFlag := flag.Bool("syslog", false, "log to syslog")
 
 	flag.Parse()
 
 	// TODO: make flag, use /dev/null
 	logger.ChangeOutput(os.Stdout)
+	if *silenceFlag {
+		file, _ := os.OpenFile(os.DevNull, 0, 0)
+		logger.ChangeOutput(file)
+	}
 
 	// This must be runned in main
 	if *daemonFlag {
@@ -26,7 +31,7 @@ func main() {
 		cntxt := &daemon.Context{
 			PidFileName: "sample.pid",
 			PidFilePerm: 0644,
-			LogFileName: "sample.log",
+			LogFileName: "/tmp/sample.log",
 			LogFilePerm: 0640,
 			WorkDir:     "./",
 			Umask:       027,
