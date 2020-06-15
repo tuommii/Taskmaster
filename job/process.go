@@ -10,6 +10,8 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/tuommii/taskmaster/logger"
 )
 
 // Statuses
@@ -41,7 +43,7 @@ func (p *Process) Launch(launchAutostartOnly bool) error {
 	p.prepare()
 	oldMask := syscall.Umask(p.Umask)
 	if err := p.execute(); err != nil {
-		fmt.Println(p.Name, p.Status, err)
+		logger.Error(p.Name, p.Status, err)
 		return err
 	}
 	p.killAfter()
@@ -71,7 +73,7 @@ func (p *Process) Kill() error {
 	if sig == 0 {
 		sig = syscall.SIGTERM
 	}
-	fmt.Println("Killing with", p.StopSignal, sig)
+	logger.Info("Killing with", p.StopSignal, sig)
 	return p.Cmd.Process.Signal(sig)
 }
 
@@ -89,7 +91,7 @@ func (p *Process) relaunch(err error) error {
 	p.Status = FAILED
 	p.Retries--
 	if p.Retries > 0 && p.Retries < maxRetries {
-		fmt.Println("Trying launch", p.Name, "again...")
+		logger.Info("Trying launch", p.Name, "again...")
 		p.execute()
 	}
 	return err
@@ -99,7 +101,7 @@ func (p *Process) setStarted() {
 	// No delay
 	if p.StartTime <= 0 {
 		p.Status = RUNNING
-		fmt.Println(p.Name, p.Status)
+		logger.Info(p.Name, p.Status)
 		return
 	}
 	// Delay
@@ -112,7 +114,7 @@ func (p *Process) setStarted() {
 		}
 		p.Status = RUNNING
 		p.Started = time.Now()
-		fmt.Println(p.Name, "is consired started", p.Status)
+		logger.Info(p.Name, "is consired started", p.Status)
 	}()
 }
 
@@ -127,7 +129,7 @@ func (p *Process) killAfter() {
 		if err := p.Kill(); err != nil {
 			return
 		}
-		fmt.Println(p.Name, "stopped")
+		logger.Info(p.Name, "stopped")
 	}()
 }
 
@@ -153,16 +155,16 @@ func (p *Process) clean() {
 		p.Status = STOPPED
 		code := p.Cmd.ProcessState.ExitCode()
 		if p.properExit(code) || code == -1 {
-			fmt.Println("EXITED WITH PROPER CODE:", code)
+			logger.Info("Exited with proper code", code)
 			if p.AutoRestart == "true" {
-				fmt.Println(p.Name, "Restarting...")
+				logger.Info(p.Name, "Restarting...")
 				p.Launch(false)
 			}
 			return
 		}
-		fmt.Println(p.Name, "EXIT WITH WRONG CODE:", code)
-		if p.AutoRestart == "unexpected" || p.AutoRestart == "true" {
-			fmt.Println(p.Name, "Restarting...")
+		logger.Warning(p.Name, "Exited with wrong code:", code)
+		if (p.AutoRestart == "unexpected" || p.AutoRestart == "true") && code != 127 {
+			logger.Info(p.Name, "Restarting...")
 			p.Launch(false)
 		}
 	}()
@@ -179,13 +181,14 @@ func (p *Process) prepare() {
 	var err error
 	p.stdout, err = p.Cmd.StdoutPipe()
 	if err != nil {
-		fmt.Println("PIPE:", err)
+		logger.Error(err)
 	}
 
 	p.stderr, err = p.Cmd.StderrPipe()
 	if err != nil {
-		fmt.Println("PIPE", err)
+		logger.Error(err)
 	}
+
 	p.Cmd.Env = p.Env
 	p.cwd(p.WorkingDir)
 	go p.redirect(p.stdout, p.OutputLog, os.Stdout)
@@ -225,7 +228,7 @@ func (p *Process) redirect(stream io.ReadCloser, path string, alternative *os.Fi
 		which = "stderr"
 	}
 	p.Status = STOPPED
-	fmt.Println(p.Name, "writing", which, "stopped")
+	logger.Info(p.Name, "writing", which, "stopped")
 }
 
 // SetForeground ...

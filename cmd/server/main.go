@@ -3,11 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/sevlyar/go-daemon"
 	"github.com/tuommii/taskmaster/job"
+	"github.com/tuommii/taskmaster/logger"
 )
 
 func main() {
@@ -33,7 +33,7 @@ func main() {
 
 		d, err := cntxt.Reborn()
 		if err != nil {
-			log.Fatal("Unable to run: ", err)
+			logger.Fatal("Unable to run: ", err)
 		}
 		if d != nil {
 			return

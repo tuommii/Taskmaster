@@ -33,7 +33,7 @@
 		"stdout": "aaa/tmp/failing.log"
 	},
 	"realtime": {
-		"command": "bash /home/miikka/projects/hive/taskmaster/assets/test.sh",
+		"command": "bash ./test.sh",
 		"workingDir": "./assets",
 		"startTime": 3,
 		"instances": 2,
@@ -44,7 +44,7 @@
 		"exitcodes": [0, 1]
 	},
 	"excode": {
-		"command": "bash /home/miikka/projects/hive/taskmaster/assets/test3.sh",
+		"command": "bash ./test3.sh",
 		"workingDir": "./assets",
 		"autostart": true,
 		"startTime": 2,

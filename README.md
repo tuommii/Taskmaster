@@ -74,8 +74,9 @@ Screencast with [example config](#Example-config)
 ```
 
 ## TODO
-- [ ] Logger
+- [x] Logger
 - [ ] Option for Ignore logging
+- [ ] Compare config files when reloaded
 - [x] Job names to client (suggestions)
 - [x] Do process pool when loading jobs
 - [x] Restart always/never/unexpected exit code

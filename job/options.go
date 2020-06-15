@@ -3,12 +3,11 @@ package job
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
-	"log"
-	"os"
 	"strconv"
 	"syscall"
+
+	"github.com/tuommii/taskmaster/logger"
 )
 
 // Even config file has more, this is max
@@ -60,16 +59,15 @@ var killSignals = map[string]syscall.Signal{
 
 // LoadAll loads all jobs from config file
 func LoadAll(path string) map[string]*Process {
-	fmt.Println("Loading config from", path)
+	logger.Info("Loading config from", path)
 	file, err := ioutil.ReadFile(path)
 	if err != nil {
-		log.Fatal("Error while opening config file: ", err)
+		logger.Fatal("Error while opening config file: ", err)
 	}
 	tasks := make(map[string]*Process)
 	err = json.Unmarshal([]byte(file), &tasks)
 	if err != nil {
-		fmt.Println("Error while loading config file", err)
-		os.Exit(1)
+		logger.Fatal("Error while loading config file", err)
 	}
 	initTasks(tasks)
 	return tasks
@@ -82,15 +80,14 @@ func initTasks(tasks map[string]*Process) {
 		task.Name = name
 		task.Status = LOADED
 		if err := validateConfig(task); err != nil {
-			fmt.Println(err)
+			logger.Error(err)
 			delete(tasks, name)
 			continue
 		}
 		createCopies(task, copies)
 	}
 	if len(tasks) == 0 {
-		fmt.Println("No tasks given. Exiting...")
-		os.Exit(1)
+		logger.Fatal("No tasks given. Exiting...")
 	}
 	// merge
 	for k, v := range copies {

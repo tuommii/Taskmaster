@@ -1,11 +1,12 @@
 {
 	"realtime": {
-		"command": "bash /home/miikka/projects/hive/taskmaster/assets/test.sh",
+		"command": "bash ./test.sh",
 		"workingDir": "./assets",
 		"startTime": 5,
 		"numprocs": 1,
 		"autostart": true,
-		"stdout": "/tmp/realtime.log"
+		"stdout": "/tmp/realtime.log",
+		"env": ["USER=MIIKKA"]
 	},
 	"watch_log": {
 		"command": "tail -f /var/log/kern.log",

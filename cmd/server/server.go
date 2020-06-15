@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"net"
 	"os"
 	"os/signal"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/tuommii/taskmaster/cli"
 	"github.com/tuommii/taskmaster/job"
+	"github.com/tuommii/taskmaster/logger"
 	"golang.org/x/net/netutil"
 )
 
@@ -31,28 +31,28 @@ func newServer(configPath string, tasks map[string]*job.Process) *server {
 func (s *server) launchTasks() {
 	for _, task := range s.tasks {
 		if err := task.Launch(true); err != nil {
-			fmt.Println(err)
+			logger.Error(err)
 		}
 	}
 }
 
 func (s *server) removeTasks() {
 	for key, task := range s.tasks {
-		fmt.Println("Killing and deleting", key)
+		logger.Info("Killing and deleting", key)
 		err := task.Kill()
 		if err != nil {
-			log.Println(err)
+			logger.Error(err)
 		}
 		delete(s.tasks, key)
 	}
 }
 
 func (s *server) reloadConfig() {
-	fmt.Println("reloading config...")
+	logger.Info("Reloading config...")
 	s.removeTasks()
 	s.tasks = job.LoadAll(s.configPath)
 	s.launchTasks()
-	fmt.Println("Loaded", len(s.tasks), "tasks")
+	logger.Info("Loaded", len(s.tasks), "tasks")
 }
 
 func (s *server) listenSignals() {
@@ -67,7 +67,7 @@ func (s *server) listenSignals() {
 			case sig == syscall.SIGHUP:
 				s.reloadConfig()
 			case sig == syscall.SIGTERM || sig == syscall.SIGINT:
-				fmt.Printf("\nABORT!")
+				logger.Info("\nABORT")
 				os.Exit(0)
 			default:
 			}
@@ -78,7 +78,7 @@ func (s *server) listenSignals() {
 func (s *server) listenConnections() {
 	l, err := net.Listen("tcp", ":4200")
 	if err != nil {
-		log.Fatal("LISTEN:", err)
+		logger.Fatal(err)
 	}
 	defer l.Close()
 
@@ -87,9 +87,9 @@ func (s *server) listenConnections() {
 	for {
 		conn, err := l.Accept()
 		if err != nil {
-			log.Fatal("ACCEPT", err)
+			logger.Fatal(err)
 		}
-		fmt.Println("client connected")
+		logger.Info("Client connected")
 		go s.handleConnection(conn)
 	}
 }
@@ -123,7 +123,7 @@ func (s *server) runCommand(cmd string, arg string, conn net.Conn) {
 func (s *server) handleConnection(conn net.Conn) {
 	data, err := bufio.NewReader(conn).ReadBytes('\n')
 	if err != nil {
-		fmt.Println("client left..")
+		logger.Info("Client left..")
 		conn.Close()
 		// escape recursion
 		return
