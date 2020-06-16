@@ -69,6 +69,7 @@ func init() {
 	// Aliases
 	Commands["run"] = Commands["start"]
 	Commands["st"] = Commands["status"]
+	Commands["ls"] = Commands["status"]
 	Commands["h"] = Commands["help"]
 }
 

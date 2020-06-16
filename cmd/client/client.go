@@ -92,6 +92,9 @@ func (client *client) readInput() {
 				continue
 			}
 			fmt.Println(string(reply))
+			if input == "reload" {
+				client.ui.SetJobNames(client.getJobNames())
+			}
 		}
 		terminal.MakeRaw(0)
 	}

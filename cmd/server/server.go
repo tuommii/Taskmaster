@@ -50,6 +50,7 @@ func (s *server) removeTasks() {
 	}
 }
 
+// TODO: refactor
 func (s *server) reloadConfig() {
 	logger.Info("Reloading config...")
 	newTasks := job.LoadAll(s.configPath)
