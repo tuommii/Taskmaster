@@ -77,7 +77,9 @@ Screencast with [example config](#Example-config)
 - [x] Logger
 - [ ] Flags to README
 - [ ] Option for Ignore logging
-- [ ] Compare config files when reloaded
+- [x] Compare config files when reloaded
+- [ ] Validate reloaded config
+- [ ] Send new tasknames to client
 - [x] Job names to client (suggestions)
 - [x] Do process pool when loading jobs
 - [x] Restart always/never/unexpected exit code
