@@ -1,12 +1,12 @@
 <h1 align="center">
-	(WIP) Taskmaster
+	Taskmaster
 	<br><br>
 	<img width=100% src="assets/taskmaster.png">
 </h1>
 
 ## How it works
 
-Screencast with [example config](#Example-config)
+Screencast (old) with example config
 
 <p align="center">
 	<img width=100% src="assets/taskmaster_1.gif">
@@ -47,50 +47,40 @@ Screencast with [example config](#Example-config)
 | <kbd>**uptime**</kbd> | show uptime of process |
 | <kbd>**fg**</kbd> | attach output to server stdout |
 | <kbd>**bg**</kbd> | deattach output from server stdout |
+| <kbd>**exit**</kbd> | quit |
 
 ### Example config
 ```json
 {
-	"realtime": {
-		"command": "bash /home/miikka/projects/hive/taskmaster/assets/test.sh",
+		"realtime": {
+		"command": "bash ./test.sh",
 		"workingDir": "./assets",
-		"startTime": 5,
-		"instances": 1,
-		"autostart": false,
-		"autorestart": true,
-		"stdout": "/tmp/realtime.log",
-		"env": ["USER=Miikka"]
-	},
-	"failing": {
-		"command": "notfound",
-		"startTime": 2,
-		"stopTime": 7,
+		"startTime": 3,
 		"instances": 1,
 		"autostart": true,
-		"autorestart": true,
-		"stdout": "/tmp/failing.log"
+		"autorestart": "unexpected",
+		"stopSignal": "HUP",
+		"env": ["USER=Miikka", "HOME=Hermanni"],
+		"exitcodes": [0, 1]
+	},
+	"excode": {
+		"command": "bash ./test3.sh",
+		"workingDir": "./assets",
+		"autostart": false,
+		"startTime": 4,
+		"autorestart": "false",
+		"stopSignal": "HUP",
+		"env": ["USER=Miikka", "HOME=Hermanni"],
+		"exitcodes": [0, 1]
 	}
 }
 ```
 
 ## TODO
-- [x] Logger
 - [ ] Flags to README
-- [ ] Option for Ignore logging
-- [x] Compare config files when reloaded
-- [x] Validate reloaded config
-- [ ] Send new tasknames to client
-- [x] Job names to client (suggestions)
-- [x] Do process pool when loading jobs
-- [x] Restart always/never/unexpected exit code
-- [x] Refactor bad parts
-- [x] Stop signal
-- [x] Implement commands nicely [(result)](https://github.com/tuommii/Taskmaster/commit/41c430f1a634154d0f7831dc5001c05646a74bc4#diff-4c51d95b26718af4a2ac3bec33e54e49L128)
-- [x] Get config file via arg
-- [x] Config validation (check max lengths also)
-- [x] Validate restarting processes
-- [ ] Send fg to client
-- [ ] Remove x-packages
+- [ ] Validation rules to README
+- [ ] SIGHUP -> Send new tasknames to client
 - [ ] Mutex ?
+- [ ] Remove x-packages (used for optional things) ?
 - [ ] Windows support if i get windows machine
 - [ ] Multiline support
