@@ -30,7 +30,9 @@ func newServer(configPath string, tasks map[string]*job.Process) *server {
 
 func (s *server) launchTasks() {
 	for _, task := range s.tasks {
-		task.Status = job.LOADED
+		if task.Status != job.RUNNING {
+			task.Status = job.LOADED
+		}
 		if err := task.Launch(true); err != nil {
 			logger.Error(err)
 		}
@@ -49,8 +51,8 @@ func (s *server) removeTasks() {
 }
 
 func (s *server) reloadConfig() {
+	logger.Info("Reloading config...")
 	newTasks := job.LoadAll(s.configPath)
-
 	for key, task := range s.tasks {
 		if newTask, found := newTasks[key]; found {
 			cpy := newTask
@@ -67,17 +69,26 @@ func (s *server) reloadConfig() {
 			if oldStr == newStr {
 				fmt.Println(key, "NOTHING CHANGED")
 			} else {
+				err := task.Kill()
+				if err != nil {
+					logger.Error(err)
+				}
+				delete(s.tasks, key)
+				s.tasks[key] = newTask
 				fmt.Println(key, "CHANGE DETECTED")
 			}
+		} else {
+			delete(s.tasks, key)
+			fmt.Println(key, "TASK NOT FOUND")
 		}
 	}
 
-	logger.Info("Reloading config...")
-	s.removeTasks()
-	s.tasks = newTasks
-	for n, p := range s.tasks {
-		fmt.Println(n, p.AutoStart)
+	for key, task := range newTasks {
+		if _, found := s.tasks[key]; !found {
+			s.tasks[key] = task
+		}
 	}
+
 	s.launchTasks()
 	logger.Info("Loaded", len(s.tasks), "tasks")
 }
