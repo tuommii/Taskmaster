@@ -30,6 +30,7 @@ func newServer(configPath string, tasks map[string]*job.Process) *server {
 
 func (s *server) launchTasks() {
 	for _, task := range s.tasks {
+		task.Status = job.LOADED
 		if err := task.Launch(true); err != nil {
 			logger.Error(err)
 		}
@@ -48,9 +49,35 @@ func (s *server) removeTasks() {
 }
 
 func (s *server) reloadConfig() {
+	newTasks := job.LoadAll(s.configPath)
+
+	for key, task := range s.tasks {
+		if newTask, found := newTasks[key]; found {
+			cpy := newTask
+			cpy.Started = task.Started
+			cpy.IsForeground = task.IsForeground
+			cpy.Instances = task.Instances
+			cpy.Cmd = task.Cmd
+			cpy.Status = task.Status
+			cpy.Stdout = task.Stdout
+			cpy.Stderr = task.Stderr
+
+			oldStr := fmt.Sprintf("%+v", task)
+			newStr := fmt.Sprintf("%+v", cpy)
+			if oldStr == newStr {
+				fmt.Println(key, "NOTHING CHANGED")
+			} else {
+				fmt.Println(key, "CHANGE DETECTED")
+			}
+		}
+	}
+
 	logger.Info("Reloading config...")
 	s.removeTasks()
-	s.tasks = job.LoadAll(s.configPath)
+	s.tasks = newTasks
+	for n, p := range s.tasks {
+		fmt.Println(n, p.AutoStart)
+	}
 	s.launchTasks()
 	logger.Info("Loaded", len(s.tasks), "tasks")
 }

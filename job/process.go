@@ -31,8 +31,8 @@ type Process struct {
 	Cmd          *exec.Cmd
 	Started      time.Time
 	Status       string
-	stdout       io.ReadCloser
-	stderr       io.ReadCloser
+	Stdout       io.ReadCloser
+	Stderr       io.ReadCloser
 }
 
 // Launch executes a task
@@ -179,20 +179,20 @@ func (p *Process) prepare() {
 	p.Cmd = exec.Command(tokens[0], tokens[1:]...)
 
 	var err error
-	p.stdout, err = p.Cmd.StdoutPipe()
+	p.Stdout, err = p.Cmd.StdoutPipe()
 	if err != nil {
 		logger.Error(err)
 	}
 
-	p.stderr, err = p.Cmd.StderrPipe()
+	p.Stderr, err = p.Cmd.StderrPipe()
 	if err != nil {
 		logger.Error(err)
 	}
 
 	p.Cmd.Env = p.Env
 	p.cwd(p.WorkingDir)
-	go p.redirect(p.stdout, p.OutputLog, os.Stdout)
-	go p.redirect(p.stderr, p.ErrorLog, os.Stderr)
+	go p.redirect(p.Stdout, p.OutputLog, os.Stdout)
+	go p.redirect(p.Stderr, p.ErrorLog, os.Stderr)
 }
 
 // Change current working directory if path exists and is a directory
@@ -224,7 +224,7 @@ func (p *Process) redirect(stream io.ReadCloser, path string, alternative *os.Fi
 	}
 	// When stream is closed this will executed
 	which := "stdout"
-	if stream == p.stderr {
+	if stream == p.Stderr {
 		which = "stderr"
 	}
 	p.Status = STOPPED

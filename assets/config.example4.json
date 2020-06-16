@@ -1,0 +1,23 @@
+{
+	"realtime": {
+		"command": "bash ./test.sh",
+		"workingDir": "./assets",
+		"startTime": 3,
+		"instances": 1,
+		"autostart": true,
+		"autorestart": "unexpected",
+		"stopSignal": "HUP",
+		"env": ["USER=Miikka", "HOME=Hermanni"],
+		"exitcodes": [0, 1]
+	},
+	"excode": {
+		"command": "bash ./test3.sh",
+		"workingDir": "./assets",
+		"autostart": false,
+		"startTime": 4,
+		"autorestart": "false",
+		"stopSignal": "HUP",
+		"env": ["USER=Miikka", "HOME=Hermanni"],
+		"exitcodes": [0, 1]
+	}
+}
