@@ -42,11 +42,11 @@ Screencast (old) with example config
 | <kbd>**status** (st)</kbd> | show job statuses |
 | <kbd>**start** (run)</kbd> | start a job |
 | <kbd>**stop** (pause)</kbd> | stop a job |
-| <kbd>**restart**</kbd> | restart a job |
-| <kbd>**reload**</kbd> | reload config file |
-| <kbd>**uptime**</kbd> | show uptime of process |
-| <kbd>**fg**</kbd> | attach output to server stdout |
-| <kbd>**bg**</kbd> | deattach output from server stdout |
+| <kbd>**restart** \<job_name\></kbd> | restart a job |
+| <kbd>**reload** \<job_name\></kbd> | reload config file |
+| <kbd>**uptime** \<job_name\></kbd> | show uptime of process |
+| <kbd>**fg** \<job_name\></kbd> | attach output to server stdout |
+| <kbd>**bg** \<job_name\></kbd> | deattach output from server stdout |
 | <kbd>**exit**</kbd> | quit |
 
 ### Example config

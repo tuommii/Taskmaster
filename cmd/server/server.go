@@ -50,24 +50,32 @@ func (s *server) removeTasks() {
 	}
 }
 
+func copyTask(newTask *job.Process, src *job.Process) *job.Process {
+	cpy := newTask
+	cpy.Started = src.Started
+	cpy.IsForeground = src.IsForeground
+	cpy.Instances = src.Instances
+	cpy.Cmd = src.Cmd
+	cpy.Status = src.Status
+	cpy.Stdout = src.Stdout
+	cpy.Stderr = src.Stderr
+	return cpy
+}
+
+func compareTasks(old *job.Process, new *job.Process) bool {
+	oldStr := fmt.Sprintf("%+v", old)
+	newStr := fmt.Sprintf("%+v", new)
+	return oldStr == newStr
+}
+
 // TODO: refactor
 func (s *server) reloadConfig() {
 	logger.Info("Reloading config...")
 	newTasks := job.LoadAll(s.configPath)
 	for key, task := range s.tasks {
-		if newTask, found := newTasks[key]; found {
-			cpy := newTask
-			cpy.Started = task.Started
-			cpy.IsForeground = task.IsForeground
-			cpy.Instances = task.Instances
-			cpy.Cmd = task.Cmd
-			cpy.Status = task.Status
-			cpy.Stdout = task.Stdout
-			cpy.Stderr = task.Stderr
-
-			oldStr := fmt.Sprintf("%+v", task)
-			newStr := fmt.Sprintf("%+v", cpy)
-			if oldStr == newStr {
+		if currentTask, found := newTasks[key]; found {
+			cpy := copyTask(currentTask, task)
+			if compareTasks(task, cpy) {
 				fmt.Println(key, "NOTHING CHANGED")
 			} else {
 				err := task.Kill()
@@ -75,7 +83,7 @@ func (s *server) reloadConfig() {
 					logger.Error(err)
 				}
 				delete(s.tasks, key)
-				s.tasks[key] = newTask
+				s.tasks[key] = currentTask
 				fmt.Println(key, "CHANGE DETECTED")
 			}
 		} else {

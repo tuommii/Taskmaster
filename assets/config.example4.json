@@ -14,7 +14,7 @@
 		"command": "bash ./test3.sh",
 		"workingDir": "./assets",
 		"autostart": false,
-		"startTime": 4,
+		"startTime": 3,
 		"autorestart": "false",
 		"stopSignal": "HUP",
 		"env": ["USER=Miikka", "HOME=Hermanni"],
