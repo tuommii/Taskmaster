@@ -52,7 +52,7 @@ Screencast (old) with example config
 ### Example config
 ```json
 {
-		"realtime": {
+	"realtime": {
 		"command": "bash ./test.sh",
 		"workingDir": "./assets",
 		"startTime": 3,
