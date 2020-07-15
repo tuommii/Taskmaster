@@ -29,6 +29,25 @@ Screencast (old) with example config
 
 ## How To Use
 
+Clone
+```bash
+git clone https://github.com/tuommii/Taskmaster.git
+```
+
+Build
+```bash
+cd Taskmaster/
+go get ./...
+make build
+```
+
+Run
+```
+./bin/server
+./bin/client
+```
+
+
 ### Keys
 | Key | Action |
 |---------|---------|
