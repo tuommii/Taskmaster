@@ -12,7 +12,6 @@ import (
 
 	"github.com/tuommii/taskmaster/cli"
 	"github.com/tuommii/taskmaster/tty"
-	"golang.org/x/crypto/ssh/terminal"
 )
 
 const (
@@ -23,7 +22,7 @@ const (
 type client struct {
 	signals  chan os.Signal
 	done     chan bool
-	oldState *terminal.State
+	oldState *tty.Termios
 	ui       *tty.State
 	conn     net.Conn
 }
@@ -35,7 +34,7 @@ func create() *client {
 		done:    make(chan bool, 1),
 	}
 	signal.Notify(client.signals, syscall.SIGINT, syscall.SIGTERM)
-	client.oldState, err = terminal.MakeRaw(0)
+	client.oldState, err = tty.MakeRaw(0)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -73,22 +72,24 @@ func (client *client) readInput() {
 	for {
 		reply := make([]byte, maxResponseLen)
 		input := client.ui.ReadKey(client.signals)
-		terminal.Restore(0, client.oldState)
+		tty.TcSetAttr(0, client.oldState)
 		switch {
 		case input == "exit":
 			client.done <- true
 		case input != "":
 			if client.conn == nil {
 				fmt.Println("No connection to server...")
-				terminal.MakeRaw(0)
+				// terminal.MakeRaw(0)
+				_, _ = tty.MakeRaw(0)
 				continue
 			}
 			fmt.Fprintf(client.conn, input+"\n")
-			terminal.Restore(0, client.oldState)
+			tty.TcSetAttr(0, client.oldState)
+			// terminal.Restore(0, client.oldState)
 			_, err := client.conn.Read(reply)
 			if err != nil {
 				log.Println("Error reading reply", err)
-				terminal.MakeRaw(0)
+				_, _ = tty.MakeRaw(0)
 				continue
 			}
 			fmt.Println(string(reply))
@@ -96,7 +97,8 @@ func (client *client) readInput() {
 				client.ui.SetJobNames(client.getJobNames())
 			}
 		}
-		terminal.MakeRaw(0)
+		_, _ = tty.MakeRaw(0)
+
 	}
 }
 
@@ -134,7 +136,8 @@ func possibleCommands(input string, commands []string) []string {
 
 func (client *client) quit() {
 	<-client.done
-	terminal.Restore(0, client.oldState)
+
+	tty.TcSetAttr(0, client.oldState)
 	log.Println("quit")
 	os.Exit(1)
 }

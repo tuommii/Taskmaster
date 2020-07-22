@@ -23,17 +23,7 @@ func TcGetAttr(fd uintptr) (*Termios, error) {
 	return termios, nil
 }
 
-// CfMakeRaw sets the flags stored in the termios structure to a state disabling
-// all input and output processing, giving a ``raw I/O path''.
-//
-// From man cfmakeraw(3) on linux:
-// termios_p->c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
-// termios_p->c_oflag &= ~OPOST;
-// termios_p->c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
-// termios_p->c_cflag &= ~(CSIZE | PARENB);
-// termios_p->c_cflag |= CS8;
-//
-func CfMakeRaw(termios *Termios) {
+func makeRaw(termios *Termios) {
 	termios.Iflag &^= (syscall.IGNBRK | syscall.BRKINT | syscall.PARMRK | syscall.ISTRIP | syscall.INLCR | syscall.IGNCR | syscall.ICRNL | syscall.IXON)
 	termios.Oflag &^= syscall.OPOST
 	termios.Lflag &^= (syscall.ECHO | syscall.ECHONL | syscall.ICANON | syscall.ISIG | syscall.IEXTEN)
@@ -43,9 +33,7 @@ func CfMakeRaw(termios *Termios) {
 	termios.Cc[syscall.VTIME] = 0
 }
 
-// MakeRaw sets the flags stored in the termios structure for the given terminal fd
-// to a state disabling all input and output processing, giving a ``raw I/O path''.
-// It returns the current terminal's termios struct to allow to revert with TcSetAttr
+// MakeRaw ...
 func MakeRaw(fd uintptr) (*Termios, error) {
 	old, err := TcGetAttr(fd)
 	if err != nil {
@@ -53,7 +41,7 @@ func MakeRaw(fd uintptr) (*Termios, error) {
 	}
 
 	new := *old
-	CfMakeRaw(&new)
+	makeRaw(&new)
 
 	if err := TcSetAttr(fd, &new); err != nil {
 		return nil, err
