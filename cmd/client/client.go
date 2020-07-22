@@ -79,7 +79,6 @@ func (client *client) readInput() {
 		case input != "":
 			if client.conn == nil {
 				fmt.Println("No connection to server...")
-				// terminal.MakeRaw(0)
 				_, _ = tty.MakeRaw(0)
 				continue
 			}

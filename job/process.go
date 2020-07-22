@@ -46,6 +46,7 @@ func (p *Process) Launch(launchAutostartOnly bool) error {
 		logger.Error(p.Name, p.Status, err)
 		return err
 	}
+	logger.Info("Started", p.Name)
 	p.killAfter()
 	syscall.Umask(oldMask)
 	p.clean()
@@ -191,8 +192,8 @@ func (p *Process) prepare() {
 
 	p.Cmd.Env = p.Env
 	p.cwd(p.WorkingDir)
-	go p.redirect(p.Stdout, p.OutputLog, os.Stdout)
-	go p.redirect(p.Stderr, p.ErrorLog, os.Stderr)
+	go p.redirect(p.Stdout, p.OutputLog, nil)
+	go p.redirect(p.Stderr, p.ErrorLog, nil)
 }
 
 // Change current working directory if path exists and is a directory
@@ -213,7 +214,7 @@ func (p *Process) cwd(dir string) {
 func (p *Process) redirect(stream io.ReadCloser, path string, alternative *os.File) {
 	s := bufio.NewScanner(stream)
 	file, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_APPEND|os.O_WRONLY, 0644)
-	if err != nil {
+	if err != nil && alternative != nil {
 		file = alternative
 	}
 	for s.Scan() {

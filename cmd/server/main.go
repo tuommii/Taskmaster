@@ -13,13 +13,15 @@ import (
 func main() {
 	configPath := flag.String("c", "./assets/config.example4.json", "path to config file")
 	daemonFlag := flag.Bool("d", false, "run as a daemon")
+	debugFlag := flag.Bool("debug", false, "log to stdout")
 	silenceFlag := flag.Bool("s", false, "no logging")
 	// syslogFlag := flag.Bool("syslog", false, "log to syslog")
 
 	flag.Parse()
 
-	// debug only, remove
-	logger.ChangeOutput(os.Stdout)
+	if *debugFlag {
+		logger.ChangeOutput(os.Stdout)
+	}
 	if *silenceFlag {
 		file, _ := os.OpenFile(os.DevNull, 0, 0)
 		logger.ChangeOutput(file)
