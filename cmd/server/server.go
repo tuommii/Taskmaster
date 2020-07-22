@@ -159,8 +159,25 @@ func (s *server) runCommand(cmd string, arg string, conn net.Conn) {
 		s.reloadConfig()
 		conn.Write([]byte("config reloaded"))
 		return
+	} else if cmd == "help" {
+		if arg == "" {
+			conn.Write([]byte("Give command name also"))
+			return
+		}
+		command, found := cli.Commands[arg]
+		if command == nil {
+			conn.Write([]byte("help not found"))
+			return
+		}
+		if !found {
+			conn.Write([]byte("help not found"))
+			return
+		}
+		str := arg + " " + cli.Commands[arg].Help
+		conn.Write([]byte(str))
+		return
 	}
-	if command, found := cli.Commands[cmd]; found && command.Runnable != nil {
+	if command, found := cli.Commands[cmd]; found && command != nil && command.Runnable != nil {
 		conn.Write([]byte(command.Runnable(s.tasks, arg)))
 		return
 	}

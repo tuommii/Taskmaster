@@ -25,43 +25,40 @@ var Commands = map[string]*Command{
 		Runnable: suggestions,
 		Help:     "For internal use",
 	},
-	"help": {
-		Runnable: help,
-		Help:     "HELP",
-	},
 	"status": {
 		Runnable: status,
-		Help:     "STATUS",
+		Help:     "Show job statuses",
 	},
 	"restart": {
 		Runnable: restart,
-		Help:     "RESTART",
+		Help:     "Restart job",
 	},
 	"reload": {
 		Runnable: nil,
-		Help:     "RELOAD",
+		Help:     "Reload job",
 	},
 	"start": {
 		Runnable: start,
-		Help:     "START",
+		Help:     "Start job",
 	},
 	"stop": {
 		Runnable: stop,
-		Help:     "STOP",
+		Help:     "Stop job",
 	},
 	"uptime": {
 		Runnable: uptime,
-		Help:     "UPTIME",
+		Help:     "Show uptime of a job",
 	},
 	"exit": nil,
 	"quit": nil,
+	"help": nil,
 	"fg": {
 		Runnable: fg,
-		Help:     "FG",
+		Help:     "Attach to stdout",
 	},
 	"bg": {
 		Runnable: bg,
-		Help:     "BG",
+		Help:     "Deattach from stdout",
 	},
 }
 
@@ -70,7 +67,6 @@ func init() {
 	Commands["run"] = Commands["start"]
 	Commands["st"] = Commands["status"]
 	Commands["ls"] = Commands["status"]
-	Commands["h"] = Commands["help"]
 }
 
 var notFound = " not found"
@@ -83,9 +79,13 @@ func suggestions(tasks map[string]*job.Process, arg string) string {
 	return names[:len(names)-1]
 }
 
-func help(tasks map[string]*job.Process, arg string) string {
-	return "HELP command!"
-}
+// func show_help(tasks map[string]*job.Process, arg string) string {
+// 	_, found := Commands[arg]
+// 	if !found {
+// 		return arg + notFound
+// 	}
+// 	return arg + " " + Commands[arg].Help
+// }
 
 func start(tasks map[string]*job.Process, arg string) string {
 	task, found := tasks[arg]

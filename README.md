@@ -23,6 +23,7 @@ Screencast (old) with example config
 
 ### Server (daemon)
 - Option to daemonize with `-d` flag
+- Log to stdout with `-debug` flag
 - Hot-reloads config file when receives `SIGHUP` signal
 - Only one client at time is allowed
 - Server remains listening for a new client if a client exits
@@ -57,12 +58,12 @@ Run
 ### Commands
 | Command (alias) | Action |
 |---------|---------|
-| <kbd>**help** (h)</kbd> | Show help |
 | <kbd>**status** (st)</kbd> | show job statuses |
-| <kbd>**start** (run)</kbd> | start a job |
-| <kbd>**stop** (pause)</kbd> | stop a job |
+| <kbd>**reload**</kbd> | reload config file |
+| <kbd>**start** (run) \<job_name\></kbd> | start a job |
+| <kbd>**stop** (pause) \<job_name\></kbd> | stop a job |
+| <kbd>**help** \<job_name\></kbd> | Show help |
 | <kbd>**restart** \<job_name\></kbd> | restart a job |
-| <kbd>**reload** \<job_name\></kbd> | reload config file |
 | <kbd>**uptime** \<job_name\></kbd> | show uptime of process |
 | <kbd>**fg** \<job_name\></kbd> | attach output to server stdout |
 | <kbd>**bg** \<job_name\></kbd> | deattach output from server stdout |
