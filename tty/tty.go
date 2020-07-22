@@ -8,6 +8,8 @@ import (
 	"github.com/tuommii/taskmaster/cli"
 )
 
+// https://github.com/creack/termios/blob/master/raw/raw.go
+
 // State represents terminal state
 type State struct {
 	// Cursor x position
