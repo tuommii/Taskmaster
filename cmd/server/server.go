@@ -76,7 +76,7 @@ func (s *server) reloadConfig() {
 		if currentTask, found := newTasks[key]; found {
 			cpy := copyTask(currentTask, task)
 			if compareTasks(task, cpy) {
-				fmt.Println(key, "NOTHING CHANGED")
+				logger.Info(key, "NOTHING CHANGED")
 			} else {
 				err := task.Kill()
 				if err != nil {
@@ -84,11 +84,11 @@ func (s *server) reloadConfig() {
 				}
 				delete(s.tasks, key)
 				s.tasks[key] = currentTask
-				fmt.Println(key, "CHANGE DETECTED")
+				logger.Info(key, "CHANGE DETECTED")
 			}
 		} else {
 			delete(s.tasks, key)
-			fmt.Println(key, "TASK NOT FOUND")
+			logger.Info(key, "TASK NOT FOUND")
 		}
 	}
 
@@ -143,7 +143,7 @@ func (s *server) listenConnections() {
 
 func parseUserInput(data []byte) (string, string) {
 	msg := strings.Trim(string(data), "\n")
-	fmt.Println(msg)
+	// fmt.Println(msg)
 	input := strings.Split(msg, " ")
 	cmd := input[0]
 	var arg string
