@@ -1,6 +1,6 @@
 // +build linux
 
-package raw
+package tty
 
 import "syscall"
 
